@@ -20,6 +20,7 @@ export function useRealtimeSync(gameId: string | null, onGameEnded?: () => void)
   const [roundState] = useAtom(roundStateAtom)
   const [votes] = useAtom(votesAtom)
   const [leaveRequests] = useAtom(leaveRequestsAtom)
+  const [currentPlayer] = useAtom(currentPlayerAtom)
   const [, setGameData] = useAtom(setGameDataAtom)
   const [, resetGame] = useAtom(resetGameAtom)
   
