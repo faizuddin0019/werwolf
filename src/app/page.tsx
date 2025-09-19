@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useAtom } from 'jotai'
 import { 
   gameAtom, 
@@ -35,6 +35,9 @@ export default function HomePage() {
   
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  
+  // Track if client ID has been initialized to prevent infinite loops
+  const clientIdInitialized = useRef(false)
 
   // Persist game state to localStorage
   const saveGameState = (state: GameState) => {
@@ -143,9 +146,13 @@ export default function HomePage() {
 
   // Generate browser-specific client ID if not exists
   useEffect(() => {
+    // Only run once to prevent infinite loops
+    if (clientIdInitialized.current) return
+    
     if (!clientId) {
       const newClientId = getOrCreateBrowserClientId()
       setClientId(newClientId)
+      clientIdInitialized.current = true
     } else {
       // Check if the existing client ID is from the current browser
       if (!isClientIdFromCurrentBrowser(clientId)) {
@@ -158,6 +165,7 @@ export default function HomePage() {
         localStorage.removeItem('werwolf-player-name')
         setGameState('welcome')
       }
+      clientIdInitialized.current = true
     }
   }, [clientId])
 
