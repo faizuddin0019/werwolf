@@ -467,6 +467,43 @@ export default function HomePage() {
     }
   }
 
+  const handleChangeRole = async (playerId: string, newRole: string) => {
+    if (!game || !currentPlayer) return
+    
+    setIsLoading(true)
+    setError(null)
+    
+    try {
+      const response = await fetch(`/api/games/${game.id}/actions`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
+        },
+        body: JSON.stringify({
+          action: 'change_role',
+          clientId: currentPlayer.client_id,
+          data: { playerId, newRole }
+        }),
+      })
+      
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.error || 'Failed to change role')
+      }
+      
+      const result = await response.json()
+      console.log('Role changed:', result.message)
+      
+    } catch (err) {
+      console.error('Error changing role:', err)
+      setError(err instanceof Error ? err.message : 'Failed to change role')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
   const handleRemovePlayer = async (playerId: string) => {
     if (!game || !currentPlayer) return
     
@@ -650,6 +687,7 @@ export default function HomePage() {
           onApproveLeave={handleApproveLeave}
           onDenyLeave={handleDenyLeave}
           onRemovePlayer={handleRemovePlayer}
+          onChangeRole={handleChangeRole}
         />
       )
     
@@ -659,6 +697,7 @@ export default function HomePage() {
         <GameScreen
           onEndGame={handleEndGame}
           onRemovePlayer={handleRemovePlayer}
+          onChangeRole={handleChangeRole}
         />
       )
     

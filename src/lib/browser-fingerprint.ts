@@ -19,14 +19,21 @@ export function generateBrowserFingerprint(): string {
     ctx.fillText('Browser fingerprint', 2, 2)
   }
 
+  // More comprehensive fingerprinting
   const fingerprint = [
     navigator.userAgent,
     navigator.language,
-    screen.width + 'x' + screen.height,
+    screen.width + 'x' + screen.height + 'x' + screen.colorDepth,
     new Date().getTimezoneOffset(),
     navigator.platform,
     navigator.cookieEnabled ? '1' : '0',
-    canvas.toDataURL()
+    navigator.doNotTrack || 'unknown',
+    navigator.hardwareConcurrency || 'unknown',
+    navigator.maxTouchPoints || '0',
+    window.devicePixelRatio || '1',
+    canvas.toDataURL(),
+    // Add session-specific data to make it more unique
+    Date.now().toString(36)
   ].join('|')
 
   // Create a simple hash of the fingerprint

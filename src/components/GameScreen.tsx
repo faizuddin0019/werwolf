@@ -33,9 +33,10 @@ import VotingInterface from './VotingInterface'
 interface GameScreenProps {
   onEndGame: () => void
   onRemovePlayer: (playerId: string) => void
+  onChangeRole: (playerId: string, newRole: string) => void
 }
 
-export default function GameScreen({ onEndGame, onRemovePlayer }: GameScreenProps) {
+export default function GameScreen({ onEndGame, onRemovePlayer, onChangeRole }: GameScreenProps) {
   const [game] = useAtom(gameAtom)
   const [players] = useAtom(playersAtom)
   const [currentPlayer] = useAtom(currentPlayerAtom)
@@ -346,17 +347,32 @@ export default function GameScreen({ onEndGame, onRemovePlayer }: GameScreenProp
                 {players.filter(p => !p.is_host).length > 0 ? (
                   <div className="space-y-2">
                     {players.filter(p => !p.is_host).map((player) => (
-                      <div key={player.id} className="flex items-center justify-between bg-gray-800/50 rounded-lg p-3">
-                        <div className="flex items-center space-x-2">
-                          <span className="text-white">{player.name}</span>
-                          {!player.alive && <span className="text-red-400 text-xs">(Dead)</span>}
+                      <div key={player.id} className="bg-gray-800/50 rounded-lg p-3">
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center space-x-2">
+                            <span className="text-white">{player.name}</span>
+                            {!player.alive && <span className="text-red-400 text-xs">(Dead)</span>}
+                          </div>
+                          <button
+                            onClick={() => onRemovePlayer(player.id)}
+                            className="px-3 py-1 bg-red-600 text-white rounded text-sm hover:bg-red-700 transition-colors"
+                          >
+                            Remove
+                          </button>
                         </div>
-                        <button
-                          onClick={() => onRemovePlayer(player.id)}
-                          className="px-3 py-1 bg-red-600 text-white rounded text-sm hover:bg-red-700 transition-colors"
-                        >
-                          Remove
-                        </button>
+                        <div className="flex items-center space-x-2">
+                          <span className="text-gray-400 text-xs">Role:</span>
+                          <select
+                            value={player.role || 'villager'}
+                            onChange={(e) => onChangeRole(player.id, e.target.value)}
+                            className="px-2 py-1 bg-gray-700 text-white rounded text-xs border border-gray-600"
+                          >
+                            <option value="villager">Villager</option>
+                            <option value="werewolf">Werewolf</option>
+                            <option value="doctor">Doctor</option>
+                            <option value="police">Police</option>
+                          </select>
+                        </div>
                       </div>
                     ))}
                   </div>

@@ -21,6 +21,7 @@ interface GameLobbyProps {
   onApproveLeave: (playerId: string) => void
   onDenyLeave: (playerId: string) => void
   onRemovePlayer: (playerId: string) => void
+  onChangeRole: (playerId: string, newRole: string) => void
 }
 
 export default function GameLobby({ 
@@ -29,7 +30,8 @@ export default function GameLobby({
   onRequestLeave, 
   onApproveLeave, 
   onDenyLeave, 
-  onRemovePlayer 
+  onRemovePlayer,
+  onChangeRole
 }: GameLobbyProps) {
   const [game] = useAtom(gameAtom)
   const [players] = useAtom(playersAtom)
@@ -358,14 +360,29 @@ export default function GameLobby({
                 {players.filter(p => !p.is_host).length > 0 ? (
                   <div className="space-y-2">
                     {players.filter(p => !p.is_host).map((player) => (
-                      <div key={player.id} className="flex items-center justify-between bg-gray-800/50 rounded-lg p-3">
-                        <span className="text-white">{player.name}</span>
-                        <button
-                          onClick={() => onRemovePlayer(player.id)}
-                          className="px-3 py-1 bg-red-600 text-white rounded text-sm hover:bg-red-700 transition-colors"
-                        >
-                          Remove
-                        </button>
+                      <div key={player.id} className="bg-gray-800/50 rounded-lg p-3">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-white">{player.name}</span>
+                          <button
+                            onClick={() => onRemovePlayer(player.id)}
+                            className="px-3 py-1 bg-red-600 text-white rounded text-sm hover:bg-red-700 transition-colors"
+                          >
+                            Remove
+                          </button>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <span className="text-gray-400 text-xs">Role:</span>
+                          <select
+                            value={player.role || 'villager'}
+                            onChange={(e) => onChangeRole(player.id, e.target.value)}
+                            className="px-2 py-1 bg-gray-700 text-white rounded text-xs border border-gray-600"
+                          >
+                            <option value="villager">Villager</option>
+                            <option value="werewolf">Werewolf</option>
+                            <option value="doctor">Doctor</option>
+                            <option value="police">Police</option>
+                          </select>
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -381,6 +398,9 @@ export default function GameLobby({
                 </p>
               </div>
             )}
+
+            {/* Debug: Check isHost value */}
+            {console.log('🔧 Leave Request System Debug - isHost:', isHost, 'currentPlayer.is_host:', currentPlayer?.is_host)}
 
             {/* Leave Request System */}
             {!isHost && (

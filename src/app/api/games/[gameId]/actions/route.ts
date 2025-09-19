@@ -67,6 +67,9 @@ export async function POST(
       case 'end_game':
         return await handleEndGame(gameId, game)
       
+      case 'change_role':
+        return await handleChangeRole(gameId, currentPlayer, data?.playerId, data?.newRole)
+      
       case 'leave_game':
         return await handleLeaveGame(gameId, game, currentPlayer)
       
@@ -415,6 +418,51 @@ async function handleEndGame(gameId: string, game: Game) {
   await cleanupGameData(gameId)
   
   return NextResponse.json({ success: true })
+}
+
+async function handleChangeRole(gameId: string, hostPlayer: Player, playerId: string, newRole: string) {
+  if (!playerId || !newRole) {
+    return NextResponse.json({ error: 'Player ID and new role are required' }, { status: 400 })
+  }
+  
+  // Get the player to change role
+  const { data: playerToChange, error: playerError } = await supabase
+    .from('players')
+    .select('*')
+    .eq('id', playerId)
+    .eq('game_id', gameId)
+    .single()
+  
+  if (playerError || !playerToChange) {
+    return NextResponse.json({ error: 'Player not found' }, { status: 404 })
+  }
+  
+  // Prevent changing host's role
+  if (playerToChange.is_host) {
+    return NextResponse.json({ error: 'Cannot change host role' }, { status: 400 })
+  }
+  
+  // Validate role
+  const validRoles = ['villager', 'werewolf', 'doctor', 'police']
+  if (!validRoles.includes(newRole)) {
+    return NextResponse.json({ error: 'Invalid role' }, { status: 400 })
+  }
+  
+  // Update player role
+  const { error: updateError } = await supabase
+    .from('players')
+    .update({ role: newRole })
+    .eq('id', playerId)
+  
+  if (updateError) {
+    console.error('Error changing player role:', updateError)
+    return NextResponse.json({ error: 'Failed to change role' }, { status: 500 })
+  }
+  
+  return NextResponse.json({ 
+    success: true, 
+    message: `Player role changed to ${newRole}` 
+  })
 }
 
 async function handleLeaveGame(gameId: string, game: Game, currentPlayer: Player) {
