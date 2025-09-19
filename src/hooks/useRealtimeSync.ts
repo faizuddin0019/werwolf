@@ -15,11 +15,11 @@ import {
 } from '@/lib/game-store'
 
 export function useRealtimeSync(gameId: string | null, onGameEnded?: () => void) {
-  const [game, setGame] = useAtom(gameAtom)
-  const [players, setPlayers] = useAtom(playersAtom)
-  const [roundState, setRoundState] = useAtom(roundStateAtom)
-  const [votes, setVotes] = useAtom(votesAtom)
-  const [leaveRequests, setLeaveRequests] = useAtom(leaveRequestsAtom)
+  const [game] = useAtom(gameAtom)
+  const [players] = useAtom(playersAtom)
+  const [roundState] = useAtom(roundStateAtom)
+  const [votes] = useAtom(votesAtom)
+  const [leaveRequests] = useAtom(leaveRequestsAtom)
   const [, setGameData] = useAtom(setGameDataAtom)
   const [, resetGame] = useAtom(resetGameAtom)
   
@@ -55,7 +55,15 @@ export function useRealtimeSync(gameId: string | null, onGameEnded?: () => void)
         (payload) => {
           console.log('🔧 Game updated:', payload.new)
           const updatedGame = payload.new as Game
-          setGame(updatedGame)
+          
+          // Update game using setGameData to maintain consistency
+          setGameData({
+            game: updatedGame,
+            players: playersRef.current || [],
+            roundState: roundStateRef.current,
+            votes: votesRef.current || [],
+            leaveRequests: leaveRequestsRef.current || []
+          })
           
           // If game ended, redirect to welcome page
           if (updatedGame.phase === 'ended') {
@@ -143,7 +151,16 @@ export function useRealtimeSync(gameId: string | null, onGameEnded?: () => void)
         { event: '*', schema: 'public', table: 'round_state', filter: `game_id=eq.${gameId}` },
         (payload) => {
           console.log('Round state updated:', payload.new)
-          setRoundState(payload.new as RoundState)
+          const updatedRoundState = payload.new as RoundState
+          
+          // Update round state using setGameData to maintain consistency
+          setGameData({
+            game: gameRef.current || {} as Game,
+            players: playersRef.current || [],
+            roundState: updatedRoundState,
+            votes: votesRef.current || [],
+            leaveRequests: leaveRequestsRef.current || []
+          })
         }
       )
       .subscribe()
@@ -175,7 +192,13 @@ export function useRealtimeSync(gameId: string | null, onGameEnded?: () => void)
             
             if (votesChanged) {
               console.log('🔧 Votes changed, updating state')
-              setVotes(updatedVotes)
+              setGameData({
+                game: gameRef.current || {} as Game,
+                players: playersRef.current || [],
+                roundState: roundStateRef.current,
+                votes: updatedVotes,
+                leaveRequests: leaveRequestsRef.current || []
+              })
             } else {
               console.log('🔧 Votes unchanged, skipping state update')
             }
@@ -211,7 +234,13 @@ export function useRealtimeSync(gameId: string | null, onGameEnded?: () => void)
             
             if (leaveRequestsChanged) {
               console.log('🔧 Leave requests changed, updating state')
-              setLeaveRequests(updatedLeaveRequests)
+              setGameData({
+                game: gameRef.current || {} as Game,
+                players: playersRef.current || [],
+                roundState: roundStateRef.current,
+                votes: votesRef.current || [],
+                leaveRequests: updatedLeaveRequests
+              })
             } else {
               console.log('🔧 Leave requests unchanged, skipping state update')
             }

@@ -140,20 +140,86 @@ export const setGameDataAtom = atom(null, (get, set, data: {
     currentPlayer: data.currentPlayer,
     currentPlayerIsHost: data.currentPlayer?.is_host
   })
-  set(gameAtom, data.game)
-  set(playersAtom, data.players)
-  if (data.roundState) set(roundStateAtom, data.roundState)
-  if (data.votes) set(votesAtom, data.votes)
-  if (data.leaveRequests) set(leaveRequestsAtom, data.leaveRequests)
-  if (data.currentPlayer) {
-    set(currentPlayerAtom, data.currentPlayer)
-    set(playerNameAtom, data.currentPlayer.name) // Set player name from current player
-    // Set isHost based on whether current player is the host
-    const isHost = data.currentPlayer.is_host || false
-    console.log('🔧 setGameDataAtom - Setting isHostAtom to:', isHost, 'for player:', data.currentPlayer.name, 'is_host field:', data.currentPlayer.is_host)
-    set(isHostAtom, isHost)
-  } else {
-    console.log('🔧 setGameDataAtom - No currentPlayer, setting isHostAtom to false')
-    set(isHostAtom, false)
+  
+  // Get current state to compare
+  const currentGame = get(gameAtom)
+  const currentPlayers = get(playersAtom)
+  const currentRoundState = get(roundStateAtom)
+  const currentVotes = get(votesAtom)
+  const currentLeaveRequests = get(leaveRequestsAtom)
+  const currentPlayer = get(currentPlayerAtom)
+  
+  // Only update if data actually changed
+  const gameChanged = !currentGame || currentGame.id !== data.game.id || currentGame.phase !== data.game.phase
+  const playersChanged = !currentPlayers || currentPlayers.length !== data.players.length ||
+    currentPlayers.some((currentPlayer, index) => {
+      const newPlayer = data.players[index]
+      return !newPlayer || 
+        currentPlayer.id !== newPlayer.id ||
+        currentPlayer.name !== newPlayer.name ||
+        currentPlayer.is_host !== newPlayer.is_host ||
+        currentPlayer.role !== newPlayer.role ||
+        currentPlayer.alive !== newPlayer.alive
+    })
+  const roundStateChanged = !currentRoundState !== !data.roundState ||
+    (currentRoundState && data.roundState && 
+     (currentRoundState.phase !== data.roundState.phase || 
+      currentRoundState.day_count !== data.roundState.day_count))
+  const votesChanged = !currentVotes || currentVotes.length !== (data.votes?.length || 0) ||
+    (currentVotes && data.votes && currentVotes.some((currentVote, index) => {
+      const newVote = data.votes![index]
+      return !newVote || currentVote.id !== newVote.id
+    }))
+  const leaveRequestsChanged = !currentLeaveRequests || currentLeaveRequests.length !== (data.leaveRequests?.length || 0) ||
+    (currentLeaveRequests && data.leaveRequests && currentLeaveRequests.some((currentRequest, index) => {
+      const newRequest = data.leaveRequests![index]
+      return !newRequest || currentRequest.id !== newRequest.id
+    }))
+  const currentPlayerChanged = !currentPlayer !== !data.currentPlayer ||
+    (currentPlayer && data.currentPlayer && 
+     (currentPlayer.id !== data.currentPlayer.id || 
+      currentPlayer.is_host !== data.currentPlayer.is_host))
+  
+  if (gameChanged) {
+    console.log('🔧 Game changed, updating gameAtom')
+    set(gameAtom, data.game)
+  }
+  
+  if (playersChanged) {
+    console.log('🔧 Players changed, updating playersAtom')
+    set(playersAtom, data.players)
+  }
+  
+  if (roundStateChanged && data.roundState) {
+    console.log('🔧 Round state changed, updating roundStateAtom')
+    set(roundStateAtom, data.roundState)
+  }
+  
+  if (votesChanged && data.votes) {
+    console.log('🔧 Votes changed, updating votesAtom')
+    set(votesAtom, data.votes)
+  }
+  
+  if (leaveRequestsChanged && data.leaveRequests) {
+    console.log('🔧 Leave requests changed, updating leaveRequestsAtom')
+    set(leaveRequestsAtom, data.leaveRequests)
+  }
+  
+  if (currentPlayerChanged) {
+    if (data.currentPlayer) {
+      console.log('🔧 Current player changed, updating currentPlayerAtom')
+      set(currentPlayerAtom, data.currentPlayer)
+      set(playerNameAtom, data.currentPlayer.name)
+      const isHost = data.currentPlayer.is_host || false
+      console.log('🔧 setGameDataAtom - Setting isHostAtom to:', isHost, 'for player:', data.currentPlayer.name)
+      set(isHostAtom, isHost)
+    } else {
+      console.log('🔧 No current player, setting isHostAtom to false')
+      set(isHostAtom, false)
+    }
+  }
+  
+  if (!gameChanged && !playersChanged && !roundStateChanged && !votesChanged && !leaveRequestsChanged && !currentPlayerChanged) {
+    console.log('🔧 No changes detected, skipping all updates')
   }
 })
