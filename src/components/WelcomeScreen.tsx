@@ -413,10 +413,10 @@ export default function WelcomeScreen({ onStartGame, onJoinGame }: WelcomeScreen
           </div>
 
           {/* Join Existing Game */}
-          <div className="bg-gradient-to-br from-slate-800/90 via-blue-800/90 to-slate-800/90 backdrop-blur-sm rounded-2xl p-6 border border-blue-500/30 shadow-2xl">
+          <div className="bg-gradient-to-br from-slate-800/90 via-indigo-800/90 to-slate-800/90 backdrop-blur-sm rounded-2xl p-6 border border-slate-500/30 shadow-2xl">
             <div className="text-center mb-6">
               <div className="text-3xl mb-2">⚔️</div>
-              <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-indigo-300 bg-clip-text text-transparent">
+              <h2 className="text-2xl font-bold bg-gradient-to-r from-slate-300 to-slate-100 bg-clip-text text-transparent">
                 Join Game
               </h2>
               <p className="text-sm text-slate-300 mt-1">Enter the Game</p>
@@ -431,7 +431,7 @@ export default function WelcomeScreen({ onStartGame, onJoinGame }: WelcomeScreen
                   type="text"
                   value={joinCode}
                   onChange={(e) => setJoinCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                  className="w-full px-3 py-2 bg-slate-700/50 border border-slate-500/50 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono text-center text-white placeholder-slate-300"
+                  className="w-full px-3 py-2 bg-slate-700/50 border border-slate-500/50 rounded-md focus:outline-none focus:ring-2 focus:ring-slate-400 font-mono text-center text-white placeholder-slate-300"
                   placeholder="000000"
                   maxLength={6}
                 />
@@ -445,7 +445,7 @@ export default function WelcomeScreen({ onStartGame, onJoinGame }: WelcomeScreen
                   type="text"
                   value={joinName}
                   onChange={(e) => setJoinName(e.target.value)}
-                  className="w-full px-3 py-2 bg-slate-700/50 border border-slate-500/50 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-white placeholder-slate-300"
+                  className="w-full px-3 py-2 bg-slate-700/50 border border-slate-500/50 rounded-md focus:outline-none focus:ring-2 focus:ring-slate-400 text-white placeholder-slate-300"
                   placeholder="Enter your name"
                   maxLength={20}
                 />
@@ -454,7 +454,7 @@ export default function WelcomeScreen({ onStartGame, onJoinGame }: WelcomeScreen
               <button
                 onClick={handleJoinGame}
                 disabled={!joinCode.trim() || !joinName.trim() || joinCode.length !== 6}
-                className="w-full py-3 px-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 disabled:from-gray-600 disabled:to-gray-700 disabled:cursor-not-allowed text-white font-bold rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
+                className="w-full py-3 px-4 bg-gradient-to-r from-slate-600 to-slate-700 hover:from-slate-700 hover:to-slate-800 disabled:from-gray-600 disabled:to-gray-700 disabled:cursor-not-allowed text-white font-bold rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
               >
                 ⚔️ Enter Game
               </button>
