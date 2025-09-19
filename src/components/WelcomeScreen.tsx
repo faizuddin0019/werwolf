@@ -8,7 +8,7 @@ import {
   resetGameAtom,
   clientIdAtom 
 } from '@/lib/game-store'
-import { Copy, Moon, Sun, Users, Shield, Stethoscope, Eye } from 'lucide-react'
+import { Copy, Users, Shield, Stethoscope, Eye } from 'lucide-react'
 
 interface WelcomeScreenProps {
   onStartGame: (gameCode: string) => void
@@ -23,7 +23,6 @@ export default function WelcomeScreen({ onStartGame, onJoinGame }: WelcomeScreen
   
   const [joinCode, setJoinCode] = useState('')
   const [joinName, setJoinName] = useState('')
-  const [isNight, setIsNight] = useState(false)
   const [copySuccess, setCopySuccess] = useState(false)
 
   // Generate client ID if not exists
@@ -54,9 +53,6 @@ export default function WelcomeScreen({ onStartGame, onJoinGame }: WelcomeScreen
     }
   }
 
-  const toggleDayNight = () => {
-    setIsNight(!isNight)
-  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-900 via-indigo-900 to-black relative overflow-hidden">
@@ -88,18 +84,6 @@ export default function WelcomeScreen({ onStartGame, onJoinGame }: WelcomeScreen
         <div className="absolute bottom-60 right-10 w-3 h-3 bg-pink-500/40 rounded-full floating" style={{animationDelay: '5s'}}></div>
         <div className="absolute top-32 left-1/2 w-2 h-2 bg-cyan-500/50 rounded-full floating" style={{animationDelay: '6s'}}></div>
         
-        {/* Day/Night Toggle */}
-        <button
-          onClick={toggleDayNight}
-          className="absolute top-4 right-4 p-3 rounded-full bg-gray-800/50 backdrop-blur-sm hover:bg-gray-700/50 transition-all border border-gray-600/30"
-          aria-label="Toggle day/night theme"
-        >
-          {isNight ? (
-            <Moon className="w-6 h-6 text-yellow-300" />
-          ) : (
-            <Sun className="w-6 h-6 text-yellow-500" />
-          )}
-        </button>
 
         {/* VILLAGERS - Icon-based */}
         {/* Villagers - Top Left Area */}
