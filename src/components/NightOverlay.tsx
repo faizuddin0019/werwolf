@@ -57,7 +57,19 @@ export default function NightOverlay() {
       })
       
       if (response.ok) {
-        setFeedback({ type: 'success', message: 'Action completed!' })
+        const result = await response.json()
+        
+        // Handle specific responses for different actions
+        if (action === 'police_inspect' && result.result) {
+          const isWerewolf = result.result === 'werewolf'
+          setFeedback({ 
+            type: 'success', 
+            message: `Inspection result: ${isWerewolf ? 'YES - This player is a werewolf!' : 'NO - This player is not a werewolf.'}` 
+          })
+        } else {
+          setFeedback({ type: 'success', message: 'Action completed!' })
+        }
+        
         setSelectedTarget(targetId)
       } else {
         const error = await response.json()

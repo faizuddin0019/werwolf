@@ -10,7 +10,8 @@ import {
   isNightPhaseAtom,
   isDayPhaseAtom,
   voteCountsAtom,
-  highestVotedPlayerAtom
+  highestVotedPlayerAtom,
+  roundStateAtom
 } from '@/lib/game-store'
 import { getPhaseDisplayName, getRoleDisplayName } from '@/lib/game-utils'
 import { Player } from '@/lib/supabase'
@@ -46,6 +47,7 @@ export default function GameScreen({ onEndGame, onRemovePlayer, onChangeRole }: 
   const [isDayPhase] = useAtom(isDayPhaseAtom)
   const [voteCounts] = useAtom(voteCountsAtom)
   const [highestVotedPlayer] = useAtom(highestVotedPlayerAtom)
+  const [roundState] = useAtom(roundStateAtom)
 
   const alivePlayers = players.filter(p => p.alive)
   const deadPlayers = players.filter(p => !p.alive)
@@ -391,6 +393,59 @@ export default function GameScreen({ onEndGame, onRemovePlayer, onChangeRole }: 
             {/* Host Controls */}
             {isHost && (
               <HostControls onEndGame={onEndGame} />
+            )}
+
+            {/* Host Round State Information */}
+            {isHost && roundState && (
+              <div className="bg-gray-900/80 backdrop-blur-sm rounded-lg p-6 border border-gray-600/30 shadow-lg">
+                <h3 className="text-lg font-semibold mb-4 text-white">
+                  Night Actions
+                </h3>
+                
+                <div className="space-y-3">
+                  {roundState.wolf_target_player_id && (
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-400">Werewolf Target:</span>
+                      <span className="text-sm font-medium text-red-400">
+                        {players.find(p => p.id === roundState.wolf_target_player_id)?.name || 'Unknown'}
+                      </span>
+                    </div>
+                  )}
+                  
+                  {roundState.police_inspect_player_id && (
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-400">Police Inspected:</span>
+                      <span className="text-sm font-medium text-blue-400">
+                        {players.find(p => p.id === roundState.police_inspect_player_id)?.name || 'Unknown'}
+                        {roundState.police_inspect_result && (
+                          <span className={`ml-2 px-2 py-1 rounded text-xs ${
+                            roundState.police_inspect_result === 'werewolf' 
+                              ? 'bg-red-600 text-white' 
+                              : 'bg-green-600 text-white'
+                          }`}>
+                            {roundState.police_inspect_result === 'werewolf' ? 'WEREWOLF' : 'NOT WEREWOLF'}
+                          </span>
+                        )}
+                      </span>
+                    </div>
+                  )}
+                  
+                  {roundState.doctor_save_player_id && (
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-400">Doctor Saved:</span>
+                      <span className="text-sm font-medium text-green-400">
+                        {players.find(p => p.id === roundState.doctor_save_player_id)?.name || 'Unknown'}
+                      </span>
+                    </div>
+                  )}
+                  
+                  {!roundState.wolf_target_player_id && !roundState.police_inspect_player_id && !roundState.doctor_save_player_id && (
+                    <div className="text-center py-4">
+                      <p className="text-gray-400 text-sm">No actions taken yet</p>
+                    </div>
+                  )}
+                </div>
+              </div>
             )}
 
             {/* Night Overlay */}

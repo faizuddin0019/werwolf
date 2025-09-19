@@ -152,14 +152,19 @@ export const setGameDataAtom = atom(null, (get, set, data: {
   // Only update if data actually changed
   const gameChanged = !currentGame || currentGame.id !== data.game.id || currentGame.phase !== data.game.phase
   const playersChanged = !currentPlayers || currentPlayers.length !== data.players.length ||
-    currentPlayers.some((currentPlayer, index) => {
-      const newPlayer = data.players[index]
-      return !newPlayer || 
-        currentPlayer.id !== newPlayer.id ||
-        currentPlayer.name !== newPlayer.name ||
+    // Check if any player properties changed
+    currentPlayers.some((currentPlayer) => {
+      const newPlayer = data.players.find(p => p.id === currentPlayer.id)
+      if (!newPlayer) return true // Player was removed
+      return currentPlayer.name !== newPlayer.name ||
         currentPlayer.is_host !== newPlayer.is_host ||
         currentPlayer.role !== newPlayer.role ||
         currentPlayer.alive !== newPlayer.alive
+    }) ||
+    // Check if any new players were added
+    data.players.some((newPlayer) => {
+      const currentPlayer = currentPlayers.find(p => p.id === newPlayer.id)
+      return !currentPlayer // New player was added
     })
   const roundStateChanged = !currentRoundState !== !data.roundState ||
     (currentRoundState && data.roundState && 

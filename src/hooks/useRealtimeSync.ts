@@ -117,14 +117,19 @@ export function useRealtimeSync(gameId: string | null, onGameEnded?: () => void)
             const currentPlayers = playersRef.current
             const playersChanged = !currentPlayers || 
               currentPlayers.length !== updatedPlayers.length ||
-              currentPlayers.some((currentPlayer, index) => {
-                const updatedPlayer = updatedPlayers[index]
-                return !updatedPlayer || 
-                  currentPlayer.id !== updatedPlayer.id ||
-                  currentPlayer.name !== updatedPlayer.name ||
+              // Check if any player properties changed
+              currentPlayers.some((currentPlayer) => {
+                const updatedPlayer = updatedPlayers.find(p => p.id === currentPlayer.id)
+                if (!updatedPlayer) return true // Player was removed
+                return currentPlayer.name !== updatedPlayer.name ||
                   currentPlayer.is_host !== updatedPlayer.is_host ||
                   currentPlayer.role !== updatedPlayer.role ||
                   currentPlayer.alive !== updatedPlayer.alive
+              }) ||
+              // Check if any new players were added
+              updatedPlayers.some((updatedPlayer) => {
+                const currentPlayer = currentPlayers.find(p => p.id === updatedPlayer.id)
+                return !currentPlayer // New player was added
               })
             
             if (playersChanged) {
@@ -155,26 +160,27 @@ export function useRealtimeSync(gameId: string | null, onGameEnded?: () => void)
       )
       .subscribe()
 
-    // TEMPORARILY DISABLED - Subscribe to round state changes
-    // const roundStateSubscription = supabase
-    //   .channel(`round_state:${gameId}`)
-    //   .on('postgres_changes',
-    //     { event: '*', schema: 'public', table: 'round_state', filter: `game_id=eq.${gameId}` },
-    //     (payload) => {
-    //       console.log('Round state updated:', payload.new)
-    //       const updatedRoundState = payload.new as RoundState
-    //       
-    //       // Update round state using setGameData to maintain consistency
-    //       setGameData({
-    //         game: gameRef.current || {} as Game,
-    //         players: playersRef.current || [],
-    //         roundState: updatedRoundState,
-    //         votes: votesRef.current || [],
-    //         leaveRequests: leaveRequestsRef.current || []
-    //       })
-    //     }
-    //   )
-    //   .subscribe()
+    // Subscribe to round state changes
+    const roundStateSubscription = supabase
+      .channel(`round_state:${gameId}`)
+      .on('postgres_changes',
+        { event: '*', schema: 'public', table: 'round_state', filter: `game_id=eq.${gameId}` },
+        (payload) => {
+          console.log('Round state updated:', payload.new)
+          const updatedRoundState = payload.new as RoundState
+          
+          // Update round state using setGameData to maintain consistency
+          setGameData({
+            game: gameRef.current || {} as Game,
+            players: playersRef.current || [],
+            roundState: updatedRoundState,
+            votes: votesRef.current || [],
+            leaveRequests: leaveRequestsRef.current || [],
+            currentPlayer: currentPlayerRef.current
+          })
+        }
+      )
+      .subscribe()
 
     // TEMPORARILY DISABLED - Subscribe to vote changes
     // const votesSubscription = supabase
@@ -265,7 +271,7 @@ export function useRealtimeSync(gameId: string | null, onGameEnded?: () => void)
     subscriptionRef.current = {
       game: gameSubscription,
       players: playersSubscription,
-      roundState: null, // roundStateSubscription,
+      roundState: roundStateSubscription,
       votes: null, // votesSubscription,
       leaveRequests: leaveRequestsSubscription
     }

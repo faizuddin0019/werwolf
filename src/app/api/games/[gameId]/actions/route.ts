@@ -192,6 +192,12 @@ async function handleWolfSelect(gameId: string, player: Player, targetId: string
     .update({ wolf_target_player_id: targetId })
     .eq('game_id', gameId)
   
+  // Automatically advance to next phase after werewolf action
+  await supabase
+    .from('games')
+    .update({ phase: 'night_police' })
+    .eq('id', gameId)
+  
   return NextResponse.json({ success: true })
 }
 
@@ -217,6 +223,12 @@ async function handlePoliceInspect(gameId: string, player: Player, targetId: str
     })
     .eq('game_id', gameId)
   
+  // Automatically advance to next phase after police action
+  await supabase
+    .from('games')
+    .update({ phase: 'night_doctor' })
+    .eq('id', gameId)
+  
   return NextResponse.json({ success: true, result })
 }
 
@@ -229,6 +241,12 @@ async function handleDoctorSave(gameId: string, player: Player, targetId: string
     .from('round_state')
     .update({ doctor_save_player_id: targetId })
     .eq('game_id', gameId)
+  
+  // Automatically advance to reveal phase after doctor action
+  await supabase
+    .from('games')
+    .update({ phase: 'reveal' })
+    .eq('id', gameId)
   
   return NextResponse.json({ success: true })
 }
