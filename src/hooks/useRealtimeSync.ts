@@ -89,21 +89,28 @@ export function useRealtimeSync(gameId: string | null, onGameEnded?: () => void)
             currentPlayer: currentPlayer
           })
           
-          // If game ended, redirect to welcome page
+          // If game ended, redirect to welcome page (but not for host)
           if (updatedGame.phase === 'ended') {
-            log('🔧 Game phase changed to ended - redirecting to welcome page')
-            // Clear localStorage
-            localStorage.removeItem('werwolf-game-state')
-            localStorage.removeItem('werwolf-game-code')
-            localStorage.removeItem('werwolf-player-name')
-            localStorage.removeItem('werwolf-client-id')
+            const currentPlayer = currentPlayerRef.current
+            const isHost = currentPlayer?.is_host || false
             
-            // Reset game state
-            resetGame()
-            
-            // Call the callback to redirect to welcome page
-            if (onGameEnded) {
-              onGameEnded()
+            if (!isHost) {
+              log('🔧 Game phase changed to ended - redirecting non-host to welcome page')
+              // Clear localStorage
+              localStorage.removeItem('werwolf-game-state')
+              localStorage.removeItem('werwolf-game-code')
+              localStorage.removeItem('werwolf-player-name')
+              localStorage.removeItem('werwolf-client-id')
+              
+              // Reset game state
+              resetGame()
+              
+              // Call the callback to redirect to welcome page
+              if (onGameEnded) {
+                onGameEnded()
+              }
+            } else {
+              log('🔧 Game phase changed to ended - host stays in game to see results')
             }
           }
         }
@@ -194,6 +201,14 @@ export function useRealtimeSync(gameId: string | null, onGameEnded?: () => void)
             log('🔧 No current player found during round state update - skipping update')
             return
           }
+          
+          // Force immediate update for real-time events
+          log('🔧 Immediate round state update for real-time events:', {
+            wolfTarget: updatedRoundState.wolf_target_player_id,
+            policeInspect: updatedRoundState.police_inspect_player_id,
+            doctorSave: updatedRoundState.doctor_save_player_id,
+            policeResult: updatedRoundState.police_inspect_result
+          })
           
           // Update round state using setGameData to maintain consistency
           setGameData({

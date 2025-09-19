@@ -50,12 +50,17 @@ export function checkWinCondition(game: Game, players: Player[]): 'villagers' | 
   const aliveWerwolves = alivePlayers.filter(p => p.role === 'werewolf')
   const aliveVillagers = alivePlayers.filter(p => p.role !== 'werewolf')
   
-  // Werwolves win if they equal or outnumber villagers
-  if (aliveWerwolves.length >= aliveVillagers.length) {
-    return 'werewolves'
+  // Game ends when there are only 2 players left
+  if (alivePlayers.length <= 2) {
+    // If any werewolves are still alive, they win
+    if (aliveWerwolves.length > 0) {
+      return 'werewolves'
+    }
+    // If no werewolves are alive, villagers win
+    return 'villagers'
   }
   
-  // Villagers win if all werwolves are eliminated
+  // Villagers win if all werwolves are eliminated (even with more than 2 players)
   if (aliveWerwolves.length === 0) {
     return 'villagers'
   }

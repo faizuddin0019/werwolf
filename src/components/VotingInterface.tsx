@@ -22,8 +22,8 @@ export default function VotingInterface() {
   const [isLoading, setIsLoading] = useState(false)
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error', message: string } | null>(null)
 
-  const alivePlayers = players.filter(p => p.alive && p.id !== currentPlayer?.id)
-  const canVote = currentPlayer?.alive && ['day_vote', 'day_final_vote'].includes(gamePhase)
+  const alivePlayers = players.filter(p => p.alive && p.id !== currentPlayer?.id && !p.is_host)
+  const canVote = currentPlayer?.alive && !currentPlayer?.is_host && ['day_vote', 'day_final_vote'].includes(gamePhase)
 
   // Get current vote for this player
   const currentVote = currentVotes.find(vote => vote.voter_player_id === currentPlayer?.id)

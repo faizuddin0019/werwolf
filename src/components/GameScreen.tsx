@@ -30,6 +30,7 @@ import {
 import HostControls from './HostControls'
 import NightOverlay from './NightOverlay'
 import VotingInterface from './VotingInterface'
+import WinConditionDisplay from './WinConditionDisplay'
 
 interface GameScreenProps {
   onEndGame: () => void
@@ -508,6 +509,9 @@ export default function GameScreen({ onEndGame, onRemovePlayer, onChangeRole }: 
           </div>
         </div>
       </div>
+
+      {/* Win Condition Display */}
+      <WinConditionDisplay />
     </div>
   )
 }
