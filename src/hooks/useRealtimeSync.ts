@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useCallback } from 'react'
 import { useAtom, getDefaultStore } from 'jotai'
 import { supabase, Game, Player, RoundState, Vote, LeaveRequest, isSupabaseConfigured } from '@/lib/supabase'
 import { 
@@ -30,6 +30,17 @@ export function useRealtimeSync(gameId: string | null, onGameEnded?: () => void)
     votes: any
     leaveRequests: any
   } | null>(null)
+  
+  // Use refs to get current values without causing dependency issues
+  const leaveRequestsRef = useRef(leaveRequests)
+  const gameRef = useRef(game)
+  const roundStateRef = useRef(roundState)
+  const votesRef = useRef(votes)
+  
+  leaveRequestsRef.current = leaveRequests
+  gameRef.current = game
+  roundStateRef.current = roundState
+  votesRef.current = votes
 
   useEffect(() => {
     if (!gameId || !isSupabaseConfigured() || !supabase) return
@@ -97,11 +108,11 @@ export function useRealtimeSync(gameId: string | null, onGameEnded?: () => void)
               players: updatedPlayers
             })
             setGameData({
-              game: currentGame || {} as Game,
+              game: gameRef.current || {} as Game,
               players: updatedPlayers,
-              roundState: currentRoundState,
-              votes: currentVotes,
-              leaveRequests: leaveRequests
+              roundState: roundStateRef.current,
+              votes: votesRef.current,
+              leaveRequests: leaveRequestsRef.current
             })
           }
         }
@@ -179,7 +190,7 @@ export function useRealtimeSync(gameId: string | null, onGameEnded?: () => void)
         supabase.removeChannel(subscriptionRef.current.leaveRequests)
       }
     }
-  }, [gameId, setGame, setPlayers, setRoundState, setVotes, setLeaveRequests])
+  }, [gameId])
 
   // Initial data fetch
   useEffect(() => {
@@ -256,5 +267,5 @@ export function useRealtimeSync(gameId: string | null, onGameEnded?: () => void)
     }
 
     fetchGameData()
-  }, [gameId, setGame, setPlayers, setRoundState, setVotes])
+  }, [gameId])
 }
