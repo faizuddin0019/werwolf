@@ -55,26 +55,26 @@ export default function WelcomeScreen({ onStartGame, onJoinGame }: WelcomeScreen
 
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-indigo-900 to-black relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-indigo-900 to-slate-800 relative overflow-hidden">
       {/* Royal Decorative Background */}
       <div className="absolute inset-0 overflow-hidden">
         {/* Royal Pattern Overlay */}
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-purple-600/20 via-transparent to-indigo-600/20"></div>
-          <div className="absolute top-0 right-0 w-full h-full bg-gradient-to-bl from-amber-600/20 via-transparent to-purple-600/20"></div>
+        <div className="absolute inset-0 opacity-8">
+          <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-blue-600/15 via-transparent to-indigo-600/15"></div>
+          <div className="absolute top-0 right-0 w-full h-full bg-gradient-to-bl from-amber-600/15 via-transparent to-slate-600/15"></div>
         </div>
         
         {/* Decorative Corner Elements */}
-        <div className="absolute top-0 left-0 w-32 h-32 bg-gradient-to-br from-purple-500/30 to-transparent rounded-full blur-3xl"></div>
-        <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-amber-500/30 to-transparent rounded-full blur-3xl"></div>
-        <div className="absolute bottom-0 left-0 w-32 h-32 bg-gradient-to-tr from-indigo-500/30 to-transparent rounded-full blur-3xl"></div>
-        <div className="absolute bottom-0 right-0 w-32 h-32 bg-gradient-to-tl from-purple-500/30 to-transparent rounded-full blur-3xl"></div>
+        <div className="absolute top-0 left-0 w-32 h-32 bg-gradient-to-br from-blue-500/25 to-transparent rounded-full blur-3xl"></div>
+        <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-amber-500/25 to-transparent rounded-full blur-3xl"></div>
+        <div className="absolute bottom-0 left-0 w-32 h-32 bg-gradient-to-tr from-indigo-500/25 to-transparent rounded-full blur-3xl"></div>
+        <div className="absolute bottom-0 right-0 w-32 h-32 bg-gradient-to-tl from-slate-500/25 to-transparent rounded-full blur-3xl"></div>
         
         {/* Floating Royal Elements */}
-        <div className="absolute top-20 left-1/4 w-4 h-4 bg-amber-400/60 rounded-full animate-pulse"></div>
-        <div className="absolute top-32 right-1/3 w-3 h-3 bg-purple-400/60 rounded-full animate-pulse" style={{animationDelay: '1s'}}></div>
-        <div className="absolute bottom-32 left-1/3 w-5 h-5 bg-indigo-400/60 rounded-full animate-pulse" style={{animationDelay: '2s'}}></div>
-        <div className="absolute bottom-20 right-1/4 w-4 h-4 bg-amber-400/60 rounded-full animate-pulse" style={{animationDelay: '3s'}}></div>
+        <div className="absolute top-20 left-1/4 w-4 h-4 bg-amber-400/50 rounded-full animate-pulse"></div>
+        <div className="absolute top-32 right-1/3 w-3 h-3 bg-blue-400/50 rounded-full animate-pulse" style={{animationDelay: '1s'}}></div>
+        <div className="absolute bottom-32 left-1/3 w-5 h-5 bg-indigo-400/50 rounded-full animate-pulse" style={{animationDelay: '2s'}}></div>
+        <div className="absolute bottom-20 right-1/4 w-4 h-4 bg-amber-400/50 rounded-full animate-pulse" style={{animationDelay: '3s'}}></div>
         {/* Floating particles */}
         <div className="absolute top-20 left-10 w-3 h-3 bg-red-500/50 rounded-full floating"></div>
         <div className="absolute top-40 right-20 w-4 h-4 bg-blue-500/50 rounded-full floating" style={{animationDelay: '1s'}}></div>
