@@ -133,13 +133,16 @@ export const setGameDataAtom = atom(null, (get, set, data: {
   leaveRequests?: LeaveRequest[]
   currentPlayer?: Player
 }) => {
-  console.log('setGameDataAtom called with:', {
-    game: data.game?.id,
-    playersCount: data.players?.length || 0,
-    players: data.players,
-    currentPlayer: data.currentPlayer,
-    currentPlayerIsHost: data.currentPlayer?.is_host
-  })
+  // Performance optimization: Only log in development
+  if (process.env.NODE_ENV === 'development') {
+    console.log('setGameDataAtom called with:', {
+      game: data.game?.id,
+      playersCount: data.players?.length || 0,
+      players: data.players,
+      currentPlayer: data.currentPlayer,
+      currentPlayerIsHost: data.currentPlayer?.is_host
+    })
+  }
   
   // Get current state to compare
   const currentGame = get(gameAtom)
@@ -186,45 +189,45 @@ export const setGameDataAtom = atom(null, (get, set, data: {
       currentPlayer.is_host !== data.currentPlayer.is_host))
   
   if (gameChanged) {
-    console.log('🔧 Game changed, updating gameAtom')
+    if (process.env.NODE_ENV === 'development') console.log('🔧 Game changed, updating gameAtom')
     set(gameAtom, data.game)
   }
   
   if (playersChanged) {
-    console.log('🔧 Players changed, updating playersAtom')
+    if (process.env.NODE_ENV === 'development') console.log('🔧 Players changed, updating playersAtom')
     set(playersAtom, data.players)
   }
   
   if (roundStateChanged && data.roundState) {
-    console.log('🔧 Round state changed, updating roundStateAtom')
+    if (process.env.NODE_ENV === 'development') console.log('🔧 Round state changed, updating roundStateAtom')
     set(roundStateAtom, data.roundState)
   }
   
   if (votesChanged && data.votes) {
-    console.log('🔧 Votes changed, updating votesAtom')
+    if (process.env.NODE_ENV === 'development') console.log('🔧 Votes changed, updating votesAtom')
     set(votesAtom, data.votes)
   }
   
   if (leaveRequestsChanged && data.leaveRequests) {
-    console.log('🔧 Leave requests changed, updating leaveRequestsAtom')
+    if (process.env.NODE_ENV === 'development') console.log('🔧 Leave requests changed, updating leaveRequestsAtom')
     set(leaveRequestsAtom, data.leaveRequests)
   }
   
   if (currentPlayerChanged) {
     if (data.currentPlayer) {
-      console.log('🔧 Current player changed, updating currentPlayerAtom')
+      if (process.env.NODE_ENV === 'development') console.log('🔧 Current player changed, updating currentPlayerAtom')
       set(currentPlayerAtom, data.currentPlayer)
       set(playerNameAtom, data.currentPlayer.name)
       const isHost = data.currentPlayer.is_host || false
-      console.log('🔧 setGameDataAtom - Setting isHostAtom to:', isHost, 'for player:', data.currentPlayer.name)
+      if (process.env.NODE_ENV === 'development') console.log('🔧 setGameDataAtom - Setting isHostAtom to:', isHost, 'for player:', data.currentPlayer.name)
       set(isHostAtom, isHost)
     } else {
-      console.log('🔧 No current player, setting isHostAtom to false')
+      if (process.env.NODE_ENV === 'development') console.log('🔧 No current player, setting isHostAtom to false')
       set(isHostAtom, false)
     }
   }
   
   if (!gameChanged && !playersChanged && !roundStateChanged && !votesChanged && !leaveRequestsChanged && !currentPlayerChanged) {
-    console.log('🔧 No changes detected, skipping all updates')
+    if (process.env.NODE_ENV === 'development') console.log('🔧 No changes detected, skipping all updates')
   }
 })

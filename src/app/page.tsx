@@ -84,7 +84,7 @@ export default function HomePage() {
   }, [])
 
   // Enable real-time sync when we have a game
-  console.log('useRealtimeSync called with gameId:', game?.id || null)
+  if (process.env.NODE_ENV === 'development') console.log('useRealtimeSync called with gameId:', game?.id || null)
   useRealtimeSync(game?.id || null, () => {
     // Game ended - redirect to welcome page
     setGameState('welcome')
@@ -102,13 +102,15 @@ export default function HomePage() {
         // Find the current player in the game
         const currentPlayer = gameData.players.find((p: any) => p.client_id === clientId)
         
-        console.log('🔧 Restore Game Debug:', {
-          clientId,
-          gameDataPlayers: gameData.players.map(p => ({ id: p.id, name: p.name, client_id: p.client_id, is_host: p.is_host })),
-          foundCurrentPlayer: currentPlayer ? { id: currentPlayer.id, name: currentPlayer.name, client_id: currentPlayer.client_id, is_host: currentPlayer.is_host } : null,
-          gameHostClientId: gameData.game.host_client_id,
-          clientIdMatch: gameData.players.some(p => p.client_id === clientId)
-        })
+        if (process.env.NODE_ENV === 'development') {
+          console.log('🔧 Restore Game Debug:', {
+            clientId,
+            gameDataPlayers: gameData.players.map((p: any) => ({ id: p.id, name: p.name, client_id: p.client_id, is_host: p.is_host })),
+            foundCurrentPlayer: currentPlayer ? { id: currentPlayer.id, name: currentPlayer.name, client_id: currentPlayer.client_id, is_host: currentPlayer.is_host } : null,
+            gameHostClientId: gameData.game.host_client_id,
+            clientIdMatch: gameData.players.some((p: any) => p.client_id === clientId)
+          })
+        }
         
         if (currentPlayer) {
           setGameData({
@@ -127,11 +129,13 @@ export default function HomePage() {
           }
         } else {
           // Player not found in game, reset to welcome
-          console.log('🔧 Player not found in game - kicking out to welcome screen:', {
-            clientId,
-            gameCode: code,
-            gamePlayers: gameData.players.map(p => ({ id: p.id, name: p.name, client_id: p.client_id }))
-          })
+          if (process.env.NODE_ENV === 'development') {
+            console.log('🔧 Player not found in game - kicking out to welcome screen:', {
+              clientId,
+              gameCode: code,
+              gamePlayers: gameData.players.map((p: any) => ({ id: p.id, name: p.name, client_id: p.client_id }))
+            })
+          }
           setGameState('welcome')
           localStorage.removeItem('werwolf-game-state')
           localStorage.removeItem('werwolf-game-code')
@@ -155,33 +159,35 @@ export default function HomePage() {
     // Only run once to prevent infinite loops
     if (clientIdInitialized.current) return
     
-    if (!clientId) {
-      const newClientId = getOrCreateBrowserClientId()
-      console.log('🔧 Generated new client ID:', newClientId)
-      setClientId(newClientId)
-      clientIdInitialized.current = true
-    } else {
-      // Check if the existing client ID is from the current browser
-      const isFromCurrentBrowser = isClientIdFromCurrentBrowser(clientId)
-      console.log('🔧 Client ID validation:', {
-        existingClientId: clientId,
-        isFromCurrentBrowser,
-        currentFingerprint: typeof window !== 'undefined' ? 'Browser fingerprint available' : 'N/A'
-      })
-      
-      if (!isFromCurrentBrowser) {
-        // Client ID is from a different browser, generate a new one
-        const newClientId = getOrCreateBrowserClientId()
-        console.log('🔧 Client ID from different browser, generated new one:', newClientId)
-        setClientId(newClientId)
-        // Clear any saved game state since this is a different browser
-        localStorage.removeItem('werwolf-game-state')
-        localStorage.removeItem('werwolf-game-code')
-        localStorage.removeItem('werwolf-player-name')
-        setGameState('welcome')
-      }
-      clientIdInitialized.current = true
-    }
+        if (!clientId) {
+          const newClientId = getOrCreateBrowserClientId()
+          if (process.env.NODE_ENV === 'development') console.log('🔧 Generated new client ID:', newClientId)
+          setClientId(newClientId)
+          clientIdInitialized.current = true
+        } else {
+          // Check if the existing client ID is from the current browser
+          const isFromCurrentBrowser = isClientIdFromCurrentBrowser(clientId)
+          if (process.env.NODE_ENV === 'development') {
+            console.log('🔧 Client ID validation:', {
+              existingClientId: clientId,
+              isFromCurrentBrowser,
+              currentFingerprint: typeof window !== 'undefined' ? 'Browser fingerprint available' : 'N/A'
+            })
+          }
+          
+          if (!isFromCurrentBrowser) {
+            // Client ID is from a different browser, generate a new one
+            const newClientId = getOrCreateBrowserClientId()
+            if (process.env.NODE_ENV === 'development') console.log('🔧 Client ID from different browser, generated new one:', newClientId)
+            setClientId(newClientId)
+            // Clear any saved game state since this is a different browser
+            localStorage.removeItem('werwolf-game-state')
+            localStorage.removeItem('werwolf-game-code')
+            localStorage.removeItem('werwolf-player-name')
+            setGameState('welcome')
+          }
+          clientIdInitialized.current = true
+        }
   }, [clientId])
 
   // Update game state based on game phase
@@ -229,11 +235,13 @@ export default function HomePage() {
       const gameResponse = await fetch(`/api/games?code=${data.gameCode}`)
       if (gameResponse.ok) {
         const gameData = await gameResponse.json()
-        console.log('handleStartGame - Setting game data:', {
-          game: data.game,
-          players: gameData.players || [data.player],
-          currentPlayer: data.player
-        })
+        if (process.env.NODE_ENV === 'development') {
+          console.log('handleStartGame - Setting game data:', {
+            game: data.game,
+            players: gameData.players || [data.player],
+            currentPlayer: data.player
+          })
+        }
         setGameData({
           game: data.game,
           players: gameData.players || [data.player],
@@ -241,11 +249,13 @@ export default function HomePage() {
         })
       } else {
         // Fallback to just the host if we can't fetch all players
-        console.log('handleStartGame - Fallback setting game data:', {
-          game: data.game,
-          players: [data.player],
-          currentPlayer: data.player
-        })
+        if (process.env.NODE_ENV === 'development') {
+          console.log('handleStartGame - Fallback setting game data:', {
+            game: data.game,
+            players: [data.player],
+            currentPlayer: data.player
+          })
+        }
         setGameData({
           game: data.game,
           players: [data.player],
@@ -385,7 +395,7 @@ export default function HomePage() {
       }
       
       const result = await response.json()
-      console.log('Leave request submitted:', result.message)
+      if (process.env.NODE_ENV === 'development') console.log('Leave request submitted:', result.message)
       
     } catch (err) {
       console.error('Error requesting leave:', err)
@@ -420,16 +430,18 @@ export default function HomePage() {
       }
       
       const result = await response.json()
-      console.log('🔧 Approve Leave Result:', {
-        success: result.success,
-        gameEnded: result.gameEnded,
-        gameReset: result.gameReset,
-        message: result.message
-      })
+      if (process.env.NODE_ENV === 'development') {
+        console.log('🔧 Approve Leave Result:', {
+          success: result.success,
+          gameEnded: result.gameEnded,
+          gameReset: result.gameReset,
+          message: result.message
+        })
+      }
       
       // If game ended due to insufficient players, redirect to welcome
       if (result.gameEnded) {
-        console.log('🔧 Game ended due to insufficient players - redirecting to welcome')
+        if (process.env.NODE_ENV === 'development') console.log('🔧 Game ended due to insufficient players - redirecting to welcome')
         // Clear localStorage and reset to welcome
         localStorage.removeItem('werwolf-game-state')
         localStorage.removeItem('werwolf-game-code')
@@ -439,11 +451,11 @@ export default function HomePage() {
         resetGame()
         setGameState('welcome')
       } else if (result.gameReset) {
-        console.log('🔧 Game reset to lobby due to insufficient players - staying in lobby')
+        if (process.env.NODE_ENV === 'development') console.log('🔧 Game reset to lobby due to insufficient players - staying in lobby')
         // Game was reset to lobby state, real-time sync will handle the update
         // Players stay in the same game but game state is reset
       } else {
-        console.log('🔧 Game continues - player left successfully')
+        if (process.env.NODE_ENV === 'development') console.log('🔧 Game continues - player left successfully')
         // The real-time sync should handle updating the player list
       }
       
@@ -480,7 +492,7 @@ export default function HomePage() {
       }
       
       const result = await response.json()
-      console.log('Leave denied:', result.message)
+      if (process.env.NODE_ENV === 'development') console.log('Leave denied:', result.message)
       
     } catch (err) {
       console.error('Error denying leave:', err)
@@ -517,7 +529,7 @@ export default function HomePage() {
       }
       
       const result = await response.json()
-      console.log('Role changed:', result.message)
+      if (process.env.NODE_ENV === 'development') console.log('Role changed:', result.message)
       
     } catch (err) {
       console.error('Error changing role:', err)
@@ -534,14 +546,16 @@ export default function HomePage() {
     setError(null)
     
     // Debug logging
-    console.log('🔧 Remove Player Debug:', {
-      gameId: game.id,
-      currentPlayerId: currentPlayer.id,
-      currentPlayerName: currentPlayer.name,
-      isHost: currentPlayer.is_host,
-      playerToRemoveId: playerId,
-      totalPlayers: players.length
-    })
+    if (process.env.NODE_ENV === 'development') {
+      console.log('🔧 Remove Player Debug:', {
+        gameId: game.id,
+        currentPlayerId: currentPlayer.id,
+        currentPlayerName: currentPlayer.name,
+        isHost: currentPlayer.is_host,
+        playerToRemoveId: playerId,
+        totalPlayers: players.length
+      })
+    }
     
     try {
       const response = await fetch(`/api/games/${game.id}/actions`, {
@@ -564,19 +578,21 @@ export default function HomePage() {
       }
       
       const result = await response.json()
-      console.log('🔧 Remove Player Result:', {
-        success: result.success,
-        gameEnded: result.gameEnded,
-        gameReset: result.gameReset,
-        message: result.message,
-        totalPlayersBefore: players.length,
-        expectedPlayersAfter: players.length - 1,
-        currentPlayersList: players.map(p => ({ id: p.id, name: p.name }))
-      })
+      if (process.env.NODE_ENV === 'development') {
+        console.log('🔧 Remove Player Result:', {
+          success: result.success,
+          gameEnded: result.gameEnded,
+          gameReset: result.gameReset,
+          message: result.message,
+          totalPlayersBefore: players.length,
+          expectedPlayersAfter: players.length - 1,
+          currentPlayersList: players.map(p => ({ id: p.id, name: p.name }))
+        })
+      }
       
       // If game ended due to insufficient players, redirect to welcome
       if (result.gameEnded) {
-        console.log('🔧 Game ended due to insufficient players - redirecting to welcome')
+        if (process.env.NODE_ENV === 'development') console.log('🔧 Game ended due to insufficient players - redirecting to welcome')
         
         // Clear localStorage and reset to welcome
         localStorage.removeItem('werwolf-game-state')
@@ -587,11 +603,11 @@ export default function HomePage() {
         resetGame()
         setGameState('welcome')
       } else if (result.gameReset) {
-        console.log('🔧 Game reset to lobby due to insufficient players - staying in lobby')
+        if (process.env.NODE_ENV === 'development') console.log('🔧 Game reset to lobby due to insufficient players - staying in lobby')
         // Game was reset to lobby state, real-time sync will handle the update
         // Players stay in the same game but game state is reset
       } else {
-        console.log('🔧 Game continues - player removed successfully')
+        if (process.env.NODE_ENV === 'development') console.log('🔧 Game continues - player removed successfully')
         // The real-time sync should handle updating the player list
       }
       
@@ -647,7 +663,7 @@ export default function HomePage() {
     const audio = new Audio(`/sounds/${sound}.mp3`)
     audio.volume = 0.5
     audio.play().catch(err => {
-      console.log('Could not play sound:', err)
+      if (process.env.NODE_ENV === 'development') console.log('Could not play sound:', err)
     })
   }
 
