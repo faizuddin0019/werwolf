@@ -4,7 +4,7 @@ A web-based companion app for playing Werwolf remotely while keeping all convers
 
 ## 🌐 Live Game
 
-**🎮 Play Now:** [https://wearwolf-theta.vercel.app](https://wearwolf-theta.vercel.app)
+**🎮 Play Now:** [https://wearwolf-theta.vercel.app](https://wearwolf-theta.vercel.app) 🚀
 
 **📱 Mobile Friendly:** Works perfectly on phones, tablets, and desktops!
 
