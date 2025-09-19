@@ -127,6 +127,11 @@ export default function HomePage() {
           }
         } else {
           // Player not found in game, reset to welcome
+          console.log('🔧 Player not found in game - kicking out to welcome screen:', {
+            clientId,
+            gameCode: code,
+            gamePlayers: gameData.players.map(p => ({ id: p.id, name: p.name, client_id: p.client_id }))
+          })
           setGameState('welcome')
           localStorage.removeItem('werwolf-game-state')
           localStorage.removeItem('werwolf-game-code')
