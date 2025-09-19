@@ -2,17 +2,39 @@
 
 A web-based companion app for playing Werwolf remotely while keeping all conversation in your video call. Host-controlled with zero typing required during play.
 
-## Features
+## 🌐 Live Game
 
-- **Host-controlled gameplay** - The host manages all game phases
-- **Zero typing during play** - Players only click buttons
-- **Real-time synchronization** - All players see updates instantly
-- **Mobile-friendly** - Works on phones, tablets, and desktops
-- **6-20 players** - Supports games from 6 to 20 players
-- **Unique game codes** - 6-digit codes that never repeat within the same day
-- **Role-based interactions** - Werewolves, Doctor, Police, and Villagers
-- **Visual feedback** - Color-coded actions and vote counts
-- **Sound effects** - Audio cues for role assignment and voting
+**🎮 Play Now:** [https://wearwolf-oa7pcqidv-faizuddin0019s-projects.vercel.app](https://wearwolf-oa7pcqidv-faizuddin0019s-projects.vercel.app)
+
+**📱 Mobile Friendly:** Works perfectly on phones, tablets, and desktops!
+
+**🔗 GitHub Repository:** [https://github.com/faizuddin0019/werwolf](https://github.com/faizuddin0019/werwolf)
+
+## 🎯 Quick Start for Players
+
+1. **Visit the game:** [https://wearwolf-oa7pcqidv-faizuddin0019s-projects.vercel.app](https://wearwolf-oa7pcqidv-faizuddin0019s-projects.vercel.app)
+2. **Host creates game:** Enter name and click "Start Game"
+3. **Share game code:** Host shares the 6-digit code with players
+4. **Players join:** Enter the code and your name
+5. **Start playing:** Host assigns roles and the game begins!
+
+**🎮 No downloads required - works in any web browser!**
+
+## ✨ Features
+
+- **🎮 Host-controlled gameplay** - The host manages all game phases
+- **🚫 Zero typing during play** - Players only click buttons
+- **⚡ Real-time synchronization** - All players see updates instantly
+- **📱 Mobile-friendly** - Works on phones, tablets, and desktops
+- **👥 6-20 players** - Supports games from 6 to 20 players
+- **🔢 Unique game codes** - 6-digit codes that never repeat within the same day
+- **🎭 Role-based interactions** - Werewolves, Doctor, Police, and Villagers
+- **🎨 Visual feedback** - Color-coded actions and vote counts
+- **🔊 Sound effects** - Audio cues for role assignment and voting
+- **🚪 Leave request system** - Players request to leave, host approves
+- **👑 Host player management** - Host can remove any player directly
+- **💾 State persistence** - Game state saved across browser refreshes
+- **🧪 Comprehensive testing** - 21/21 tests passing
 
 ## Tech Stack
 
@@ -100,58 +122,96 @@ Add these files to `public/sounds/`:
 4. **Day**: All players vote to eliminate a suspect
 5. **Repeat**: Continue until win condition is met
 
-## Deployment
+## 🚀 Deployment
 
-### Deploy to Vercel
+### ✅ Successfully Deployed on Vercel
 
-1. Push your code to GitHub
-2. Connect your repository to Vercel
-3. Add environment variables in Vercel dashboard:
-   - `NEXT_PUBLIC_SUPABASE_URL`
-   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-4. Deploy!
+**Live URL:** [https://wearwolf-oa7pcqidv-faizuddin0019s-projects.vercel.app](https://wearwolf-oa7pcqidv-faizuddin0019s-projects.vercel.app)
 
-### Environment Variables
+**Vercel Dashboard:** [https://vercel.com/faizuddin0019s-projects/wearwolf](https://vercel.com/faizuddin0019s-projects/wearwolf)
 
-Make sure to set these in your Vercel project settings:
+### 🔧 Deployment Process
 
-- `NEXT_PUBLIC_SUPABASE_URL`: Your Supabase project URL
-- `NEXT_PUBLIC_SUPABASE_ANON_KEY`: Your Supabase anon key
+1. ✅ **Code pushed to GitHub** - [https://github.com/faizuddin0019/werwolf](https://github.com/faizuddin0019/werwolf)
+2. ✅ **Vercel CLI setup** - Authenticated and configured
+3. ✅ **Environment variables configured**:
+   - `NEXT_PUBLIC_SUPABASE_URL` - Connected to Supabase
+   - `NEXT_PUBLIC_SUPABASE_ANON_KEY` - Authentication configured
+4. ✅ **Production deployment** - Live and accessible worldwide
 
-## Database Schema
+### 🌍 Global Availability
 
-The app uses 4 main tables:
+- **CDN Distribution** - Fast loading worldwide
+- **Automatic HTTPS** - Secure connections
+- **Mobile Optimized** - Responsive design
+- **Real-time Updates** - Instant game synchronization
 
-- **games**: Game state, phase, win condition
-- **players**: Player info, roles, alive status
-- **round_state**: Current night actions (wolf target, doctor save, etc.)
-- **votes**: Voting records for each round
+### 🔄 Auto-Deployment
 
-## Development
+Any future pushes to the main branch will automatically trigger new deployments on Vercel!
 
-### Project Structure
+## 🗄️ Database Schema
+
+The app uses 5 main tables with Supabase PostgreSQL:
+
+- **games**: Game state, phase, win condition, host information
+- **players**: Player info, roles, alive status, host status
+- **round_state**: Current night actions (wolf target, doctor save, police inspection)
+- **votes**: Voting records for each round and phase
+- **leave_requests**: Player leave requests with host approval system
+
+### 🔄 Real-time Features
+
+- **Live player updates** - See players joining/leaving instantly
+- **Game state synchronization** - All players see the same game state
+- **Leave request notifications** - Host gets notified of leave requests
+- **Automatic cleanup** - Game data cleaned up when games end
+
+## 🛠️ Development
+
+### 📁 Project Structure
 
 ```
 src/
-├── app/                 # Next.js app router
-│   ├── api/            # API routes
-│   └── page.tsx        # Main page
-├── components/         # React components
-├── hooks/             # Custom hooks
-└── lib/               # Utilities and configuration
-    ├── supabase.ts    # Supabase client
-    ├── game-utils.ts  # Game logic
-    └── game-store.ts  # State management
+├── app/                    # Next.js app router
+│   ├── api/               # API routes
+│   │   └── games/         # Game management endpoints
+│   │       ├── route.ts   # Create/fetch games
+│   │       ├── join/      # Join game endpoint
+│   │       └── [gameId]/  # Game actions (leave, end, etc.)
+│   ├── globals.css        # Global styles and animations
+│   └── page.tsx           # Main application page
+├── components/            # React components
+│   ├── WelcomeScreen.tsx  # Game creation and joining
+│   ├── GameLobby.tsx      # Pre-game player management
+│   ├── GameScreen.tsx     # Main game interface
+│   ├── HostControls.tsx   # Host-only game controls
+│   ├── NightOverlay.tsx   # Role-specific night actions
+│   ├── VotingInterface.tsx # Day voting system
+│   └── DemoMode.tsx       # Fallback when Supabase not configured
+├── hooks/                 # Custom hooks
+│   └── useRealtimeSync.ts # Real-time synchronization
+└── lib/                   # Utilities and configuration
+    ├── supabase.ts        # Supabase client and types
+    ├── game-utils.ts      # Game logic and utilities
+    └── game-store.ts      # Jotai state management
 ```
 
-### Key Components
+### 🧪 Testing
 
-- `WelcomeScreen`: Game creation and joining
-- `GameLobby`: Pre-game player management
-- `GameScreen`: Main game interface
-- `HostControls`: Host-only game controls
-- `NightOverlay`: Role-specific night actions
-- `VotingInterface`: Day voting system
+- **Quick Tests**: `npm run test:quick` - 21/21 tests passing
+- **Leave Game Tests**: `npm run test:leave-game` - Comprehensive leave system tests
+- **All Tests**: `npm run test:all` - Complete test suite
+- **CI/CD**: `npm run test:ci` - Automated testing pipeline
+
+### 🔧 Key Features Implemented
+
+- **Leave Request System** - Players request to leave, host approves/denies
+- **Host Player Management** - Host can remove any player directly
+- **State Persistence** - Game state saved across browser refreshes
+- **Real-time Sync** - Live updates for all players
+- **Mobile Responsive** - Works on all device sizes
+- **Animated UI** - Engaging visual effects and character animations
 
 ## Contributing
 
@@ -165,20 +225,43 @@ src/
 
 MIT License - feel free to use this for your own Werwolf games!
 
-## Support
+## 🆘 Support
 
 If you encounter issues:
 
-1. Check the browser console for errors
-2. Verify your Supabase configuration
-3. Ensure all environment variables are set
-4. Check that the database schema is properly set up
+1. **Check the browser console** for errors
+2. **Verify your Supabase configuration** - Make sure the database schema is set up
+3. **Ensure all environment variables are set** in Vercel dashboard
+4. **Check the live game** - [https://wearwolf-oa7pcqidv-faizuddin0019s-projects.vercel.app](https://wearwolf-oa7pcqidv-faizuddin0019s-projects.vercel.app)
+5. **Run tests locally** - `npm run test:quick` to verify functionality
 
-## Roadmap
+### 🐛 Common Issues
 
+- **"Failed to fetch players"** - Check Supabase connection and database schema
+- **"Game not found"** - Verify game code is correct (6 digits)
+- **Players not showing** - Check real-time connection and browser console
+- **Leave requests not working** - Ensure database has `leave_requests` table
+
+## 🗺️ Roadmap
+
+### ✅ Completed Features
+- [x] Complete game implementation with all roles
+- [x] Real-time synchronization
+- [x] Leave request system with host approval
+- [x] Host player management
+- [x] State persistence across refreshes
+- [x] Mobile-responsive design
+- [x] Animated UI with character effects
+- [x] Comprehensive testing suite
+- [x] Production deployment on Vercel
+
+### 🚧 Future Enhancements
 - [ ] Custom game settings (role counts, special rules)
 - [ ] Game history and statistics
 - [ ] Spectator mode
 - [ ] Mobile app (React Native)
 - [ ] Integration with Discord/Slack bots
 - [ ] Tournament mode
+- [ ] Custom themes and character skins
+- [ ] Voice chat integration
+- [ ] Game replay system
