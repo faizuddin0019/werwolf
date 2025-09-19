@@ -144,9 +144,9 @@ export default function HostControls({ onEndGame }: HostControlsProps) {
       case 'assign_roles':
         return gamePhase === 'lobby'
       case 'next_phase':
-        return isNightPhase && gamePhase !== 'night_doctor'
+        return isNightPhase && gamePhase !== 'night_police'
       case 'reveal_dead':
-        return gamePhase === 'night_doctor'
+        return gamePhase === 'night_police'
       case 'final_vote':
         return gamePhase === 'day_vote'
       case 'eliminate_player':
