@@ -49,7 +49,8 @@ export default function GameLobby({
     currentPlayer: currentPlayer ? { id: currentPlayer.id, name: currentPlayer.name, is_host: currentPlayer.is_host } : null,
     isHost,
     nonHostPlayers: players.filter(p => !p.is_host),
-    shouldShowPlayerManagement: isHost && players.filter(p => !p.is_host).length > 0
+    shouldShowPlayerManagement: isHost && players.filter(p => !p.is_host).length > 0,
+    timestamp: new Date().toISOString()
   })
 
   // In lobby phase, show all players (they're all alive)
