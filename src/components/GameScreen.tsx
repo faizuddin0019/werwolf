@@ -74,12 +74,29 @@ export default function GameScreen({ onEndGame, onRemovePlayer, onChangeRole }: 
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800 relative overflow-hidden">
-      {/* Animated Background Elements */}
+    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-indigo-900 to-black relative overflow-hidden">
+      {/* Royal Decorative Background */}
       <div className="absolute inset-0 overflow-hidden">
+        {/* Royal Pattern Overlay */}
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-purple-600/20 via-transparent to-indigo-600/20"></div>
+          <div className="absolute top-0 right-0 w-full h-full bg-gradient-to-bl from-amber-600/20 via-transparent to-purple-600/20"></div>
+        </div>
+        
+        {/* Decorative Corner Elements */}
+        <div className="absolute top-0 left-0 w-32 h-32 bg-gradient-to-br from-purple-500/30 to-transparent rounded-full blur-3xl"></div>
+        <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-amber-500/30 to-transparent rounded-full blur-3xl"></div>
+        <div className="absolute bottom-0 left-0 w-32 h-32 bg-gradient-to-tr from-indigo-500/30 to-transparent rounded-full blur-3xl"></div>
+        <div className="absolute bottom-0 right-0 w-32 h-32 bg-gradient-to-tl from-purple-500/30 to-transparent rounded-full blur-3xl"></div>
+        
+        {/* Floating Royal Elements */}
+        <div className="absolute top-20 left-1/4 w-4 h-4 bg-amber-400/60 rounded-full animate-pulse"></div>
+        <div className="absolute top-32 right-1/3 w-3 h-3 bg-purple-400/60 rounded-full animate-pulse" style={{animationDelay: '1s'}}></div>
+        <div className="absolute bottom-32 left-1/3 w-5 h-5 bg-indigo-400/60 rounded-full animate-pulse" style={{animationDelay: '2s'}}></div>
+        <div className="absolute bottom-20 right-1/4 w-4 h-4 bg-amber-400/60 rounded-full animate-pulse" style={{animationDelay: '3s'}}></div>
         {/* VILLAGERS - Icon-based */}
         {/* Villagers - Top Left Area */}
-        <div className="absolute" style={{top: '40px', left: '20px', zIndex: 5}}>
+        <div className="absolute z-0" style={{top: '20px', left: '80px'}}>
           <div className="relative">
             <div className="w-80 h-80 bg-gradient-to-br from-amber-200/90 to-amber-400/90 rounded-full flex items-center justify-center shadow-2xl shadow-amber-200/80 character-float dramatic-pulse" style={{border: '8px solid rgba(245, 158, 11, 0.9)'}}>
               <div className="relative character-breathe">
@@ -100,7 +117,7 @@ export default function GameScreen({ onEndGame, onRemovePlayer, onChangeRole }: 
 
         {/* WERWOLF - Icon-based */}
         {/* Werwolf - Top Right Area */}
-        <div className="absolute" style={{top: '40px', right: '20px', zIndex: 5}}>
+        <div className="absolute z-0" style={{top: '20px', right: '80px'}}>
           <div className="relative">
             <div className="w-88 h-88 bg-gradient-to-br from-red-200/90 to-red-400/90 rounded-full flex items-center justify-center shadow-2xl shadow-red-200/80 character-float dramatic-pulse" style={{border: '8px solid rgba(239, 68, 68, 0.9)'}}>
               <div className="relative character-breathe">
@@ -121,7 +138,7 @@ export default function GameScreen({ onEndGame, onRemovePlayer, onChangeRole }: 
 
         {/* DOCTOR - Icon-based */}
         {/* Doctor - Bottom Left Area - Hidden on mobile to avoid form overlap */}
-        <div className="absolute hidden md:block" style={{bottom: '40px', left: '20px', zIndex: 1}}>
+        <div className="absolute hidden md:block z-0" style={{bottom: '300px', left: '80px'}}>
           <div className="relative">
             <div className="w-80 h-80 bg-gradient-to-br from-emerald-200/90 to-emerald-400/90 rounded-full flex items-center justify-center shadow-2xl shadow-emerald-200/80 character-float dramatic-pulse" style={{animationDelay: '1s', border: '8px solid rgba(16, 185, 129, 0.9)'}}>
               <div className="relative character-breathe">
@@ -132,7 +149,7 @@ export default function GameScreen({ onEndGame, onRemovePlayer, onChangeRole }: 
               </div>
             </div>
             <div className="absolute -inset-10 bg-gradient-to-r from-emerald-200/70 to-emerald-400/70 rounded-full blur-3xl"></div>
-            <div className="absolute -top-20 left-1/2 transform -translate-x-1/2">
+            <div className="absolute -top-12 left-1/2 transform -translate-x-1/2">
               <span className="text-xl font-bold text-emerald-100 bg-gray-900/95 px-6 py-3 rounded-full backdrop-blur-sm border-2 border-emerald-200/60">
                 Doctor
               </span>
@@ -142,7 +159,7 @@ export default function GameScreen({ onEndGame, onRemovePlayer, onChangeRole }: 
 
         {/* POLICE - Icon-based */}
         {/* Police - Bottom Right Area - Hidden on mobile to avoid form overlap */}
-        <div className="absolute hidden md:block" style={{bottom: '40px', right: '20px', zIndex: 1}}>
+        <div className="absolute hidden md:block z-0" style={{bottom: '300px', right: '80px'}}>
           <div className="relative">
             <div className="w-80 h-80 bg-gradient-to-br from-sky-200/90 to-sky-400/90 rounded-full flex items-center justify-center shadow-2xl shadow-sky-200/80 character-float dramatic-pulse" style={{animationDelay: '2s', border: '8px solid rgba(14, 165, 233, 0.9)'}}>
               <div className="relative character-breathe">
@@ -153,7 +170,7 @@ export default function GameScreen({ onEndGame, onRemovePlayer, onChangeRole }: 
               </div>
             </div>
             <div className="absolute -inset-10 bg-gradient-to-r from-sky-200/70 to-sky-400/70 rounded-full blur-3xl"></div>
-            <div className="absolute -top-20 left-1/2 transform -translate-x-1/2">
+            <div className="absolute -top-12 left-1/2 transform -translate-x-1/2">
               <span className="text-xl font-bold text-sky-100 bg-gray-900/95 px-6 py-3 rounded-full backdrop-blur-sm border-2 border-sky-200/60">
                 Police
               </span>
@@ -233,7 +250,7 @@ export default function GameScreen({ onEndGame, onRemovePlayer, onChangeRole }: 
       </div>
 
       {/* Main Content */}
-      <div className="relative z-10 max-w-7xl mx-auto px-4 py-8">
+      <div className="relative z-20 max-w-7xl mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Players Grid */}
           <div className="lg:col-span-3">
