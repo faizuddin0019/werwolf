@@ -391,9 +391,6 @@ export default function GameScreen({ onEndGame, onRemovePlayer, onChangeRole }: 
                 
                 {roundState ? (
                   <div className="space-y-3">
-                    <div className="text-xs text-slate-500 mb-3">
-                      Round State ID: {roundState.id} | Day: {roundState.day_count} | Phase: {roundState.phase}
-                    </div>
                     
                     {roundState.wolf_target_player_id && (
                       <div className="flex justify-between items-center bg-red-900/20 p-3 rounded border border-red-500/30">

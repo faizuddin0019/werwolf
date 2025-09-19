@@ -171,15 +171,10 @@ export default function GameLobby({
         {/* Mobile Character Circles - Smaller and positioned to avoid form overlap */}
         <div className="absolute md:hidden" style={{top: '10px', left: '10px', zIndex: 1}}>
           <div className="relative">
-            <div className="w-20 h-20 bg-gradient-to-br from-emerald-200/90 to-emerald-400/90 rounded-full flex items-center justify-center shadow-lg shadow-emerald-200/80 character-float gentle-pulse" style={{animationDelay: '1s', border: '4px solid rgba(16, 185, 129, 0.9)'}}>
-              <div className="relative character-breathe">
-                <div className="w-16 h-16 relative head-nod flex items-center justify-center">
-                  <div className="character-bounce" style={{
-                    fontSize: '2rem',
-                    filter: 'drop-shadow(0 0 8px rgba(16, 185, 129, 0.8)) drop-shadow(0 0 16px rgba(16, 185, 129, 0.4))',
-                    textShadow: '0 0 12px rgba(16, 185, 129, 0.9), 0 0 24px rgba(16, 185, 129, 0.5)',
-                    transform: 'scale(1.1)'
-                  }}>👨‍⚕️</div>
+            <div className="w-20 h-20 bg-gradient-to-br from-emerald-200/90 to-emerald-400/90 rounded-full flex items-center justify-center shadow-lg shadow-emerald-200/80 gentle-pulse" style={{animationDelay: '1s', border: '4px solid rgba(16, 185, 129, 0.9)'}}>
+              <div className="relative">
+                <div className="w-16 h-16 relative flex items-center justify-center">
+                  <div style={{fontSize: '2rem'}}>👨‍⚕️</div>
                 </div>
               </div>
             </div>
@@ -189,15 +184,10 @@ export default function GameLobby({
 
         <div className="absolute md:hidden" style={{top: '10px', right: '10px', zIndex: 1}}>
           <div className="relative">
-            <div className="w-20 h-20 bg-gradient-to-br from-sky-200/90 to-sky-400/90 rounded-full flex items-center justify-center shadow-lg shadow-sky-200/80 character-float gentle-pulse" style={{animationDelay: '2s', border: '4px solid rgba(14, 165, 233, 0.9)'}}>
-              <div className="relative character-breathe">
-                <div className="w-16 h-16 relative head-nod flex items-center justify-center">
-                  <div className="character-bounce" style={{
-                    fontSize: '2rem',
-                    filter: 'drop-shadow(0 0 8px rgba(14, 165, 233, 0.8)) drop-shadow(0 0 16px rgba(14, 165, 233, 0.4))',
-                    textShadow: '0 0 12px rgba(14, 165, 233, 0.9), 0 0 24px rgba(14, 165, 233, 0.5)',
-                    transform: 'scale(1.1)'
-                  }}>👮‍♂️</div>
+            <div className="w-20 h-20 bg-gradient-to-br from-sky-200/90 to-sky-400/90 rounded-full flex items-center justify-center shadow-lg shadow-sky-200/80 gentle-pulse" style={{animationDelay: '2s', border: '4px solid rgba(14, 165, 233, 0.9)'}}>
+              <div className="relative">
+                <div className="w-16 h-16 relative flex items-center justify-center">
+                  <div style={{fontSize: '2rem'}}>👮‍♂️</div>
                 </div>
               </div>
             </div>
