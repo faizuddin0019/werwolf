@@ -149,10 +149,10 @@ export function useRealtimeSync(gameId: string | null, onGameEnded?: () => void)
           })
         
         if (playersChanged) {
-          log('useRealtimeSync - Players changed, updating state:', {
+          log('🔧 useRealtimeSync - Players changed, updating state:', {
             game: gameRef.current?.id,
             playersCount: updatedPlayers.length,
-            players: updatedPlayers
+            players: updatedPlayers.map(p => ({ id: p.id, name: p.name, role: p.role, alive: p.alive }))
           })
           
           // Find the current player in the updated players list
@@ -194,6 +194,13 @@ export function useRealtimeSync(gameId: string | null, onGameEnded?: () => void)
         (payload) => {
           log('🔧 Round state subscription triggered:', payload.eventType, payload.new)
           const updatedRoundState = payload.new as RoundState
+          log('🔧 Round state update details:', {
+            gameId: updatedRoundState.game_id,
+            phase: updatedRoundState.phase,
+            wolfTarget: updatedRoundState.wolf_target_player_id,
+            policeInspect: updatedRoundState.police_inspect_player_id,
+            doctorSave: updatedRoundState.doctor_save_player_id
+          })
           
           // Preserve current player during round state updates
           const currentPlayer = currentPlayerRef.current

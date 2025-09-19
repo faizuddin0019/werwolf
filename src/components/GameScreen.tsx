@@ -58,9 +58,9 @@ export default function GameScreen({ onEndGame, onRemovePlayer, onChangeRole }: 
     if (!player.alive) return <XCircle className="w-4 h-4 text-red-500" />
     // Only show role icons to the host, or to the player themselves
     if (isHost || player.id === currentPlayer?.id) {
-      if (player.role === 'werewolf') return <Moon className="w-4 h-4 text-red-600" />
-      if (player.role === 'doctor') return <Stethoscope className="w-4 h-4 text-green-600" />
-      if (player.role === 'police') return <Shield className="w-4 h-4 text-blue-600" />
+    if (player.role === 'werewolf') return <Moon className="w-4 h-4 text-red-600" />
+    if (player.role === 'doctor') return <Stethoscope className="w-4 h-4 text-green-600" />
+    if (player.role === 'police') return <Shield className="w-4 h-4 text-blue-600" />
     }
     return <Users className="w-4 h-4 text-gray-600" />
   }
@@ -320,6 +320,28 @@ export default function GameScreen({ onEndGame, onRemovePlayer, onChangeRole }: 
                           {player.name}
                         </p>
                         
+                        {/* "You" label for current player */}
+                        {currentPlayer && player.id === currentPlayer.id && (
+                          <p className="text-xs text-blue-400 font-medium mt-1">
+                            You
+                          </p>
+                        )}
+                        
+                        {/* Role display - only visible to player themselves and host */}
+                        {player.role && (isHost || (currentPlayer && player.id === currentPlayer.id)) && (
+                          <p className={`text-xs mt-1 font-medium ${
+                            player.role === 'werewolf' 
+                              ? 'text-red-400' 
+                              : player.role === 'doctor'
+                              ? 'text-green-400'
+                              : player.role === 'police'
+                              ? 'text-blue-400'
+                              : 'text-slate-400'
+                          }`}>
+                            {getRoleDisplayName(player.role)}
+                          </p>
+                        )}
+                        
                         <div className="flex items-center justify-center space-x-1 mt-1">
                           {getPlayerIcon(player)}
                           <span className={`text-xs ${
@@ -342,50 +364,6 @@ export default function GameScreen({ onEndGame, onRemovePlayer, onChangeRole }: 
 
           {/* Sidebar */}
           <div className="space-y-6">
-            {/* Current Player Info */}
-            {currentPlayer && (
-              <div className="bg-slate-800/80 backdrop-blur-sm rounded-lg p-6 border border-slate-600/30 shadow-lg">
-                <h3 className="text-lg font-semibold mb-4 text-white">
-                  You
-                </h3>
-                
-                <div className="text-center">
-                  <div className={`w-16 h-16 rounded-full mx-auto mb-3 flex items-center justify-center ${
-                    currentPlayer.is_host ? 'bg-yellow-800' : 'bg-gray-700'
-                  }`}>
-                    <span className={`text-xl font-semibold ${
-                      currentPlayer.is_host ? 'text-yellow-200' : 'text-gray-300'
-                    }`}>
-                      {currentPlayer.name.charAt(0).toUpperCase()}
-                    </span>
-                  </div>
-                  
-                  <p className="font-medium text-white">
-                    {currentPlayer.name}
-                  </p>
-                  
-                  {currentPlayer.role && (
-                    <p className={`text-sm mt-1 ${
-                      currentPlayer.role === 'werewolf' 
-                        ? 'text-red-400' 
-                        : currentPlayer.role === 'doctor'
-                        ? 'text-green-400'
-                        : currentPlayer.role === 'police'
-                        ? 'text-blue-400'
-                        : 'text-slate-400'
-                    }`}>
-                      {getRoleDisplayName(currentPlayer.role)}
-                    </p>
-                  )}
-                  
-                  {currentPlayer.is_host && (
-                    <p className="text-xs text-yellow-400 font-medium mt-1">
-                      Host
-                    </p>
-                  )}
-                </div>
-              </div>
-            )}
 
 
             {/* Host Controls */}
@@ -399,7 +377,7 @@ export default function GameScreen({ onEndGame, onRemovePlayer, onChangeRole }: 
                 <div className="flex justify-between items-center mb-4">
                   <h3 className="text-lg font-semibold text-white">
                     Night Actions - Real-time Updates
-                  </h3>
+                </h3>
                   <button
                     onClick={() => window.location.reload()}
                     className="px-3 py-1 bg-blue-600 text-white rounded text-sm hover:bg-blue-700 transition-colors"
@@ -438,8 +416,8 @@ export default function GameScreen({ onEndGame, onRemovePlayer, onChangeRole }: 
                               {roundState.police_inspect_result === 'werewolf' ? 'WEREWOLF' : 'NOT WEREWOLF'}
                             </span>
                           )}
-                        </span>
-                      </div>
+                    </span>
+                  </div>
                     )}
                     
                     {roundState.doctor_save_player_id && (
@@ -456,8 +434,8 @@ export default function GameScreen({ onEndGame, onRemovePlayer, onChangeRole }: 
                         <p className="text-slate-400 text-sm">⏳ Waiting for night actions...</p>
                         <p className="text-xs text-slate-500 mt-1">Actions will appear here in real-time</p>
                       </div>
-                    )}
-                  </div>
+                  )}
+                </div>
                 ) : (
                   <div className="text-center py-4 bg-yellow-900/20 rounded border border-yellow-500/30">
                     <p className="text-yellow-400 text-sm">⚠️ No round state found</p>
