@@ -1,178 +1,138 @@
-# Werwolf Game - Test Documentation
+# Test Documentation - Real-time Synchronization
+
+This document describes the comprehensive test suite for the Werwolf game's real-time synchronization features.
 
 ## Overview
 
-This document describes the comprehensive test suite for the Werwolf game application, specifically focusing on the leave game functionality and related features.
+The test suite addresses all critical issues that were fixed today:
 
-## Test Scripts
+1. **Player Join Visibility** - Real-time updates without refresh
+2. **Werwolf Turn Progression** - Automatic phase advancement
+3. **Police Inspect Response** - Yes/no based on actual detection
+4. **Host Role Actions Visibility** - Real-time round state updates
+5. **Real-time Synchronization** - Multiple clients consistency
+6. **Edge Cases and Error Handling** - Robust error handling
 
-### 1. Quick Tests (`test-quick.js`)
-**Purpose**: Basic functionality verification
-**Duration**: ~30 seconds
-**Usage**: `npm run test:quick`
+## Test Files
 
-**Tests**:
-- Server connectivity
-- Game creation
-- Game joining
-- Game data retrieval
-- Player leave game
-- Host leave game
-- Game cleanup
-- Error handling
+### `test-realtime-sync.js`
+Main test file containing all test cases for real-time synchronization.
 
-### 2. Comprehensive Tests (`test-leave-game.js`)
-**Purpose**: Full leave game scenario testing
-**Duration**: ~2-3 minutes
-**Usage**: `npm run test:leave-game`
+### `run-realtime-tests.sh`
+Shell script to run the tests with proper environment setup.
 
-**Test Scenarios**:
+## Test Cases
 
-#### Scenario 1: Host Leaving in Lobby
-- **Setup**: Create game with host + 2 players
-- **Action**: Host leaves
-- **Expected**: Game ends, all data cleaned up
-- **Verification**: Game not found in database
+### Test 1: Player Join Visibility
+**Purpose**: Verify that host and players can see who joins without page refresh.
 
-#### Scenario 2: Regular Player Leaving in Lobby
-- **Setup**: Create game with host + 2 players
-- **Action**: Regular player leaves
-- **Expected**: Game continues with remaining players
-- **Verification**: Game exists with reduced player count
+**Steps**:
+1. Create a game with a host
+2. Add 6 players sequentially
+3. Verify each player is visible to all participants
+4. Check that player count updates in real-time
 
-#### Scenario 3: Player Leaving During Active Game
-- **Setup**: Create game with 6 players, start game
-- **Action**: Player leaves during active gameplay
-- **Expected**: Game ends (drops below 6 players)
-- **Verification**: Game deleted, all data cleaned up
+**Expected Results**:
+- All 7 players (1 host + 6 players) are visible
+- No page refresh required
+- Real-time updates work correctly
 
-#### Scenario 4: Data Cleanup Verification
-- **Setup**: Create game with multiple players, start game
-- **Action**: End game
-- **Expected**: Complete data cleanup
-- **Verification**: All related data deleted from database
+### Test 2: Werwolf Turn Progression
+**Purpose**: Verify that game phases advance automatically after player actions.
 
-#### Scenario 5: Multiple Players Leaving
-- **Setup**: Create game with 8 players, start game
-- **Action**: Players leave one by one
-- **Expected**: Game continues until < 6 players, then ends
-- **Verification**: Game ends at correct threshold
+**Steps**:
+1. Start the game (assign roles)
+2. Verify game is in `night_wolf` phase
+3. Werewolf selects a target
+4. Verify phase automatically advances to `night_police`
+5. Police inspects a target
+6. Verify phase automatically advances to `night_doctor`
+7. Doctor saves a target
+8. Verify phase automatically advances to `reveal`
 
-#### Scenario 6: Error Handling
-- **Setup**: Various invalid scenarios
-- **Action**: Attempt invalid operations
-- **Expected**: Proper error responses
-- **Verification**: No crashes, appropriate error messages
+**Expected Results**:
+- Game starts in `night_wolf` phase
+- Each action automatically advances to the next phase
+- No manual host intervention required
 
-## Test Data
+### Test 3: Police Inspect Response
+**Purpose**: Verify that police get correct yes/no responses based on actual role detection.
 
-### Game States Tested
-- **Lobby Phase**: Players can join/leave freely
-- **Active Game**: Players leaving affects game state
-- **Ended Game**: Complete cleanup and redirect
+**Steps**:
+1. Find police, werewolf, and villager players
+2. Police inspects werewolf → should return `'werewolf'`
+3. Police inspects villager → should return `'not_werewolf'`
+4. Police inspects doctor → should return `'not_werewolf'`
 
-### Player Counts Tested
-- **2-5 players**: Lobby phase, free leaving
-- **6 players**: Minimum for game start
-- **7-8 players**: Active game with buffer
-- **< 6 players**: Auto-end during active game
+**Expected Results**:
+- Police correctly detects werewolf as `'werewolf'`
+- Police correctly detects non-werewolves as `'not_werewolf'`
+- Results are based on actual database role data
 
-### Client Scenarios
-- **Valid clients**: Normal operations
-- **Invalid clients**: Error handling
-- **Non-existent games**: Error responses
-- **Permission checks**: Host vs player actions
+### Test 4: Host Role Actions Visibility
+**Purpose**: Verify that host can see all role actions and results in real-time.
 
-## API Endpoints Tested
+**Steps**:
+1. Reset game to `night_wolf` phase
+2. Werewolf selects target → verify round state update
+3. Police inspects target → verify round state update with result
+4. Doctor saves target → verify round state update
+5. Verify all actions are visible in round state
 
-### Game Management
-- `POST /api/games` - Create game
-- `POST /api/games/join` - Join game
-- `GET /api/games?code={code}` - Get game data
+**Expected Results**:
+- Host can see werewolf target selection
+- Host can see police inspection results with werewolf/not werewolf tags
+- Host can see doctor save actions
+- All updates happen without page refresh
 
-### Game Actions
-- `POST /api/games/{id}/actions` - Game actions
-  - `assign_roles` - Start game
-  - `leave_game` - Leave game
-  - `end_game` - End game
+### Test 5: Real-time Synchronization
+**Purpose**: Verify that multiple clients see consistent game state.
 
-## Database Operations Tested
+**Steps**:
+1. Create a new game with multiple players
+2. Start the game
+3. Simulate multiple clients fetching game state
+4. Verify all clients see the same game state
+5. Perform a role action
+6. Verify all clients see the update in real-time
 
-### Data Creation
-- Game records
-- Player records
-- Round states
-- Votes
+**Expected Results**:
+- All clients see consistent game state
+- Phase changes are synchronized across all clients
+- Real-time updates work for multiple clients
 
-### Data Cleanup
-- Game deletion
-- Player deletion
-- Round state deletion
-- Vote deletion
-- Cascade cleanup
+### Test 6: Edge Cases and Error Handling
+**Purpose**: Verify robust error handling for edge cases.
 
-## Real-time Features Tested
+**Steps**:
+1. Test invalid game code → should return error
+2. Test invalid client ID → should return error
+3. Test duplicate player join → should return error
+4. Test action without proper role → should return error
 
-### WebSocket Updates
-- Game state changes
-- Player list updates
-- Game end notifications
-
-### State Synchronization
-- Cross-tab updates
-- Page refresh persistence
-- Automatic redirects
-
-## Error Scenarios Tested
-
-### Invalid Requests
-- Non-existent game IDs
-- Invalid client IDs
-- Missing parameters
-- Permission violations
-
-### Edge Cases
-- Concurrent operations
-- Network timeouts
-- Database errors
-- State inconsistencies
-
-## Performance Considerations
-
-### Response Times
-- Game creation: < 2 seconds
-- Game joining: < 2 seconds
-- Leave game: < 1 second
-- Data cleanup: < 3 seconds
-
-### Concurrent Users
-- Multiple players joining simultaneously
-- Multiple players leaving simultaneously
-- Host and players operating concurrently
-
-## Test Environment Requirements
-
-### Prerequisites
-- Node.js server running on localhost:3000
-- Supabase database configured
-- Environment variables set
-- Database schema deployed
-
-### Test Data Isolation
-- Each test uses unique client IDs
-- Tests clean up after themselves
-- No shared state between tests
-- Fresh game codes for each test
+**Expected Results**:
+- All edge cases are handled gracefully
+- Appropriate error messages are returned
+- System remains stable
 
 ## Running Tests
 
-### Individual Test Suites
+### Local Development
 ```bash
-# Quick functionality test
-npm run test:quick
+# Run against local development server
+npm run test:realtime:local
 
-# Comprehensive leave game tests
-npm run test:leave-game
+# Or directly
+TEST_BASE_URL=http://localhost:3000 node test-realtime-sync.js
+```
+
+### Production
+```bash
+# Run against production server
+npm run test:realtime:prod
+
+# Or directly
+TEST_BASE_URL=https://wearwolf-theta.vercel.app node test-realtime-sync.js
 ```
 
 ### All Tests
@@ -181,96 +141,138 @@ npm run test:leave-game
 npm run test:all
 ```
 
-### Manual Testing
-1. Start the development server: `npm run dev`
-2. Open browser to `http://localhost:3000`
-3. Create a game and test scenarios manually
-4. Use browser developer tools to monitor network requests
-
-## Test Results Interpretation
-
-### Success Criteria
-- All tests pass (exit code 0)
-- No database errors in logs
-- Proper cleanup completed
-- Real-time updates working
-
-### Failure Indicators
-- Test failures (exit code 1)
-- Database constraint violations
-- Memory leaks or orphaned data
-- Inconsistent state
-
-## Continuous Integration
-
-### Pre-deployment Testing
+### Shell Script
 ```bash
-# Run before deployment
-npm run build && npm run test:all
+# Make executable and run
+chmod +x run-realtime-tests.sh
+./run-realtime-tests.sh
 ```
 
-### Development Testing
-```bash
-# Run during development
-npm run test:quick
+## Test Configuration
+
+### Environment Variables
+- `TEST_BASE_URL`: Base URL for the application (default: `http://localhost:3000`)
+
+### Test Data
+- Each test generates unique client IDs using timestamps and random strings
+- Test games are automatically cleaned up after completion
+- Tests use realistic player names and scenarios
+
+## Expected Output
+
+### Successful Test Run
+```
+🚀 Starting Comprehensive Real-time Synchronization Tests
+================================================================================
+Testing against: http://localhost:3000
+================================================================================
+
+🧪 Test 1: Player Join Visibility (Real-time Updates)
+============================================================
+✅ Game created with code: 123456
+✅ Player Alice joined (2 total players)
+✅ Player Bob joined (3 total players)
+...
+✅ All 7 players successfully joined and visible
+
+🧪 Test 2: Werwolf Turn Progression (Automatic Phase Advancement)
+============================================================
+✅ Game started, roles assigned
+✅ Game in night_wolf phase
+✅ Found werewolf: Alice
+✅ Found target: Bob
+✅ Werewolf selected target
+✅ Phase automatically advanced to night_police
+...
+✅ All automatic phase progressions working correctly
+
+📊 Test Results Summary
+================================================================================
+✅ PASSED - Player Join Visibility
+✅ PASSED - Werwolf Turn Progression
+✅ PASSED - Police Inspect Response
+✅ PASSED - Host Role Actions Visibility
+✅ PASSED - Real-time Synchronization
+✅ PASSED - Edge Cases and Error Handling
+================================================================================
+Total: 6/6 tests passed
+🎉 All tests passed! Real-time synchronization is working correctly.
+```
+
+### Failed Test Run
+```
+❌ Test 2 failed: Expected phase 'night_police', got 'night_wolf'
+⚠️ Some tests failed. Please check the issues above.
 ```
 
 ## Troubleshooting
 
 ### Common Issues
-1. **Server not running**: Ensure `npm run dev` is active
-2. **Database errors**: Check Supabase configuration
-3. **Port conflicts**: Verify localhost:3000 is available
-4. **Environment variables**: Ensure `.env.local` is configured
+
+1. **Connection Refused**
+   - Ensure the application is running
+   - Check the TEST_BASE_URL is correct
+   - Verify the port is accessible
+
+2. **Test Timeouts**
+   - Increase sleep delays in tests
+   - Check network connectivity
+   - Verify Supabase connection
+
+3. **Database Errors**
+   - Ensure Supabase is properly configured
+   - Check environment variables
+   - Verify database schema is up to date
+
+4. **Real-time Sync Issues**
+   - Check Supabase real-time configuration
+   - Verify WebSocket connections
+   - Check browser console for errors
 
 ### Debug Mode
-- Add `console.log` statements in test files
-- Monitor browser network tab
-- Check Supabase dashboard for database state
-- Review server logs for errors
+Add debug logging by modifying the test file:
+```javascript
+// Add at the top of test functions
+console.log('🔍 Debug: Current game state:', gameResponse.data)
+```
 
-## Test Maintenance
+## Integration with CI/CD
+
+The tests can be integrated into CI/CD pipelines:
+
+```yaml
+# Example GitHub Actions workflow
+- name: Run Real-time Tests
+  run: |
+    npm run test:realtime:prod
+  env:
+    TEST_BASE_URL: ${{ secrets.TEST_BASE_URL }}
+```
+
+## Maintenance
 
 ### Adding New Tests
-1. Add test case to appropriate test file
-2. Update documentation
-3. Verify test isolation
-4. Test cleanup procedures
+1. Add new test function to `test-realtime-sync.js`
+2. Add test to the `tests` array in `runAllTests()`
+3. Update this documentation
+4. Test the new test case
 
-### Updating Tests
-1. Update test data as needed
-2. Adjust timeouts if necessary
-3. Update expected results
-4. Verify backward compatibility
+### Updating Existing Tests
+1. Modify the test function
+2. Update expected results in documentation
+3. Verify test still passes
+4. Update any related documentation
 
-## Security Testing
+## Performance Considerations
 
-### Authentication
-- Client ID validation
-- Game ownership verification
-- Action permission checks
+- Tests include appropriate delays for real-time synchronization
+- Each test cleans up after itself
+- Tests can be run in parallel (with different game codes)
+- Consider rate limiting for production testing
 
-### Data Protection
-- No sensitive data exposure
-- Proper error messages
-- Input validation
-- SQL injection prevention
+## Security Considerations
 
-## Performance Testing
-
-### Load Testing
-- Multiple concurrent games
-- Large player counts
-- Rapid state changes
-- Database connection limits
-
-### Stress Testing
-- Maximum player limits
-- Extended game sessions
-- Memory usage monitoring
-- Cleanup efficiency
-
----
-
-*Last Updated: $(date)*
-*Test Suite Version: 1.0*
+- Tests use test-specific client IDs
+- No sensitive data is logged
+- Tests clean up after completion
+- Production tests should use test accounts only

@@ -13,7 +13,10 @@
     "deploy": "vercel --prod",
     "test:leave-game": "node test-leave-game.js",
     "test:quick": "node test-quick.js",
-    "test:all": "npm run test:leave-game && npm run test:quick",
+    "test:realtime": "node test-realtime-sync.js",
+    "test:realtime:local": "TEST_BASE_URL=http://localhost:3000 node test-realtime-sync.js",
+    "test:realtime:prod": "TEST_BASE_URL=https://wearwolf-theta.vercel.app node test-realtime-sync.js",
+    "test:all": "npm run test:leave-game && npm run test:quick && npm run test:realtime",
     "test:ci": "./run-tests.sh all",
     "test:verify": "./run-tests.sh quick"
   },
