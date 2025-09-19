@@ -172,7 +172,7 @@ export function useRealtimeSync(gameId: string | null, onGameEnded?: () => void)
           log('🔧 Players unchanged, skipping state update')
         }
       }
-    }, 500) // 500ms debounce for better battery life
+    }, 50) // 50ms debounce for near real-time updates
 
     // Subscribe to player changes
     const playersSubscription = supabase
@@ -230,47 +230,49 @@ export function useRealtimeSync(gameId: string | null, onGameEnded?: () => void)
       )
       .subscribe()
 
-    // TEMPORARILY DISABLED - Subscribe to vote changes
-    // const votesSubscription = supabase
-    //   .channel(`votes:${gameId}`)
-    //   .on('postgres_changes',
-    //     { event: '*', schema: 'public', table: 'votes', filter: `game_id=eq.${gameId}` },
-    //     async () => {
-    //       // Refetch all votes for this game
-    //       const { data: updatedVotes } = await supabase
-    //         .from('votes')
-    //         .select('*')
-    //         .eq('game_id', gameId)
-    //       
-    //       if (updatedVotes) {
-    //         // Check if votes actually changed to prevent infinite loops
-    //         const currentVotes = votesRef.current
-    //         const votesChanged = !currentVotes || 
-    //           currentVotes.length !== updatedVotes.length ||
-    //           currentVotes.some((currentVote, index) => {
-    //             const updatedVote = updatedVotes[index]
-    //             return !updatedVote || 
-    //               currentVote.id !== updatedVote.id ||
-    //               currentVote.voter_id !== updatedVote.voter_id ||
-    //               currentVote.target_player_id !== updatedVote.target_player_id
-    //           })
-    //         
-    //         if (votesChanged) {
-    //           console.log('🔧 Votes changed, updating state')
-    //           setGameData({
-    //             game: gameRef.current || {} as Game,
-    //             players: playersRef.current || [],
-    //             roundState: roundStateRef.current,
-    //             votes: updatedVotes,
-    //             leaveRequests: leaveRequestsRef.current || []
-    //           })
-    //         } else {
-    //           console.log('🔧 Votes unchanged, skipping state update')
-    //         }
-    //       }
-    //     }
-    //   )
-    //   .subscribe()
+    // Subscribe to vote changes for real-time voting updates
+    const votesSubscription = supabase
+      .channel(`votes:${gameId}`)
+      .on('postgres_changes',
+        { event: '*', schema: 'public', table: 'votes', filter: `game_id=eq.${gameId}` },
+        async () => {
+          log('🔧 Vote change detected, refetching votes')
+          // Refetch all votes for this game
+          const { data: updatedVotes } = await supabase
+            .from('votes')
+            .select('*')
+            .eq('game_id', gameId)
+          
+          if (updatedVotes) {
+            // Check if votes actually changed to prevent infinite loops
+            const currentVotes = votesRef.current
+            const votesChanged = !currentVotes || 
+              currentVotes.length !== updatedVotes.length ||
+              currentVotes.some((currentVote, index) => {
+                const updatedVote = updatedVotes[index]
+                return !updatedVote || 
+                  currentVote.id !== updatedVote.id ||
+                  currentVote.voter_id !== updatedVote.voter_id ||
+                  currentVote.target_player_id !== updatedVote.target_player_id
+              })
+            
+            if (votesChanged) {
+              log('🔧 Votes changed, updating state:', updatedVotes.length, 'votes')
+              setGameData({
+                game: gameRef.current || {} as Game,
+                players: playersRef.current || [],
+                roundState: roundStateRef.current,
+                votes: updatedVotes,
+                leaveRequests: leaveRequestsRef.current || [],
+                currentPlayer: currentPlayerRef.current
+              })
+            } else {
+              log('🔧 Votes unchanged, skipping state update')
+            }
+          }
+        }
+      )
+      .subscribe()
 
     // Debounced function to refetch leave requests
     const debouncedRefetchLeaveRequests = debounce(async () => {
@@ -307,7 +309,7 @@ export function useRealtimeSync(gameId: string | null, onGameEnded?: () => void)
           log('🔧 Leave requests unchanged, skipping state update')
         }
       }
-    }, 500) // 500ms debounce for better battery life
+    }, 50) // 50ms debounce for near real-time updates
 
     // Subscribe to leave request changes
     const leaveRequestsSubscription = supabase
@@ -326,7 +328,7 @@ export function useRealtimeSync(gameId: string | null, onGameEnded?: () => void)
       game: gameSubscription,
       players: playersSubscription,
       roundState: roundStateSubscription,
-      votes: null, // votesSubscription,
+      votes: votesSubscription,
       leaveRequests: leaveRequestsSubscription
     }
     

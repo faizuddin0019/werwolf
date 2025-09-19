@@ -28,7 +28,7 @@ export default function NightOverlay() {
   const [isLoading, setIsLoading] = useState(false)
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error', message: string } | null>(null)
 
-  const alivePlayers = players.filter(p => p.alive && p.id !== currentPlayer?.id)
+  const alivePlayers = players.filter(p => p.alive && p.id !== currentPlayer?.id && !p.is_host)
   const canAct = currentPlayer && canPlayerAct(currentPlayer, gamePhase, false)
 
   useEffect(() => {

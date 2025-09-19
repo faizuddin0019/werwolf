@@ -385,18 +385,9 @@ export default function GameScreen({ onEndGame, onRemovePlayer, onChangeRole }: 
             {/* Host Round State Information */}
             {isHost && (
               <div className="bg-slate-800/80 backdrop-blur-sm rounded-lg p-6 border border-slate-600/30 shadow-lg">
-                <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-lg font-semibold text-white">
-                    Night Actions - Real-time Updates
+                <h3 className="text-lg font-semibold text-white mb-4">
+                  Night Actions - Real-time Updates
                 </h3>
-                  <button
-                    onClick={() => window.location.reload()}
-                    className="px-3 py-1 bg-blue-600 text-white rounded text-sm hover:bg-blue-700 transition-colors"
-                    title="Refresh to get latest updates"
-                  >
-                    🔄 Refresh
-                  </button>
-                </div>
                 
                 {roundState ? (
                   <div className="space-y-3">

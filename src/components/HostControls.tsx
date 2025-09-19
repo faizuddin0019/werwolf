@@ -117,6 +117,14 @@ export default function HostControls({ onEndGame }: HostControlsProps) {
       case 'assign_roles':
         return 'Assign Roles'
       case 'next_phase':
+        // Show specific phase-based labels for night actions
+        if (gamePhase === 'night_wolf') {
+          return 'Wake Up Doctor'
+        } else if (gamePhase === 'night_doctor') {
+          return 'Wake Up Police'
+        } else if (gamePhase === 'night_police') {
+          return 'Reveal the Dead'
+        }
         return `Go to ${getNextPhase(gamePhase) === 'night_wolf' ? 'Sleep' : getPhaseDisplayName(getNextPhase(gamePhase))}`
       case 'reveal_dead':
         return 'Reveal the Dead'
