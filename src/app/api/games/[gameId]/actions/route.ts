@@ -58,6 +58,8 @@ export async function POST(
       return NextResponse.json({ error: 'Host cannot request to leave. Use "End Game" instead.' }, { status: 403 })
     }
     
+    console.log('🔧 Action received:', action, 'for game:', gameId, 'by player:', currentPlayer.name)
+    
     switch (action) {
       case 'assign_roles':
         return await handleAssignRoles(gameId, game)
@@ -385,6 +387,8 @@ async function handleEliminatePlayer(gameId: string, game: Game) {
 }
 
 async function handleEndGame(gameId: string, game: Game) {
+  console.log('🔧 handleEndGame called - this should only happen when host clicks End Game button')
+  
   // Update game phase to ended
   const { error: updateError } = await supabase
     .from('games')
