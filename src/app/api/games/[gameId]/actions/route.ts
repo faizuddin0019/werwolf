@@ -488,8 +488,9 @@ async function handleLeaveGame(gameId: string, game: Game, currentPlayer: Player
     return NextResponse.json({ error: 'Failed to check remaining players' }, { status: 500 })
   }
   
-  // If less than 6 players remain, reset game to lobby state
-  if (remainingPlayers.length < 6) {
+  // If less than 6 non-host players remain, reset game to lobby state
+  const nonHostPlayers = remainingPlayers.filter(p => !p.is_host)
+  if (nonHostPlayers.length < 6) {
     // Reset game to lobby phase and clear any game progress
     const { error: resetGameError } = await supabase
       .from('games')
@@ -698,8 +699,9 @@ async function handleApproveLeave(gameId: string, hostPlayer: Player, playerId: 
     return NextResponse.json({ error: 'Failed to check remaining players' }, { status: 500 })
   }
   
-  // If less than 6 players remain, reset game to lobby state
-  if (remainingPlayers.length < 6) {
+  // If less than 6 non-host players remain, reset game to lobby state
+  const nonHostPlayers = remainingPlayers.filter(p => !p.is_host)
+  if (nonHostPlayers.length < 6) {
     // Reset game to lobby phase and clear any game progress
     const { error: resetGameError } = await supabase
       .from('games')
@@ -860,8 +862,10 @@ async function handleRemovePlayer(gameId: string, hostPlayer: Player, playerId: 
   
   console.log('🔧 Remaining players after removal:', remainingPlayers?.length, remainingPlayers?.map(p => ({ id: p.id, name: p.name, is_host: p.is_host })))
   
-  // If less than 6 players remain, reset game to lobby state
-  if (remainingPlayers.length < 6) {
+  // If less than 6 non-host players remain, reset game to lobby state
+  const nonHostPlayers = remainingPlayers.filter(p => !p.is_host)
+  console.log('🔧 Non-host players count:', nonHostPlayers?.length)
+  if (nonHostPlayers.length < 6) {
     console.log('🔧 Less than 6 players remaining, resetting game to lobby state')
     
     // Reset game to lobby phase and clear any game progress
