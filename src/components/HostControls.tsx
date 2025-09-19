@@ -55,9 +55,16 @@ export default function HostControls({ onEndGame }: HostControlsProps) {
       })
       
       if (!response.ok) {
-        const error = await response.json()
-        console.error('Action failed:', error)
-        alert(`Action failed: ${error.error}`)
+        let errorMessage = 'Unknown error'
+        try {
+          const error = await response.json()
+          console.error('Action failed:', error)
+          errorMessage = error.error || error.message || 'Unknown error'
+        } catch (parseError) {
+          console.error('Failed to parse error response:', parseError)
+          errorMessage = `HTTP ${response.status}: ${response.statusText}`
+        }
+        alert(`Action failed: ${errorMessage}`)
       }
     } catch (error) {
       console.error('Error performing action:', error)

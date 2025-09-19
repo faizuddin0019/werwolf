@@ -396,55 +396,67 @@ export default function GameScreen({ onEndGame, onRemovePlayer, onChangeRole }: 
             )}
 
             {/* Host Round State Information */}
-            {isHost && roundState && (
+            {isHost && (
               <div className="bg-gray-900/80 backdrop-blur-sm rounded-lg p-6 border border-gray-600/30 shadow-lg">
                 <h3 className="text-lg font-semibold mb-4 text-white">
-                  Night Actions
+                  Night Actions - Real-time Updates
                 </h3>
                 
-                <div className="space-y-3">
-                  {roundState.wolf_target_player_id && (
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-400">Werewolf Target:</span>
-                      <span className="text-sm font-medium text-red-400">
-                        {players.find(p => p.id === roundState.wolf_target_player_id)?.name || 'Unknown'}
-                      </span>
+                {roundState ? (
+                  <div className="space-y-3">
+                    <div className="text-xs text-gray-500 mb-3">
+                      Round State ID: {roundState.id} | Day: {roundState.day_count} | Phase: {roundState.phase}
                     </div>
-                  )}
-                  
-                  {roundState.police_inspect_player_id && (
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-400">Police Inspected:</span>
-                      <span className="text-sm font-medium text-blue-400">
-                        {players.find(p => p.id === roundState.police_inspect_player_id)?.name || 'Unknown'}
-                        {roundState.police_inspect_result && (
-                          <span className={`ml-2 px-2 py-1 rounded text-xs ${
-                            roundState.police_inspect_result === 'werewolf' 
-                              ? 'bg-red-600 text-white' 
-                              : 'bg-green-600 text-white'
-                          }`}>
-                            {roundState.police_inspect_result === 'werewolf' ? 'WEREWOLF' : 'NOT WEREWOLF'}
-                          </span>
-                        )}
-                      </span>
-                    </div>
-                  )}
-                  
-                  {roundState.doctor_save_player_id && (
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-400">Doctor Saved:</span>
-                      <span className="text-sm font-medium text-green-400">
-                        {players.find(p => p.id === roundState.doctor_save_player_id)?.name || 'Unknown'}
-                      </span>
-                    </div>
-                  )}
-                  
-                  {!roundState.wolf_target_player_id && !roundState.police_inspect_player_id && !roundState.doctor_save_player_id && (
-                    <div className="text-center py-4">
-                      <p className="text-gray-400 text-sm">No actions taken yet</p>
-                    </div>
-                  )}
-                </div>
+                    
+                    {roundState.wolf_target_player_id && (
+                      <div className="flex justify-between items-center bg-red-900/20 p-3 rounded border border-red-500/30">
+                        <span className="text-sm text-gray-300">🐺 Werewolf Target:</span>
+                        <span className="text-sm font-medium text-red-400">
+                          {players.find(p => p.id === roundState.wolf_target_player_id)?.name || 'Unknown'}
+                        </span>
+                      </div>
+                    )}
+                    
+                    {roundState.police_inspect_player_id && (
+                      <div className="flex justify-between items-center bg-blue-900/20 p-3 rounded border border-blue-500/30">
+                        <span className="text-sm text-gray-300">👮 Police Inspected:</span>
+                        <span className="text-sm font-medium text-blue-400">
+                          {players.find(p => p.id === roundState.police_inspect_player_id)?.name || 'Unknown'}
+                          {roundState.police_inspect_result && (
+                            <span className={`ml-2 px-2 py-1 rounded text-xs ${
+                              roundState.police_inspect_result === 'werewolf' 
+                                ? 'bg-red-600 text-white' 
+                                : 'bg-green-600 text-white'
+                            }`}>
+                              {roundState.police_inspect_result === 'werewolf' ? 'WEREWOLF' : 'NOT WEREWOLF'}
+                            </span>
+                          )}
+                        </span>
+                      </div>
+                    )}
+                    
+                    {roundState.doctor_save_player_id && (
+                      <div className="flex justify-between items-center bg-green-900/20 p-3 rounded border border-green-500/30">
+                        <span className="text-sm text-gray-300">🩺 Doctor Saved:</span>
+                        <span className="text-sm font-medium text-green-400">
+                          {players.find(p => p.id === roundState.doctor_save_player_id)?.name || 'Unknown'}
+                        </span>
+                      </div>
+                    )}
+                    
+                    {!roundState.wolf_target_player_id && !roundState.police_inspect_player_id && !roundState.doctor_save_player_id && (
+                      <div className="text-center py-4 bg-gray-800/50 rounded border border-gray-600/30">
+                        <p className="text-gray-400 text-sm">⏳ Waiting for night actions...</p>
+                        <p className="text-xs text-gray-500 mt-1">Actions will appear here in real-time</p>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="text-center py-4 bg-yellow-900/20 rounded border border-yellow-500/30">
+                    <p className="text-yellow-400 text-sm">⚠️ No round state found</p>
+                    <p className="text-xs text-gray-500 mt-1">Round state should be created when game starts</p>
+                  </div>
+                )}
               </div>
             )}
 

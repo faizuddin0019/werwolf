@@ -72,6 +72,13 @@ export function useRealtimeSync(gameId: string | null, onGameEnded?: () => void)
           log('🔧 Game updated:', payload.new)
           const updatedGame = payload.new as Game
           
+          // Preserve current player during game phase transitions
+          const currentPlayer = currentPlayerRef.current
+          if (!currentPlayer) {
+            log('🔧 No current player found during game update - skipping update')
+            return
+          }
+          
           // Update game using setGameData to maintain consistency
           setGameData({
             game: updatedGame,
@@ -79,7 +86,7 @@ export function useRealtimeSync(gameId: string | null, onGameEnded?: () => void)
             roundState: roundStateRef.current,
             votes: votesRef.current || [],
             leaveRequests: leaveRequestsRef.current || [],
-            currentPlayer: currentPlayerRef.current
+            currentPlayer: currentPlayer
           })
           
           // If game ended, redirect to welcome page
@@ -178,8 +185,15 @@ export function useRealtimeSync(gameId: string | null, onGameEnded?: () => void)
       .on('postgres_changes',
         { event: '*', schema: 'public', table: 'round_state', filter: `game_id=eq.${gameId}` },
         (payload) => {
-          log('Round state updated:', payload.new)
+          log('🔧 Round state subscription triggered:', payload.eventType, payload.new)
           const updatedRoundState = payload.new as RoundState
+          
+          // Preserve current player during round state updates
+          const currentPlayer = currentPlayerRef.current
+          if (!currentPlayer) {
+            log('🔧 No current player found during round state update - skipping update')
+            return
+          }
           
           // Update round state using setGameData to maintain consistency
           setGameData({
@@ -188,7 +202,7 @@ export function useRealtimeSync(gameId: string | null, onGameEnded?: () => void)
             roundState: updatedRoundState,
             votes: votesRef.current || [],
             leaveRequests: leaveRequestsRef.current || [],
-            currentPlayer: currentPlayerRef.current
+            currentPlayer: currentPlayer
           })
         }
       )

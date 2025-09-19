@@ -246,45 +246,83 @@ async function handleDoctorSave(gameId: string, player: Player, targetId: string
 }
 
 async function handleRevealDead(gameId: string, game: Game) {
-  // Get round state
-  const { data: roundState } = await supabase
-    .from('round_state')
-    .select('*')
-    .eq('game_id', gameId)
-    .single()
-  
-  if (!roundState) {
-    return NextResponse.json({ error: 'Round state not found' }, { status: 500 })
+  try {
+    console.log('🔧 handleRevealDead called for game:', gameId)
+    
+    // Get round state
+    const { data: roundState, error: roundStateError } = await supabase
+      .from('round_state')
+      .select('*')
+      .eq('game_id', gameId)
+      .single()
+    
+    if (roundStateError) {
+      console.error('Error fetching round state:', roundStateError)
+      return NextResponse.json({ error: `Failed to fetch round state: ${roundStateError.message}` }, { status: 500 })
+    }
+    
+    if (!roundState) {
+      console.error('No round state found for game:', gameId)
+      return NextResponse.json({ error: 'Round state not found' }, { status: 500 })
+    }
+    
+    console.log('🔧 Round state found:', {
+      id: roundState.id,
+      wolf_target: roundState.wolf_target_player_id,
+      doctor_save: roundState.doctor_save_player_id
+    })
+    
+    // Check if doctor saved the werwolf target
+    let deadPlayerId = null
+    if (roundState.wolf_target_player_id && 
+        roundState.doctor_save_player_id !== roundState.wolf_target_player_id) {
+      deadPlayerId = roundState.wolf_target_player_id
+    }
+    
+    console.log('🔧 Dead player determined:', deadPlayerId)
+    
+    // Update round state with resolved death
+    const { error: updateRoundStateError } = await supabase
+      .from('round_state')
+      .update({ resolved_death_player_id: deadPlayerId })
+      .eq('game_id', gameId)
+    
+    if (updateRoundStateError) {
+      console.error('Error updating round state:', updateRoundStateError)
+      return NextResponse.json({ error: `Failed to update round state: ${updateRoundStateError.message}` }, { status: 500 })
+    }
+    
+    // Mark player as dead if they died
+    if (deadPlayerId) {
+      const { error: updatePlayerError } = await supabase
+        .from('players')
+        .update({ alive: false })
+        .eq('id', deadPlayerId)
+      
+      if (updatePlayerError) {
+        console.error('Error updating player alive status:', updatePlayerError)
+        return NextResponse.json({ error: `Failed to update player status: ${updatePlayerError.message}` }, { status: 500 })
+      }
+    }
+    
+    // Advance to day_vote phase after revealing dead
+    const { error: updateGameError } = await supabase
+      .from('games')
+      .update({ phase: 'day_vote' })
+      .eq('id', gameId)
+    
+    if (updateGameError) {
+      console.error('Error updating game phase:', updateGameError)
+      return NextResponse.json({ error: `Failed to update game phase: ${updateGameError.message}` }, { status: 500 })
+    }
+    
+    console.log('🔧 Reveal dead completed successfully')
+    return NextResponse.json({ success: true, deadPlayerId })
+    
+  } catch (error) {
+    console.error('Unexpected error in handleRevealDead:', error)
+    return NextResponse.json({ error: `Unexpected error: ${error instanceof Error ? error.message : 'Unknown error'}` }, { status: 500 })
   }
-  
-  // Check if doctor saved the werwolf target
-  let deadPlayerId = null
-  if (roundState.wolf_target_player_id && 
-      roundState.doctor_save_player_id !== roundState.wolf_target_player_id) {
-    deadPlayerId = roundState.wolf_target_player_id
-  }
-  
-  // Update round state with resolved death
-  await supabase
-    .from('round_state')
-    .update({ resolved_death_player_id: deadPlayerId })
-    .eq('game_id', gameId)
-  
-  // Mark player as dead if they died
-  if (deadPlayerId) {
-    await supabase
-      .from('players')
-      .update({ alive: false })
-      .eq('id', deadPlayerId)
-  }
-  
-  // Advance to day_vote phase after revealing dead
-  await supabase
-    .from('games')
-    .update({ phase: 'day_vote' })
-    .eq('id', gameId)
-  
-  return NextResponse.json({ success: true, deadPlayerId })
 }
 
 async function handleVote(gameId: string, player: Player, targetId: string, round: number, phase: string) {
