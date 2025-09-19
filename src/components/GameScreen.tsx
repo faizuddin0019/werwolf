@@ -32,9 +32,10 @@ import VotingInterface from './VotingInterface'
 
 interface GameScreenProps {
   onEndGame: () => void
+  onRemovePlayer: (playerId: string) => void
 }
 
-export default function GameScreen({ onEndGame }: GameScreenProps) {
+export default function GameScreen({ onEndGame, onRemovePlayer }: GameScreenProps) {
   const [game] = useAtom(gameAtom)
   const [players] = useAtom(playersAtom)
   const [currentPlayer] = useAtom(currentPlayerAtom)
@@ -332,6 +333,42 @@ export default function GameScreen({ onEndGame }: GameScreenProps) {
                     </p>
                   )}
                 </div>
+              </div>
+            )}
+
+            {/* Host Player Management */}
+            {isHost && (
+              <div className="bg-gray-900/80 backdrop-blur-sm rounded-lg p-6 border border-gray-600/30 shadow-lg">
+                <h3 className="text-lg font-semibold text-white mb-4">
+                  Player Management
+                </h3>
+                
+                {players.filter(p => !p.is_host).length > 0 ? (
+                  <div className="space-y-2">
+                    {players.filter(p => !p.is_host).map((player) => (
+                      <div key={player.id} className="flex items-center justify-between bg-gray-800/50 rounded-lg p-3">
+                        <div className="flex items-center space-x-2">
+                          <span className="text-white">{player.name}</span>
+                          {!player.alive && <span className="text-red-400 text-xs">(Dead)</span>}
+                        </div>
+                        <button
+                          onClick={() => onRemovePlayer(player.id)}
+                          className="px-3 py-1 bg-red-600 text-white rounded text-sm hover:bg-red-700 transition-colors"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-4">
+                    <p className="text-gray-400 text-sm">No other players to manage</p>
+                  </div>
+                )}
+                
+                <p className="text-xs text-gray-400 mt-3 text-center">
+                  Host can remove any player from the game
+                </p>
               </div>
             )}
 

@@ -12,12 +12,20 @@ export function getWerwolfCount(playerCount: number): number {
   return 3
 }
 
-// Assign roles to players
+// Assign roles to players (excluding host)
 export function assignRoles(players: Player[]): Player[] {
-  const shuffled = [...players].sort(() => Math.random() - 0.5)
-  const werwolfCount = getWerwolfCount(players.length)
+  // Filter out the host - host should not have a role
+  const nonHostPlayers = players.filter(p => !p.is_host)
   
-  return shuffled.map((player, index) => {
+  if (nonHostPlayers.length < 6) {
+    throw new Error('Need at least 6 non-host players to assign roles')
+  }
+  
+  const shuffled = [...nonHostPlayers].sort(() => Math.random() - 0.5)
+  const werwolfCount = getWerwolfCount(nonHostPlayers.length)
+  
+  // Assign roles to non-host players
+  const playersWithRoles = shuffled.map((player, index) => {
     let role: PlayerRole = 'villager'
     
     if (index < werwolfCount) {
@@ -30,6 +38,10 @@ export function assignRoles(players: Player[]): Player[] {
     
     return { ...player, role }
   })
+  
+  // Return all players (host without role + non-host players with roles)
+  const hostPlayers = players.filter(p => p.is_host)
+  return [...hostPlayers, ...playersWithRoles]
 }
 
 // Check win conditions

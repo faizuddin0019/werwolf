@@ -44,7 +44,7 @@ export async function POST(
     }
     
     // Verify host permissions for most actions
-    if (!currentPlayer.is_host && !['vote', 'revoke_vote', 'request_leave', 'approve_leave', 'deny_leave', 'remove_player'].includes(action)) {
+    if (!currentPlayer.is_host && !['vote', 'revoke_vote', 'request_leave', 'approve_leave', 'deny_leave', 'remove_player', 'wolf_select', 'police_inspect', 'doctor_save'].includes(action)) {
       return NextResponse.json({ error: 'Only the host can perform this action' }, { status: 403 })
     }
     
@@ -133,12 +133,23 @@ async function handleAssignRoles(gameId: string, game: Game) {
     .select('*')
     .eq('game_id', gameId)
   
-  if (playersError || !players || players.length < 6) {
-    return NextResponse.json({ error: 'Need at least 6 players to start' }, { status: 400 })
+  if (playersError || !players) {
+    return NextResponse.json({ error: 'Failed to fetch players' }, { status: 500 })
   }
   
-  // Assign roles
-  const playersWithRoles = assignRoles(players)
+  // Check if we have enough non-host players (need 6 non-host players + 1 host = 7 total)
+  const nonHostPlayers = players.filter(p => !p.is_host)
+  if (nonHostPlayers.length < 6) {
+    return NextResponse.json({ error: 'Need at least 6 non-host players to start' }, { status: 400 })
+  }
+  
+  // Assign roles (excluding host)
+  let playersWithRoles: Player[]
+  try {
+    playersWithRoles = assignRoles(players)
+  } catch (error) {
+    return NextResponse.json({ error: error instanceof Error ? error.message : 'Failed to assign roles' }, { status: 400 })
+  }
   
   // Update players with roles
   for (const player of playersWithRoles) {

@@ -55,6 +55,7 @@ export default function GameLobby({
   // In lobby phase, show all players (they're all alive)
   const alivePlayers = players.filter(p => p.alive)
   const playerCount = players.length
+  const nonHostPlayerCount = players.filter(p => !p.is_host).length
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800 relative overflow-hidden">
@@ -259,14 +260,14 @@ export default function GameLobby({
                   ))}
               </div>
               
-              {playerCount < 6 && (
-                <div className="text-center py-4 mt-4">
-                  <Users className="w-12 h-12 text-gray-500 mx-auto mb-2" />
-                  <p className="text-sm text-gray-400">
-                    Need {6 - playerCount} more players to start
-                  </p>
-                </div>
-              )}
+    {nonHostPlayerCount < 6 && (
+      <div className="text-center py-4 mt-4">
+        <Users className="w-12 h-12 text-gray-500 mx-auto mb-2" />
+        <p className="text-sm text-gray-400">
+          Need {6 - nonHostPlayerCount} more players to start (excluding host)
+        </p>
+      </div>
+    )}
             </div>
           </div>
 
@@ -333,16 +334,16 @@ export default function GameLobby({
                   <span>End Game</span>
                 </button>
                 
-                {!canStartGame && (
-                  <p className="text-xs text-gray-400 mt-2 text-center">
-                    {playerCount < 6 
-                      ? `Need ${6 - playerCount} more players`
-                      : playerCount > 20
-                      ? 'Too many players (max 20)'
-                      : 'Ready to start!'
-                    }
-                  </p>
-                )}
+        {!canStartGame && (
+          <p className="text-xs text-gray-400 mt-2 text-center">
+            {nonHostPlayerCount < 6 
+              ? `Need ${6 - nonHostPlayerCount} more players (excluding host)`
+              : playerCount > 21
+              ? 'Too many players (max 21)'
+              : 'Ready to start!'
+            }
+          </p>
+        )}
               </div>
             )}
 

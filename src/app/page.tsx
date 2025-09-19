@@ -658,6 +658,7 @@ export default function HomePage() {
       return (
         <GameScreen
           onEndGame={handleEndGame}
+          onRemovePlayer={handleRemovePlayer}
         />
       )
     

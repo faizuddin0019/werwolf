@@ -35,7 +35,10 @@ export const canStartGameAtom = atom((get) => {
   const isHost = get(isHostAtom)
   const playerName = get(playerNameAtom)
   
-  return isHost && playerName.trim().length > 0 && players.length >= 6 && players.length <= 20
+  // Need at least 6 non-host players + 1 host = 7 total players minimum
+  const nonHostPlayers = players.filter(p => !p.is_host)
+  
+  return isHost && playerName.trim().length > 0 && nonHostPlayers.length >= 6 && players.length <= 21
 })
 
 export const gamePhaseAtom = atom((get) => get(gameAtom)?.phase || 'lobby')
