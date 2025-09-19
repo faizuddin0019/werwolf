@@ -343,11 +343,11 @@ export default function WelcomeScreen({ onStartGame, onJoinGame }: WelcomeScreen
             <h1 className="text-5xl font-bold text-white mb-2 drop-shadow-lg">
               🐺 Werwolf
             </h1>
-            <div className="bg-gradient-to-r from-purple-900/80 via-indigo-900/80 to-purple-900/80 backdrop-blur-sm rounded-2xl p-6 border border-purple-500/30 shadow-2xl">
+            <div className="bg-gradient-to-r from-slate-800/80 via-indigo-800/80 to-slate-800/80 backdrop-blur-sm rounded-2xl p-6 border border-slate-500/30 shadow-2xl">
               <p className="text-xl text-amber-200 mb-2 font-semibold">
                 Video-Conference Companion
               </p>
-              <p className="text-sm text-purple-300">
+              <p className="text-sm text-slate-300">
                 Host-controlled, zero-typing play
               </p>
             </div>
@@ -378,25 +378,25 @@ export default function WelcomeScreen({ onStartGame, onJoinGame }: WelcomeScreen
           )}
 
           {/* Start New Game */}
-          <div className="bg-gradient-to-br from-purple-900/90 via-indigo-900/90 to-purple-900/90 backdrop-blur-sm rounded-2xl p-6 border border-purple-500/30 shadow-2xl">
+          <div className="bg-gradient-to-br from-slate-800/90 via-indigo-800/90 to-slate-800/90 backdrop-blur-sm rounded-2xl p-6 border border-slate-500/30 shadow-2xl">
             <div className="text-center mb-6">
               <div className="text-3xl mb-2">👑</div>
               <h2 className="text-2xl font-bold bg-gradient-to-r from-amber-400 to-yellow-300 bg-clip-text text-transparent">
                 Start New Game
               </h2>
-              <p className="text-sm text-purple-300 mt-1">Become the Host</p>
+              <p className="text-sm text-slate-300 mt-1">Become the Host</p>
             </div>
             
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-amber-200 mb-1">
+                <label className="block text-sm font-medium text-slate-200 mb-1">
                   Host Name
                 </label>
                 <input
                   type="text"
                   value={playerName}
                   onChange={(e) => setPlayerName(e.target.value)}
-                  className="w-full px-3 py-2 bg-purple-800/50 border border-purple-500/50 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500 text-white placeholder-purple-300"
+                  className="w-full px-3 py-2 bg-slate-700/50 border border-slate-500/50 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500 text-white placeholder-slate-300"
                   placeholder="Enter your name"
                   maxLength={20}
                 />
@@ -413,39 +413,39 @@ export default function WelcomeScreen({ onStartGame, onJoinGame }: WelcomeScreen
           </div>
 
           {/* Join Existing Game */}
-          <div className="bg-gradient-to-br from-indigo-900/90 via-purple-900/90 to-indigo-900/90 backdrop-blur-sm rounded-2xl p-6 border border-indigo-500/30 shadow-2xl">
+          <div className="bg-gradient-to-br from-slate-800/90 via-blue-800/90 to-slate-800/90 backdrop-blur-sm rounded-2xl p-6 border border-blue-500/30 shadow-2xl">
             <div className="text-center mb-6">
               <div className="text-3xl mb-2">⚔️</div>
               <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-indigo-300 bg-clip-text text-transparent">
                 Join Game
               </h2>
-              <p className="text-sm text-indigo-300 mt-1">Enter the Game</p>
+              <p className="text-sm text-slate-300 mt-1">Enter the Game</p>
             </div>
             
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-blue-200 mb-1">
+                <label className="block text-sm font-medium text-slate-200 mb-1">
                   Game Code
                 </label>
                 <input
                   type="text"
                   value={joinCode}
                   onChange={(e) => setJoinCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                  className="w-full px-3 py-2 bg-indigo-800/50 border border-indigo-500/50 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono text-center text-white placeholder-indigo-300"
+                  className="w-full px-3 py-2 bg-slate-700/50 border border-slate-500/50 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono text-center text-white placeholder-slate-300"
                   placeholder="000000"
                   maxLength={6}
                 />
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-blue-200 mb-1">
+                <label className="block text-sm font-medium text-slate-200 mb-1">
                   Player Name
                 </label>
                 <input
                   type="text"
                   value={joinName}
                   onChange={(e) => setJoinName(e.target.value)}
-                  className="w-full px-3 py-2 bg-indigo-800/50 border border-indigo-500/50 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-white placeholder-indigo-300"
+                  className="w-full px-3 py-2 bg-slate-700/50 border border-slate-500/50 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-white placeholder-slate-300"
                   placeholder="Enter your name"
                   maxLength={20}
                 />
