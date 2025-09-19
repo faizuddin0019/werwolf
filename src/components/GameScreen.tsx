@@ -1,0 +1,393 @@
+'use client'
+
+import { useAtom } from 'jotai'
+import { 
+  gameAtom, 
+  playersAtom, 
+  currentPlayerAtom, 
+  isHostAtom,
+  gamePhaseAtom,
+  isNightPhaseAtom,
+  isDayPhaseAtom,
+  voteCountsAtom,
+  highestVotedPlayerAtom
+} from '@/lib/game-store'
+import { getPhaseDisplayName, getRoleDisplayName } from '@/lib/game-utils'
+import { Player } from '@/lib/supabase'
+import { 
+  Crown, 
+  Moon, 
+  Sun, 
+  Users, 
+  Eye, 
+  Shield, 
+  Stethoscope,
+  Vote,
+  CheckCircle,
+  XCircle
+} from 'lucide-react'
+import HostControls from './HostControls'
+import NightOverlay from './NightOverlay'
+import VotingInterface from './VotingInterface'
+
+interface GameScreenProps {
+  onEndGame: () => void
+}
+
+export default function GameScreen({ onEndGame }: GameScreenProps) {
+  const [game] = useAtom(gameAtom)
+  const [players] = useAtom(playersAtom)
+  const [currentPlayer] = useAtom(currentPlayerAtom)
+  const [isHost] = useAtom(isHostAtom)
+  const [gamePhase] = useAtom(gamePhaseAtom)
+  const [isNightPhase] = useAtom(isNightPhaseAtom)
+  const [isDayPhase] = useAtom(isDayPhaseAtom)
+  const [voteCounts] = useAtom(voteCountsAtom)
+  const [highestVotedPlayer] = useAtom(highestVotedPlayerAtom)
+
+  const alivePlayers = players.filter(p => p.alive)
+  const deadPlayers = players.filter(p => !p.alive)
+  const isNight = isNightPhase
+
+  const getPlayerIcon = (player: Player) => {
+    if (!player.alive) return <XCircle className="w-4 h-4 text-red-500" />
+    if (player.role === 'werewolf') return <Moon className="w-4 h-4 text-red-600" />
+    if (player.role === 'doctor') return <Stethoscope className="w-4 h-4 text-green-600" />
+    if (player.role === 'police') return <Shield className="w-4 h-4 text-blue-600" />
+    return <Users className="w-4 h-4 text-gray-600" />
+  }
+
+  const getPlayerStatus = (player: Player) => {
+    if (!player.alive) return 'Dead'
+    if (player.role && currentPlayer?.id === player.id) {
+      return getRoleDisplayName(player.role)
+    }
+    return 'Alive'
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800 relative overflow-hidden">
+      {/* Animated Background Elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        {/* VILLAGERS - Icon-based */}
+        {/* Villagers - Top Left Area */}
+        <div className="absolute" style={{top: '40px', left: '20px', zIndex: 5}}>
+          <div className="relative">
+            <div className="w-80 h-80 bg-gradient-to-br from-amber-200/90 to-amber-400/90 rounded-full flex items-center justify-center shadow-2xl shadow-amber-200/80 character-float glow-pulse" style={{border: '8px solid rgba(245, 158, 11, 0.9)'}}>
+              <div className="relative character-breathe">
+                {/* Villagers Icon - Male Villager */}
+                <div className="w-64 h-64 relative head-nod flex items-center justify-center">
+                  <div className="character-bounce" style={{fontSize: '8rem'}}>👨‍🌾</div>
+                </div>
+              </div>
+            </div>
+            <div className="absolute -inset-10 bg-gradient-to-r from-amber-200/70 to-amber-400/70 rounded-full blur-3xl"></div>
+            <div className="absolute top-84 left-1/2 transform -translate-x-1/2">
+              <span className="text-xl font-bold text-amber-100 bg-gray-900/95 px-6 py-3 rounded-full backdrop-blur-sm border-2 border-amber-200/60">
+                Villagers
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* WERWOLF - Icon-based */}
+        {/* Werwolf - Top Right Area */}
+        <div className="absolute" style={{top: '40px', right: '20px', zIndex: 5}}>
+          <div className="relative">
+            <div className="w-88 h-88 bg-gradient-to-br from-red-200/90 to-red-400/90 rounded-full flex items-center justify-center shadow-2xl shadow-red-200/80 character-float dramatic-pulse" style={{border: '8px solid rgba(239, 68, 68, 0.9)'}}>
+              <div className="relative character-breathe">
+                {/* Werwolf Icon - Animated Wolf */}
+                <div className="w-64 h-64 relative head-nod flex items-center justify-center">
+                  <div className="character-bounce" style={{fontSize: '8rem'}}>🐺</div>
+                </div>
+              </div>
+            </div>
+            <div className="absolute -inset-12 bg-gradient-to-r from-red-200/70 to-red-400/70 rounded-full blur-3xl"></div>
+            <div className="absolute top-92 left-1/2 transform -translate-x-1/2">
+              <span className="text-xl font-bold text-red-100 bg-gray-900/95 px-6 py-3 rounded-full backdrop-blur-sm border-2 border-red-200/60">
+                Werwolves
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* DOCTOR - Icon-based */}
+        {/* Doctor - Bottom Left Area */}
+        <div className="absolute" style={{bottom: '40px', left: '20px', zIndex: 5}}>
+          <div className="relative">
+            <div className="w-80 h-80 bg-gradient-to-br from-emerald-200/90 to-emerald-400/90 rounded-full flex items-center justify-center shadow-2xl shadow-emerald-200/80 character-float glow-pulse" style={{animationDelay: '1s', border: '8px solid rgba(16, 185, 129, 0.9)'}}>
+              <div className="relative character-breathe">
+                {/* Doctor Icon - Male Doctor */}
+                <div className="w-64 h-64 relative head-nod flex items-center justify-center">
+                  <div className="character-bounce" style={{fontSize: '8rem'}}>👨‍⚕️</div>
+                </div>
+              </div>
+            </div>
+            <div className="absolute -inset-10 bg-gradient-to-r from-emerald-200/70 to-emerald-400/70 rounded-full blur-3xl"></div>
+            <div className="absolute -top-20 left-1/2 transform -translate-x-1/2">
+              <span className="text-xl font-bold text-emerald-100 bg-gray-900/95 px-6 py-3 rounded-full backdrop-blur-sm border-2 border-emerald-200/60">
+                Doctor
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* POLICE - Icon-based */}
+        {/* Police - Bottom Right Area */}
+        <div className="absolute" style={{bottom: '40px', right: '20px', zIndex: 5}}>
+          <div className="relative">
+            <div className="w-80 h-80 bg-gradient-to-br from-sky-200/90 to-sky-400/90 rounded-full flex items-center justify-center shadow-2xl shadow-sky-200/80 character-float glow-pulse" style={{animationDelay: '2s', border: '8px solid rgba(14, 165, 233, 0.9)'}}>
+              <div className="relative character-breathe">
+                {/* Police Icon - Male Police Officer */}
+                <div className="w-64 h-64 relative head-nod flex items-center justify-center">
+                  <div className="character-bounce" style={{fontSize: '8rem'}}>👮‍♂️</div>
+                </div>
+              </div>
+            </div>
+            <div className="absolute -inset-10 bg-gradient-to-r from-sky-200/70 to-sky-400/70 rounded-full blur-3xl"></div>
+            <div className="absolute -top-20 left-1/2 transform -translate-x-1/2">
+              <span className="text-xl font-bold text-sky-100 bg-gray-900/95 px-6 py-3 rounded-full backdrop-blur-sm border-2 border-sky-200/60">
+                Police
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Subtle background element */}
+        <div className="absolute" style={{top: '50%', left: '50%', transform: 'translate(-50%, -50%)', zIndex: -10}}>
+          <div className="w-16 h-16 bg-gradient-to-br from-gray-500/20 to-gray-700/20 rounded-full flex items-center justify-center shadow-lg shadow-gray-500/15 floating" style={{animationDelay: '3s'}}>
+            <div className="text-xl">🌙</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Header */}
+      <div className="relative z-10 bg-gray-900/80 backdrop-blur-sm border-b border-gray-600/30">
+        <div className="max-w-7xl mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl font-bold text-white">
+                🐺 Werwolf
+              </h1>
+              <p className="text-sm text-gray-400">
+                Game Code: {game?.code} • Day {game?.day_count || 1}
+              </p>
+            </div>
+            
+            <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-2">
+                {isNight ? (
+                  <Moon className="w-5 h-5 text-blue-300" />
+                ) : (
+                  <Sun className="w-5 h-5 text-yellow-400" />
+                )}
+                <span className="text-sm font-medium text-gray-300">
+                  {getPhaseDisplayName(gamePhase)}
+                </span>
+              </div>
+              
+              <div className="flex items-center space-x-2">
+                <Users className="w-5 h-5 text-blue-400" />
+                <span className="text-sm font-medium text-gray-300">
+                  {alivePlayers.length} alive
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="relative z-10 max-w-7xl mx-auto px-4 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+          {/* Players Grid */}
+          <div className="lg:col-span-3">
+            <div className="bg-gray-900/80 backdrop-blur-sm rounded-lg p-6 border border-gray-600/30 shadow-lg">
+              <h2 className="text-xl font-semibold mb-4 text-white">
+                Players
+              </h2>
+              
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                {players.map((player) => {
+                  const voteCount = voteCounts[player.id] || 0
+                  const isHighestVoted = highestVotedPlayer?.id === player.id
+                  
+                  return (
+                    <div
+                      key={player.id}
+                      className={`relative p-4 rounded-lg border-2 transition-all ${
+                        !player.alive
+                          ? 'border-red-500 bg-red-900/20 opacity-60'
+                          : player.is_host
+                          ? 'border-yellow-400 bg-yellow-900/20'
+                          : 'border-gray-600 bg-gray-800/50'
+                      } ${isHighestVoted ? 'ring-2 ring-orange-400' : ''}`}
+                    >
+                      {/* Host Crown */}
+                      {player.is_host && (
+                        <div className="absolute -top-2 -right-2">
+                          <Crown className="w-6 h-6 text-yellow-500" />
+                        </div>
+                      )}
+                      
+                      {/* Vote Count Badge */}
+                      {voteCount > 0 && (
+                        <div className="absolute -top-2 -left-2">
+                          <div className="bg-orange-500 text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center">
+                            {voteCount}
+                          </div>
+                        </div>
+                      )}
+                      
+                      <div className="text-center">
+                        <div className={`w-12 h-12 rounded-full mx-auto mb-2 flex items-center justify-center ${
+                          !player.alive 
+                            ? 'bg-red-800' 
+                            : player.is_host
+                            ? 'bg-yellow-800'
+                            : 'bg-gray-700'
+                        }`}>
+                          <span className={`text-lg font-semibold ${
+                            !player.alive 
+                              ? 'text-red-200' 
+                              : player.is_host
+                              ? 'text-yellow-200'
+                              : 'text-gray-300'
+                          }`}>
+                            {player.name.charAt(0).toUpperCase()}
+                          </span>
+                        </div>
+                        
+                        <p className={`font-medium truncate ${
+                          !player.alive 
+                            ? 'text-red-300' 
+                            : player.is_host
+                            ? 'text-yellow-200'
+                            : 'text-white'
+                        }`}>
+                          {player.name}
+                        </p>
+                        
+                        <div className="flex items-center justify-center space-x-1 mt-1">
+                          {getPlayerIcon(player)}
+                          <span className={`text-xs ${
+                            !player.alive 
+                              ? 'text-red-400' 
+                              : player.is_host
+                              ? 'text-yellow-400'
+                              : 'text-gray-400'
+                          }`}>
+                            {getPlayerStatus(player)}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          </div>
+
+          {/* Sidebar */}
+          <div className="space-y-6">
+            {/* Current Player Info */}
+            {currentPlayer && (
+              <div className="bg-gray-900/80 backdrop-blur-sm rounded-lg p-6 border border-gray-600/30 shadow-lg">
+                <h3 className="text-lg font-semibold mb-4 text-white">
+                  You
+                </h3>
+                
+                <div className="text-center">
+                  <div className={`w-16 h-16 rounded-full mx-auto mb-3 flex items-center justify-center ${
+                    currentPlayer.is_host ? 'bg-yellow-800' : 'bg-gray-700'
+                  }`}>
+                    <span className={`text-xl font-semibold ${
+                      currentPlayer.is_host ? 'text-yellow-200' : 'text-gray-300'
+                    }`}>
+                      {currentPlayer.name.charAt(0).toUpperCase()}
+                    </span>
+                  </div>
+                  
+                  <p className="font-medium text-white">
+                    {currentPlayer.name}
+                  </p>
+                  
+                  {currentPlayer.role && (
+                    <p className={`text-sm mt-1 ${
+                      currentPlayer.role === 'werewolf' 
+                        ? 'text-red-400' 
+                        : currentPlayer.role === 'doctor'
+                        ? 'text-green-400'
+                        : currentPlayer.role === 'police'
+                        ? 'text-blue-400'
+                        : 'text-gray-400'
+                    }`}>
+                      {getRoleDisplayName(currentPlayer.role)}
+                    </p>
+                  )}
+                  
+                  {currentPlayer.is_host && (
+                    <p className="text-xs text-yellow-400 font-medium mt-1">
+                      Host
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Host Controls */}
+            {isHost && (
+              <HostControls onEndGame={onEndGame} />
+            )}
+
+            {/* Night Overlay */}
+            {isNightPhase && currentPlayer && (
+              <NightOverlay />
+            )}
+
+            {/* Voting Interface */}
+            {isDayPhase && currentPlayer && (
+              <VotingInterface />
+            )}
+
+            {/* Game Status */}
+            <div className="bg-gray-900/80 backdrop-blur-sm rounded-lg p-6 border border-gray-600/30 shadow-lg">
+              <h3 className="text-lg font-semibold mb-4 text-white">
+                Game Status
+              </h3>
+              
+              <div className="space-y-3">
+                <div className="flex justify-between">
+                  <span className="text-sm text-gray-400">
+                    Phase:
+                  </span>
+                  <span className="text-sm font-medium text-white">
+                    {getPhaseDisplayName(gamePhase)}
+                  </span>
+                </div>
+                
+                <div className="flex justify-between">
+                  <span className="text-sm text-gray-400">
+                    Alive:
+                  </span>
+                  <span className="text-sm font-medium text-green-400">
+                    {alivePlayers.length}
+                  </span>
+                </div>
+                
+                <div className="flex justify-between">
+                  <span className="text-sm text-gray-400">
+                    Dead:
+                  </span>
+                  <span className="text-sm font-medium text-red-400">
+                    {deadPlayers.length}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}

@@ -1,8 +1,17 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #0a0a0a;
+  --foreground: #ededed;
+  --card-bg: rgba(15, 15, 15, 0.8);
+  --border-color: rgba(55, 65, 81, 0.3);
+  --text-primary: #f9fafb;
+  --text-secondary: #d1d5db;
+  --text-muted: #9ca3af;
+  --accent-werwolf: #dc2626;
+  --accent-doctor: #059669;
+  --accent-police: #2563eb;
+  --accent-villager: #7c3aed;
 }
 
 @theme inline {
@@ -12,15 +21,199 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+  overflow-x: hidden;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(31, 41, 55, 0.3);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(75, 85, 99, 0.5);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(107, 114, 128, 0.7);
+}
+
+/* Animated background elements */
+@keyframes float {
+  0%, 100% { 
+    transform: translateY(0px) rotate(0deg) scale(1); 
+    opacity: 0.8;
+  }
+  50% { 
+    transform: translateY(-30px) rotate(10deg) scale(1.1); 
+    opacity: 1;
+  }
+}
+
+@keyframes glow {
+  0%, 100% { 
+    opacity: 0.4; 
+    transform: scale(1);
+  }
+  50% { 
+    opacity: 0.8; 
+    transform: scale(1.05);
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { 
+    box-shadow: 0 0 10px rgba(220, 38, 38, 0.4), 0 0 20px rgba(220, 38, 38, 0.2);
+    transform: scale(1);
+  }
+  50% { 
+    box-shadow: 0 0 25px rgba(220, 38, 38, 0.8), 0 0 40px rgba(220, 38, 38, 0.4);
+    transform: scale(1.02);
+  }
+}
+
+@keyframes breathe {
+  0%, 100% { 
+    transform: scale(1) rotate(0deg);
+    filter: brightness(1);
+  }
+  25% { 
+    transform: scale(1.08) rotate(1deg);
+    filter: brightness(1.15);
+  }
+  50% { 
+    transform: scale(1.12) rotate(0deg);
+    filter: brightness(1.2);
+  }
+  75% { 
+    transform: scale(1.08) rotate(-1deg);
+    filter: brightness(1.15);
+  }
+}
+
+@keyframes character-float {
+  0%, 100% { 
+    transform: translateY(0px) rotate(0deg) scale(1);
+    opacity: 0.9;
+  }
+  25% { 
+    transform: translateY(-30px) rotate(1deg) scale(1.03);
+    opacity: 0.95;
+  }
+  50% { 
+    transform: translateY(-50px) rotate(0deg) scale(1.05);
+    opacity: 1;
+  }
+  75% { 
+    transform: translateY(-30px) rotate(-1deg) scale(1.03);
+    opacity: 0.95;
+  }
+}
+
+@keyframes character-breathe {
+  0%, 100% { 
+    transform: scale(1);
+  }
+  50% { 
+    transform: scale(1.01);
+  }
+}
+
+@keyframes eye-blink {
+  0%, 90%, 100% { 
+    transform: scaleY(1);
+  }
+  95% { 
+    transform: scaleY(0.05);
+  }
+}
+
+@keyframes head-nod {
+  0%, 100% { 
+    transform: rotate(0deg);
+  }
+  50% { 
+    transform: rotate(1deg);
+  }
+}
+
+@keyframes character-bounce {
+  0%, 100% { 
+    transform: translateY(0px);
+  }
+  50% { 
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes glow-pulse {
+  0%, 100% { 
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+  }
+  50% { 
+    box-shadow: 0 0 40px rgba(255, 255, 255, 0.6);
+  }
+}
+
+@keyframes dramatic-pulse {
+  0%, 100% { 
+    box-shadow: 0 0 20px rgba(220, 38, 38, 0.6), 0 0 40px rgba(220, 38, 38, 0.3);
+    transform: scale(1);
+  }
+  50% { 
+    box-shadow: 0 0 40px rgba(220, 38, 38, 1), 0 0 80px rgba(220, 38, 38, 0.6);
+    transform: scale(1.05);
+  }
+}
+
+.floating {
+  animation: float 4s ease-in-out infinite;
+}
+
+.glow-effect {
+  animation: glow 2s ease-in-out infinite;
+}
+
+.pulse-glow {
+  animation: pulse-glow 1.5s ease-in-out infinite;
+}
+
+.breathe {
+  animation: breathe 3s ease-in-out infinite;
+}
+
+.character-float {
+  animation: character-float 6s ease-in-out infinite;
+}
+
+.dramatic-pulse {
+  animation: dramatic-pulse 2s ease-in-out infinite;
+}
+
+.character-breathe {
+  animation: character-breathe 3s ease-in-out infinite;
+}
+
+.eye-blink {
+  animation: eye-blink 4s ease-in-out infinite;
+}
+
+.head-nod {
+  animation: head-nod 5s ease-in-out infinite;
+}
+
+.character-bounce {
+  animation: character-bounce 2s ease-in-out infinite;
+}
+
+.glow-pulse {
+  animation: glow-pulse 3s ease-in-out infinite;
 }
