@@ -453,11 +453,23 @@ export default function HomePage() {
     setIsLoading(true)
     setError(null)
     
+    // Debug logging
+    console.log('🔧 Remove Player Debug:', {
+      gameId: game.id,
+      currentPlayerId: currentPlayer.id,
+      currentPlayerName: currentPlayer.name,
+      isHost: currentPlayer.is_host,
+      playerToRemoveId: playerId,
+      totalPlayers: players.length
+    })
+    
     try {
       const response = await fetch(`/api/games/${game.id}/actions`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
         },
         body: JSON.stringify({
           action: 'remove_player',
@@ -472,10 +484,18 @@ export default function HomePage() {
       }
       
       const result = await response.json()
-      console.log('Player removed:', result.message)
+      console.log('🔧 Remove Player Result:', {
+        success: result.success,
+        gameEnded: result.gameEnded,
+        message: result.message,
+        totalPlayersBefore: players.length,
+        expectedPlayersAfter: players.length - 1
+      })
       
       // If game ended due to insufficient players, redirect to welcome
       if (result.gameEnded) {
+        console.log('🔧 Game ended due to insufficient players - redirecting to welcome')
+        
         // Clear localStorage and reset to welcome
         localStorage.removeItem('werwolf-game-state')
         localStorage.removeItem('werwolf-game-code')
@@ -484,6 +504,9 @@ export default function HomePage() {
         
         resetGame()
         setGameState('welcome')
+      } else {
+        console.log('🔧 Game continues - player removed successfully')
+        // The real-time sync should handle updating the player list
       }
       
     } catch (err) {
