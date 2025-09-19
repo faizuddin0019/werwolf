@@ -108,7 +108,7 @@ export default function GameScreen({ onEndGame, onRemovePlayer, onChangeRole }: 
             </div>
             <div className="absolute -inset-10 bg-gradient-to-r from-amber-200/70 to-amber-400/70 rounded-full blur-3xl"></div>
             <div className="absolute top-84 left-1/2 transform -translate-x-1/2">
-              <span className="text-xl font-bold text-amber-100 bg-gray-900/95 px-6 py-3 rounded-full backdrop-blur-sm border-2 border-amber-200/60">
+              <span className="text-xl font-bold text-amber-100 bg-slate-800/95 px-6 py-3 rounded-full backdrop-blur-sm border-2 border-amber-200/60">
                 Villagers
               </span>
             </div>
@@ -129,7 +129,7 @@ export default function GameScreen({ onEndGame, onRemovePlayer, onChangeRole }: 
             </div>
             <div className="absolute -inset-12 bg-gradient-to-r from-red-200/70 to-red-400/70 rounded-full blur-3xl"></div>
             <div className="absolute top-92 left-1/2 transform -translate-x-1/2">
-              <span className="text-xl font-bold text-red-100 bg-gray-900/95 px-6 py-3 rounded-full backdrop-blur-sm border-2 border-red-200/60">
+              <span className="text-xl font-bold text-red-100 bg-slate-800/95 px-6 py-3 rounded-full backdrop-blur-sm border-2 border-red-200/60">
                 Werwolves
               </span>
             </div>
@@ -150,7 +150,7 @@ export default function GameScreen({ onEndGame, onRemovePlayer, onChangeRole }: 
             </div>
             <div className="absolute -inset-10 bg-gradient-to-r from-emerald-200/70 to-emerald-400/70 rounded-full blur-3xl"></div>
             <div className="absolute -top-12 left-1/2 transform -translate-x-1/2">
-              <span className="text-xl font-bold text-emerald-100 bg-gray-900/95 px-6 py-3 rounded-full backdrop-blur-sm border-2 border-emerald-200/60">
+              <span className="text-xl font-bold text-emerald-100 bg-slate-800/95 px-6 py-3 rounded-full backdrop-blur-sm border-2 border-emerald-200/60">
                 Doctor
               </span>
             </div>
@@ -171,7 +171,7 @@ export default function GameScreen({ onEndGame, onRemovePlayer, onChangeRole }: 
             </div>
             <div className="absolute -inset-10 bg-gradient-to-r from-sky-200/70 to-sky-400/70 rounded-full blur-3xl"></div>
             <div className="absolute -top-12 left-1/2 transform -translate-x-1/2">
-              <span className="text-xl font-bold text-sky-100 bg-gray-900/95 px-6 py-3 rounded-full backdrop-blur-sm border-2 border-sky-200/60">
+              <span className="text-xl font-bold text-sky-100 bg-slate-800/95 px-6 py-3 rounded-full backdrop-blur-sm border-2 border-sky-200/60">
                 Police
               </span>
             </div>
@@ -214,14 +214,14 @@ export default function GameScreen({ onEndGame, onRemovePlayer, onChangeRole }: 
       </div>
 
       {/* Header */}
-      <div className="relative z-10 bg-gray-900/80 backdrop-blur-sm border-b border-gray-600/30">
+      <div className="relative z-10 bg-slate-800/80 backdrop-blur-sm border-b border-slate-600/30">
         <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-bold text-white">
                 🐺 Werwolf
               </h1>
-              <p className="text-sm text-gray-400">
+              <p className="text-sm text-slate-400">
                 Game Code: {game?.code} • Day {game?.day_count || 1}
               </p>
             </div>
@@ -254,7 +254,7 @@ export default function GameScreen({ onEndGame, onRemovePlayer, onChangeRole }: 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Players Grid */}
           <div className="lg:col-span-3">
-            <div className="bg-gray-900/80 backdrop-blur-sm rounded-lg p-6 border border-gray-600/30 shadow-lg">
+            <div className="bg-slate-800/80 backdrop-blur-sm rounded-lg p-6 border border-slate-600/30 shadow-lg">
               <h2 className="text-xl font-semibold mb-4 text-white">
                 Players
               </h2>
@@ -272,7 +272,7 @@ export default function GameScreen({ onEndGame, onRemovePlayer, onChangeRole }: 
                           ? 'border-red-500 bg-red-900/20 opacity-60'
                           : player.is_host
                           ? 'border-yellow-400 bg-yellow-900/20'
-                          : 'border-gray-600 bg-gray-800/50'
+                          : 'border-slate-600 bg-slate-800/50'
                       } ${isHighestVoted ? 'ring-2 ring-orange-400' : ''}`}
                     >
                       {/* Host Crown */}
@@ -327,7 +327,7 @@ export default function GameScreen({ onEndGame, onRemovePlayer, onChangeRole }: 
                               ? 'text-red-400' 
                               : player.is_host
                               ? 'text-yellow-400'
-                              : 'text-gray-400'
+                              : 'text-slate-400'
                           }`}>
                             {getPlayerStatus(player)}
                           </span>
@@ -344,7 +344,7 @@ export default function GameScreen({ onEndGame, onRemovePlayer, onChangeRole }: 
           <div className="space-y-6">
             {/* Current Player Info */}
             {currentPlayer && (
-              <div className="bg-gray-900/80 backdrop-blur-sm rounded-lg p-6 border border-gray-600/30 shadow-lg">
+              <div className="bg-slate-800/80 backdrop-blur-sm rounded-lg p-6 border border-slate-600/30 shadow-lg">
                 <h3 className="text-lg font-semibold mb-4 text-white">
                   You
                 </h3>
@@ -372,7 +372,7 @@ export default function GameScreen({ onEndGame, onRemovePlayer, onChangeRole }: 
                         ? 'text-green-400'
                         : currentPlayer.role === 'police'
                         ? 'text-blue-400'
-                        : 'text-gray-400'
+                        : 'text-slate-400'
                     }`}>
                       {getRoleDisplayName(currentPlayer.role)}
                     </p>
@@ -389,7 +389,7 @@ export default function GameScreen({ onEndGame, onRemovePlayer, onChangeRole }: 
 
             {/* Host Player Management */}
             {isHost && (
-              <div className="bg-gray-900/80 backdrop-blur-sm rounded-lg p-6 border border-gray-600/30 shadow-lg">
+              <div className="bg-slate-800/80 backdrop-blur-sm rounded-lg p-6 border border-slate-600/30 shadow-lg">
                 <h3 className="text-lg font-semibold text-white mb-4">
                   Player Management
                 </h3>
@@ -397,7 +397,7 @@ export default function GameScreen({ onEndGame, onRemovePlayer, onChangeRole }: 
                 {players.filter(p => !p.is_host).length > 0 ? (
                   <div className="space-y-2">
                     {players.filter(p => !p.is_host).map((player) => (
-                      <div key={player.id} className="bg-gray-800/50 rounded-lg p-3">
+                      <div key={player.id} className="bg-slate-800/50 rounded-lg p-3">
                         <div className="flex items-center justify-between mb-2">
                           <div className="flex items-center space-x-2">
                             <span className="text-white">{player.name}</span>
@@ -411,7 +411,7 @@ export default function GameScreen({ onEndGame, onRemovePlayer, onChangeRole }: 
                           </button>
                         </div>
                         <div className="flex items-center space-x-2">
-                          <span className="text-gray-400 text-xs">Role:</span>
+                          <span className="text-slate-400 text-xs">Role:</span>
                           <select
                             value={player.role || 'villager'}
                             onChange={(e) => onChangeRole(player.id, e.target.value)}
@@ -428,11 +428,11 @@ export default function GameScreen({ onEndGame, onRemovePlayer, onChangeRole }: 
                   </div>
                 ) : (
                   <div className="text-center py-4">
-                    <p className="text-gray-400 text-sm">No other players to manage</p>
+                    <p className="text-slate-400 text-sm">No other players to manage</p>
                   </div>
                 )}
                 
-                <p className="text-xs text-gray-400 mt-3 text-center">
+                <p className="text-xs text-slate-400 mt-3 text-center">
                   Host can remove any player from the game
                 </p>
               </div>
@@ -445,14 +445,14 @@ export default function GameScreen({ onEndGame, onRemovePlayer, onChangeRole }: 
 
             {/* Host Round State Information */}
             {isHost && (
-              <div className="bg-gray-900/80 backdrop-blur-sm rounded-lg p-6 border border-gray-600/30 shadow-lg">
+              <div className="bg-slate-800/80 backdrop-blur-sm rounded-lg p-6 border border-slate-600/30 shadow-lg">
                 <h3 className="text-lg font-semibold mb-4 text-white">
                   Night Actions - Real-time Updates
                 </h3>
                 
                 {roundState ? (
                   <div className="space-y-3">
-                    <div className="text-xs text-gray-500 mb-3">
+                    <div className="text-xs text-slate-500 mb-3">
                       Round State ID: {roundState.id} | Day: {roundState.day_count} | Phase: {roundState.phase}
                     </div>
                     
@@ -493,16 +493,16 @@ export default function GameScreen({ onEndGame, onRemovePlayer, onChangeRole }: 
                     )}
                     
                     {!roundState.wolf_target_player_id && !roundState.police_inspect_player_id && !roundState.doctor_save_player_id && (
-                      <div className="text-center py-4 bg-gray-800/50 rounded border border-gray-600/30">
-                        <p className="text-gray-400 text-sm">⏳ Waiting for night actions...</p>
-                        <p className="text-xs text-gray-500 mt-1">Actions will appear here in real-time</p>
+                      <div className="text-center py-4 bg-slate-800/50 rounded border border-slate-600/30">
+                        <p className="text-slate-400 text-sm">⏳ Waiting for night actions...</p>
+                        <p className="text-xs text-slate-500 mt-1">Actions will appear here in real-time</p>
                       </div>
                     )}
                   </div>
                 ) : (
                   <div className="text-center py-4 bg-yellow-900/20 rounded border border-yellow-500/30">
                     <p className="text-yellow-400 text-sm">⚠️ No round state found</p>
-                    <p className="text-xs text-gray-500 mt-1">Round state should be created when game starts</p>
+                    <p className="text-xs text-slate-500 mt-1">Round state should be created when game starts</p>
                   </div>
                 )}
               </div>
@@ -519,14 +519,14 @@ export default function GameScreen({ onEndGame, onRemovePlayer, onChangeRole }: 
             )}
 
             {/* Game Status */}
-            <div className="bg-gray-900/80 backdrop-blur-sm rounded-lg p-6 border border-gray-600/30 shadow-lg">
+            <div className="bg-slate-800/80 backdrop-blur-sm rounded-lg p-6 border border-slate-600/30 shadow-lg">
               <h3 className="text-lg font-semibold mb-4 text-white">
                 Game Status
               </h3>
               
               <div className="space-y-3">
                 <div className="flex justify-between">
-                  <span className="text-sm text-gray-400">
+                  <span className="text-sm text-slate-400">
                     Phase:
                   </span>
                   <span className="text-sm font-medium text-white">
@@ -535,7 +535,7 @@ export default function GameScreen({ onEndGame, onRemovePlayer, onChangeRole }: 
                 </div>
                 
                 <div className="flex justify-between">
-                  <span className="text-sm text-gray-400">
+                  <span className="text-sm text-slate-400">
                     Alive:
                   </span>
                   <span className="text-sm font-medium text-green-400">
@@ -544,7 +544,7 @@ export default function GameScreen({ onEndGame, onRemovePlayer, onChangeRole }: 
                 </div>
                 
                 <div className="flex justify-between">
-                  <span className="text-sm text-gray-400">
+                  <span className="text-sm text-slate-400">
                     Dead:
                   </span>
                   <span className="text-sm font-medium text-red-400">
