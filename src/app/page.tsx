@@ -159,7 +159,7 @@ export default function HomePage() {
         setGameState('welcome')
       }
     }
-  }, [clientId, setClientId])
+  }, [clientId])
 
   // Update game state based on game phase
   useEffect(() => {
