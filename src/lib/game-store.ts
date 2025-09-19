@@ -147,10 +147,10 @@ export const setGameDataAtom = atom(null, (get, set, data: {
     set(playerNameAtom, data.currentPlayer.name) // Set player name from current player
     // Set isHost based on whether current player is the host
     const isHost = data.currentPlayer.is_host || false
-    console.log('Setting isHostAtom to:', isHost, 'for player:', data.currentPlayer.name)
+    console.log('🔧 setGameDataAtom - Setting isHostAtom to:', isHost, 'for player:', data.currentPlayer.name, 'is_host field:', data.currentPlayer.is_host)
     set(isHostAtom, isHost)
   } else {
-    console.log('No currentPlayer, setting isHostAtom to false')
+    console.log('🔧 setGameDataAtom - No currentPlayer, setting isHostAtom to false')
     set(isHostAtom, false)
   }
 })

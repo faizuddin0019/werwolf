@@ -99,6 +99,13 @@ export default function HomePage() {
         // Find the current player in the game
         const currentPlayer = gameData.players.find((p: any) => p.client_id === clientId)
         
+        console.log('🔧 Restore Game Debug:', {
+          clientId,
+          gameDataPlayers: gameData.players.map(p => ({ id: p.id, name: p.name, client_id: p.client_id, is_host: p.is_host })),
+          foundCurrentPlayer: currentPlayer ? { id: currentPlayer.id, name: currentPlayer.name, client_id: currentPlayer.client_id, is_host: currentPlayer.is_host } : null,
+          gameHostClientId: gameData.game.host_client_id
+        })
+        
         if (currentPlayer) {
           setGameData({
             game: gameData.game,

@@ -42,11 +42,11 @@ export default function GameLobby({
   const [hasPendingLeaveRequest] = useAtom(hasPendingLeaveRequestAtom)
 
   // Debug logging for players
-  console.log('GameLobby Players Debug:', {
+  console.log('🔧 GameLobby Debug:', {
     playersCount: players.length,
-    players: players,
+    players: players.map(p => ({ id: p.id, name: p.name, is_host: p.is_host })),
     game: game?.id,
-    currentPlayer: currentPlayer?.id,
+    currentPlayer: currentPlayer ? { id: currentPlayer.id, name: currentPlayer.name, is_host: currentPlayer.is_host } : null,
     isHost,
     nonHostPlayers: players.filter(p => !p.is_host),
     shouldShowPlayerManagement: isHost && players.filter(p => !p.is_host).length > 0
