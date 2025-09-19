@@ -172,7 +172,7 @@ export function useRealtimeSync(gameId: string | null, onGameEnded?: () => void)
           log('🔧 Players unchanged, skipping state update')
         }
       }
-    }, 100) // 100ms debounce for faster updates
+    }, 500) // 500ms debounce for better battery life
 
     // Subscribe to player changes
     const playersSubscription = supabase
@@ -307,7 +307,7 @@ export function useRealtimeSync(gameId: string | null, onGameEnded?: () => void)
           log('🔧 Leave requests unchanged, skipping state update')
         }
       }
-    }, 100) // 100ms debounce for faster updates
+    }, 500) // 500ms debounce for better battery life
 
     // Subscribe to leave request changes
     const leaveRequestsSubscription = supabase

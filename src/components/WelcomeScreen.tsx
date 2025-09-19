@@ -75,28 +75,23 @@ export default function WelcomeScreen({ onStartGame, onJoinGame }: WelcomeScreen
         <div className="absolute top-32 right-1/3 w-3 h-3 bg-blue-400/50 rounded-full animate-pulse" style={{animationDelay: '1s'}}></div>
         <div className="absolute bottom-32 left-1/3 w-5 h-5 bg-indigo-400/50 rounded-full animate-pulse" style={{animationDelay: '2s'}}></div>
         <div className="absolute bottom-20 right-1/4 w-4 h-4 bg-amber-400/50 rounded-full animate-pulse" style={{animationDelay: '3s'}}></div>
-        {/* Floating particles */}
-        <div className="absolute top-20 left-10 w-3 h-3 bg-red-500/50 rounded-full floating"></div>
-        <div className="absolute top-40 right-20 w-4 h-4 bg-blue-500/50 rounded-full floating" style={{animationDelay: '1s'}}></div>
-        <div className="absolute bottom-40 left-20 w-3 h-3 bg-green-500/50 rounded-full floating" style={{animationDelay: '2s'}}></div>
-        <div className="absolute top-60 left-1/3 w-2 h-2 bg-purple-500/60 rounded-full floating" style={{animationDelay: '3s'}}></div>
-        <div className="absolute top-80 right-1/3 w-2 h-2 bg-yellow-500/40 rounded-full floating" style={{animationDelay: '4s'}}></div>
-        <div className="absolute bottom-60 right-10 w-3 h-3 bg-pink-500/40 rounded-full floating" style={{animationDelay: '5s'}}></div>
-        <div className="absolute top-32 left-1/2 w-2 h-2 bg-cyan-500/50 rounded-full floating" style={{animationDelay: '6s'}}></div>
+            {/* Reduced floating particles for better performance */}
+            <div className="absolute top-20 left-10 w-2 h-2 bg-red-500/30 rounded-full gentle-pulse"></div>
+            <div className="absolute bottom-40 right-20 w-2 h-2 bg-blue-500/30 rounded-full gentle-pulse" style={{animationDelay: '2s'}}></div>
         
 
         {/* VILLAGERS - Icon-based */}
         {/* Villagers - Top Left Area */}
         <div className="absolute z-0" style={{top: '20px', left: '80px'}}>
           <div className="relative">
-            <div className="w-80 h-80 bg-gradient-to-br from-amber-200/90 to-amber-400/90 rounded-full flex items-center justify-center shadow-2xl shadow-amber-200/80 character-float dramatic-pulse" style={{border: '8px solid rgba(245, 158, 11, 0.9)'}}>
-              <div className="relative character-breathe">
-                {/* Villagers Icon - Male Villager */}
-                <div className="w-64 h-64 relative head-nod flex items-center justify-center">
-                  <div className="character-bounce" style={{fontSize: '8rem'}}>👨‍🌾</div>
+                <div className="w-80 h-80 bg-gradient-to-br from-amber-200/90 to-amber-400/90 rounded-full flex items-center justify-center shadow-2xl shadow-amber-200/80 gentle-pulse" style={{border: '8px solid rgba(245, 158, 11, 0.9)'}}>
+                  <div className="relative">
+                    {/* Villagers Icon - Male Villager */}
+                    <div className="w-64 h-64 relative flex items-center justify-center">
+                      <div className="simple-bounce" style={{fontSize: '8rem'}}>👨‍🌾</div>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
             <div className="absolute -inset-10 bg-gradient-to-r from-amber-200/70 to-amber-400/70 rounded-full blur-3xl"></div>
             <div className="absolute top-84 left-1/2 transform -translate-x-1/2">
               <span className="text-xl font-bold text-amber-100 bg-slate-800/95 px-6 py-3 rounded-full backdrop-blur-sm border-2 border-amber-200/60">
@@ -110,14 +105,14 @@ export default function WelcomeScreen({ onStartGame, onJoinGame }: WelcomeScreen
         {/* Werwolf - Top Right Area */}
         <div className="absolute z-0" style={{top: '20px', right: '80px'}}>
           <div className="relative">
-            <div className="w-80 h-80 bg-gradient-to-br from-red-200/90 to-red-400/90 rounded-full flex items-center justify-center shadow-2xl shadow-red-200/80 character-float dramatic-pulse" style={{border: '8px solid rgba(239, 68, 68, 0.9)'}}>
-              <div className="relative character-breathe">
-                {/* Werwolf Icon - Animated Wolf */}
-                <div className="w-64 h-64 relative head-nod flex items-center justify-center">
-                  <div className="character-bounce" style={{fontSize: '8rem'}}>🐺</div>
+                <div className="w-80 h-80 bg-gradient-to-br from-red-200/90 to-red-400/90 rounded-full flex items-center justify-center shadow-2xl shadow-red-200/80 gentle-pulse" style={{border: '8px solid rgba(239, 68, 68, 0.9)'}}>
+                  <div className="relative">
+                    {/* Werwolf Icon - Animated Wolf */}
+                    <div className="w-64 h-64 relative flex items-center justify-center">
+                      <div className="simple-bounce" style={{fontSize: '8rem'}}>🐺</div>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
             <div className="absolute -inset-10 bg-gradient-to-r from-red-200/70 to-red-400/70 rounded-full blur-3xl"></div>
             <div className="absolute top-84 left-1/2 transform -translate-x-1/2">
               <span className="text-xl font-bold text-red-100 bg-slate-800/95 px-6 py-3 rounded-full backdrop-blur-sm border-2 border-red-200/60">
@@ -131,14 +126,14 @@ export default function WelcomeScreen({ onStartGame, onJoinGame }: WelcomeScreen
         {/* Doctor - Bottom Left Area - Hidden on mobile to avoid form overlap */}
         <div className="absolute hidden md:block z-0" style={{bottom: '300px', left: '80px'}}>
           <div className="relative">
-            <div className="w-80 h-80 bg-gradient-to-br from-emerald-200/90 to-emerald-400/90 rounded-full flex items-center justify-center shadow-2xl shadow-emerald-200/80 character-float dramatic-pulse" style={{animationDelay: '1s', border: '8px solid rgba(16, 185, 129, 0.9)'}}>
-              <div className="relative character-breathe">
-                {/* Doctor Icon - Male Doctor */}
-                <div className="w-64 h-64 relative head-nod flex items-center justify-center">
-                  <div className="character-bounce" style={{fontSize: '8rem'}}>👨‍⚕️</div>
+                <div className="w-80 h-80 bg-gradient-to-br from-emerald-200/90 to-emerald-400/90 rounded-full flex items-center justify-center shadow-2xl shadow-emerald-200/80 gentle-pulse" style={{animationDelay: '1s', border: '8px solid rgba(16, 185, 129, 0.9)'}}>
+                  <div className="relative">
+                    {/* Doctor Icon - Male Doctor */}
+                    <div className="w-64 h-64 relative flex items-center justify-center">
+                      <div className="simple-bounce" style={{fontSize: '8rem'}}>👨‍⚕️</div>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
             <div className="absolute -inset-10 bg-gradient-to-r from-emerald-200/70 to-emerald-400/70 rounded-full blur-3xl"></div>
             <div className="absolute -top-12 left-1/2 transform -translate-x-1/2">
               <span className="text-xl font-bold text-emerald-100 bg-slate-800/95 px-6 py-3 rounded-full backdrop-blur-sm border-2 border-emerald-200/60">
@@ -152,14 +147,14 @@ export default function WelcomeScreen({ onStartGame, onJoinGame }: WelcomeScreen
         {/* Police - Bottom Right Area - Hidden on mobile to avoid form overlap */}
         <div className="absolute hidden md:block z-0" style={{bottom: '300px', right: '80px'}}>
           <div className="relative">
-            <div className="w-80 h-80 bg-gradient-to-br from-sky-200/90 to-sky-400/90 rounded-full flex items-center justify-center shadow-2xl shadow-sky-200/80 character-float dramatic-pulse" style={{animationDelay: '2s', border: '8px solid rgba(14, 165, 233, 0.9)'}}>
-              <div className="relative character-breathe">
-                {/* Police Icon - Male Police Officer */}
-                <div className="w-64 h-64 relative head-nod flex items-center justify-center">
-                  <div className="character-bounce" style={{fontSize: '8rem'}}>👮‍♂️</div>
+                <div className="w-80 h-80 bg-gradient-to-br from-sky-200/90 to-sky-400/90 rounded-full flex items-center justify-center shadow-2xl shadow-sky-200/80 gentle-pulse" style={{animationDelay: '2s', border: '8px solid rgba(14, 165, 233, 0.9)'}}>
+                  <div className="relative">
+                    {/* Police Icon - Male Police Officer */}
+                    <div className="w-64 h-64 relative flex items-center justify-center">
+                      <div className="simple-bounce" style={{fontSize: '8rem'}}>👮‍♂️</div>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
             <div className="absolute -inset-10 bg-gradient-to-r from-sky-200/70 to-sky-400/70 rounded-full blur-3xl"></div>
             <div className="absolute -top-12 left-1/2 transform -translate-x-1/2">
               <span className="text-xl font-bold text-sky-100 bg-slate-800/95 px-6 py-3 rounded-full backdrop-blur-sm border-2 border-sky-200/60">
@@ -169,32 +164,6 @@ export default function WelcomeScreen({ onStartGame, onJoinGame }: WelcomeScreen
           </div>
         </div>
 
-        {/* Mobile Character Circles - Smaller and positioned to avoid form overlap */}
-        <div className="absolute md:hidden" style={{top: '10px', left: '10px', zIndex: 1}}>
-          <div className="relative">
-            <div className="w-20 h-20 bg-gradient-to-br from-emerald-200/90 to-emerald-400/90 rounded-full flex items-center justify-center shadow-lg shadow-emerald-200/80 character-float dramatic-pulse" style={{animationDelay: '1s', border: '4px solid rgba(16, 185, 129, 0.9)'}}>
-              <div className="relative character-breathe">
-                <div className="w-16 h-16 relative head-nod flex items-center justify-center">
-                  <div className="character-bounce" style={{fontSize: '2rem'}}>👨‍⚕️</div>
-                </div>
-              </div>
-            </div>
-            <div className="absolute -inset-2 bg-gradient-to-r from-emerald-200/70 to-emerald-400/70 rounded-full blur-lg"></div>
-          </div>
-        </div>
-
-        <div className="absolute md:hidden" style={{top: '10px', right: '10px', zIndex: 1}}>
-          <div className="relative">
-            <div className="w-20 h-20 bg-gradient-to-br from-sky-200/90 to-sky-400/90 rounded-full flex items-center justify-center shadow-lg shadow-sky-200/80 character-float dramatic-pulse" style={{animationDelay: '2s', border: '4px solid rgba(14, 165, 233, 0.9)'}}>
-              <div className="relative character-breathe">
-                <div className="w-16 h-16 relative head-nod flex items-center justify-center">
-                  <div className="character-bounce" style={{fontSize: '2rem'}}>👮‍♂️</div>
-                </div>
-              </div>
-            </div>
-            <div className="absolute -inset-2 bg-gradient-to-r from-sky-200/70 to-sky-400/70 rounded-full blur-lg"></div>
-          </div>
-        </div>
 
         {/* Super Lively Background Elements - Repositioned to avoid content overlap */}
         {/* Central Moon - Moved to avoid center content */}
@@ -335,22 +304,59 @@ export default function WelcomeScreen({ onStartGame, onJoinGame }: WelcomeScreen
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="relative z-20 flex flex-col items-center justify-center min-h-screen px-4">
-        <div className="w-full max-w-md space-y-8">
+          {/* Main Content */}
+          <div className="relative z-20 flex flex-col items-center justify-center min-h-screen px-4">
+            {/* Mobile Character Row - Only visible on mobile */}
+            <div className="md:hidden w-full mb-6">
+              <div className="flex justify-center space-x-4">
+                {/* Villagers */}
+                <div className="flex flex-col items-center">
+                  <div className="w-16 h-16 bg-gradient-to-br from-amber-200/90 to-amber-400/90 rounded-full flex items-center justify-center shadow-lg shadow-amber-200/80 gentle-pulse" style={{border: '3px solid rgba(245, 158, 11, 0.9)'}}>
+                    <div className="simple-bounce" style={{fontSize: '1.5rem'}}>👨‍🌾</div>
+                  </div>
+                  <span className="text-xs text-amber-200 mt-1 font-medium">Villagers</span>
+                </div>
+                
+                {/* Werwolf */}
+                <div className="flex flex-col items-center">
+                  <div className="w-16 h-16 bg-gradient-to-br from-red-200/90 to-red-400/90 rounded-full flex items-center justify-center shadow-lg shadow-red-200/80 gentle-pulse" style={{border: '3px solid rgba(239, 68, 68, 0.9)'}}>
+                    <div className="simple-bounce" style={{fontSize: '1.5rem'}}>🐺</div>
+                  </div>
+                  <span className="text-xs text-red-200 mt-1 font-medium">Werwolves</span>
+          </div>
+          
+          {/* Doctor */}
+          <div className="flex flex-col items-center">
+                  <div className="w-16 h-16 bg-gradient-to-br from-emerald-200/90 to-emerald-400/90 rounded-full flex items-center justify-center shadow-lg shadow-emerald-200/80 gentle-pulse" style={{animationDelay: '1s', border: '3px solid rgba(16, 185, 129, 0.9)'}}>
+                    <div className="simple-bounce" style={{fontSize: '1.5rem'}}>👨‍⚕️</div>
+                  </div>
+                  <span className="text-xs text-emerald-200 mt-1 font-medium">Doctor</span>
+          </div>
+          
+          {/* Police */}
+          <div className="flex flex-col items-center">
+                  <div className="w-16 h-16 bg-gradient-to-br from-sky-200/90 to-sky-400/90 rounded-full flex items-center justify-center shadow-lg shadow-sky-200/80 gentle-pulse" style={{animationDelay: '2s', border: '3px solid rgba(14, 165, 233, 0.9)'}}>
+                    <div className="simple-bounce" style={{fontSize: '1.5rem'}}>👮‍♂️</div>
+                  </div>
+                  <span className="text-xs text-sky-200 mt-1 font-medium">Police</span>
+          </div>
+        </div>
+      </div>
+
+            <div className="w-full max-w-md space-y-6 md:space-y-8">
           {/* Title */}
           <div className="text-center">
-            <h1 className="text-5xl font-bold text-white mb-2 drop-shadow-lg">
-              🐺 Werwolf
+                <h1 className="text-4xl md:text-5xl font-bold text-white mb-2 drop-shadow-lg">
+                  🐺 Werwolf
             </h1>
-            <div className="bg-gradient-to-r from-slate-800/80 via-indigo-800/80 to-slate-800/80 backdrop-blur-sm rounded-2xl p-6 border border-slate-500/30 shadow-2xl">
-              <p className="text-xl text-amber-200 mb-2 font-semibold">
-                Video-Conference Companion
-              </p>
-              <p className="text-sm text-slate-300">
-                Host-controlled, zero-typing play
-              </p>
-            </div>
+                <div className="bg-gradient-to-r from-slate-800/80 via-indigo-800/80 to-slate-800/80 backdrop-blur-sm rounded-2xl p-4 md:p-6 border border-slate-500/30 shadow-2xl">
+                  <p className="text-lg md:text-xl text-amber-200 mb-2 font-semibold">
+              Video-Conference Companion
+            </p>
+                  <p className="text-xs md:text-sm text-slate-300">
+              Host-controlled, zero-typing play
+            </p>
+                </div>
           </div>
 
           {/* Game Code Display */}
@@ -378,14 +384,14 @@ export default function WelcomeScreen({ onStartGame, onJoinGame }: WelcomeScreen
           )}
 
           {/* Start New Game */}
-          <div className="bg-gradient-to-br from-slate-800/90 via-indigo-800/90 to-slate-800/90 backdrop-blur-sm rounded-2xl p-6 border border-slate-500/30 shadow-2xl">
-            <div className="text-center mb-6">
-              <div className="text-3xl mb-2">👑</div>
-              <h2 className="text-2xl font-bold bg-gradient-to-r from-amber-400 to-yellow-300 bg-clip-text text-transparent">
-                Start New Game
-              </h2>
-              <p className="text-sm text-slate-300 mt-1">Become the Host</p>
-            </div>
+              <div className="bg-gradient-to-br from-slate-800/90 via-indigo-800/90 to-slate-800/90 backdrop-blur-sm rounded-2xl p-4 md:p-6 border border-slate-500/30 shadow-2xl">
+                <div className="text-center mb-4 md:mb-6">
+                  <div className="text-2xl md:text-3xl mb-2">👑</div>
+                  <h2 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-amber-400 to-yellow-300 bg-clip-text text-transparent">
+              Start New Game
+            </h2>
+                  <p className="text-xs md:text-sm text-slate-300 mt-1">Become the Host</p>
+                </div>
             
             <div className="space-y-4">
               <div>
@@ -417,8 +423,8 @@ export default function WelcomeScreen({ onStartGame, onJoinGame }: WelcomeScreen
             <div className="text-center mb-6">
               <div className="text-3xl mb-2">⚔️</div>
               <h2 className="text-2xl font-bold bg-gradient-to-r from-slate-300 to-slate-100 bg-clip-text text-transparent">
-                Join Game
-              </h2>
+              Join Game
+            </h2>
               <p className="text-sm text-slate-300 mt-1">Enter the Game</p>
             </div>
             
