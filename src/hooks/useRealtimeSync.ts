@@ -94,7 +94,8 @@ export function useRealtimeSync(gameId: string | null, onGameEnded?: () => void)
               game: currentGame || {} as Game,
               players: updatedPlayers,
               roundState: currentRoundState,
-              votes: currentVotes
+              votes: currentVotes,
+              leaveRequests: leaveRequests
             })
           }
         }

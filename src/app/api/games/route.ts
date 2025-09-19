@@ -142,7 +142,8 @@ export async function GET(request: NextRequest) {
       .eq('game_id', game.id)
       .single()
     
-    if (roundStateError) {
+    // Ignore "no rows" error for round state - it's normal when game is in lobby
+    if (roundStateError && roundStateError.code !== 'PGRST116') {
       console.error('Error fetching round state:', roundStateError)
       return NextResponse.json({ error: 'Failed to fetch round state' }, { status: 500 })
     }
@@ -154,16 +155,28 @@ export async function GET(request: NextRequest) {
       .eq('game_id', game.id)
       .eq('round', game.day_count)
     
+    // Ignore errors for votes - it's normal when game is in lobby
     if (votesError) {
       console.error('Error fetching votes:', votesError)
-      return NextResponse.json({ error: 'Failed to fetch votes' }, { status: 500 })
+    }
+    
+    // Get leave requests
+    const { data: leaveRequests, error: leaveRequestsError } = await supabase
+      .from('leave_requests')
+      .select('*')
+      .eq('game_id', game.id)
+    
+    // Ignore errors for leave requests
+    if (leaveRequestsError) {
+      console.error('Error fetching leave requests:', leaveRequestsError)
     }
     
     return NextResponse.json({
       game,
       players: players || [],
       roundState,
-      votes: votes || []
+      votes: votes || [],
+      leaveRequests: leaveRequests || []
     })
     
   } catch (error) {
