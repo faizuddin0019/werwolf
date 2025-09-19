@@ -145,7 +145,7 @@ export default function WelcomeScreen({ onStartGame, onJoinGame }: WelcomeScreen
 
         {/* DOCTOR - Icon-based */}
         {/* Doctor - Bottom Left Area - Hidden on mobile to avoid form overlap */}
-        <div className="absolute hidden md:block z-0" style={{bottom: '120px', left: '20px'}}>
+        <div className="absolute hidden md:block z-0" style={{bottom: '80px', left: '20px'}}>
           <div className="relative">
             <div className="w-80 h-80 bg-gradient-to-br from-emerald-200/90 to-emerald-400/90 rounded-full flex items-center justify-center shadow-2xl shadow-emerald-200/80 character-float dramatic-pulse" style={{animationDelay: '1s', border: '8px solid rgba(16, 185, 129, 0.9)'}}>
               <div className="relative character-breathe">
@@ -156,7 +156,7 @@ export default function WelcomeScreen({ onStartGame, onJoinGame }: WelcomeScreen
               </div>
             </div>
             <div className="absolute -inset-10 bg-gradient-to-r from-emerald-200/70 to-emerald-400/70 rounded-full blur-3xl"></div>
-            <div className="absolute -top-20 left-1/2 transform -translate-x-1/2">
+            <div className="absolute -top-16 left-1/2 transform -translate-x-1/2">
               <span className="text-xl font-bold text-emerald-100 bg-gray-900/95 px-6 py-3 rounded-full backdrop-blur-sm border-2 border-emerald-200/60">
                 Doctor
               </span>
@@ -166,7 +166,7 @@ export default function WelcomeScreen({ onStartGame, onJoinGame }: WelcomeScreen
 
         {/* POLICE - Icon-based */}
         {/* Police - Bottom Right Area - Hidden on mobile to avoid form overlap */}
-        <div className="absolute hidden md:block z-0" style={{bottom: '120px', right: '20px'}}>
+        <div className="absolute hidden md:block z-0" style={{bottom: '80px', right: '20px'}}>
           <div className="relative">
             <div className="w-80 h-80 bg-gradient-to-br from-sky-200/90 to-sky-400/90 rounded-full flex items-center justify-center shadow-2xl shadow-sky-200/80 character-float dramatic-pulse" style={{animationDelay: '2s', border: '8px solid rgba(14, 165, 233, 0.9)'}}>
               <div className="relative character-breathe">
@@ -177,7 +177,7 @@ export default function WelcomeScreen({ onStartGame, onJoinGame }: WelcomeScreen
               </div>
             </div>
             <div className="absolute -inset-10 bg-gradient-to-r from-sky-200/70 to-sky-400/70 rounded-full blur-3xl"></div>
-            <div className="absolute -top-20 left-1/2 transform -translate-x-1/2">
+            <div className="absolute -top-16 left-1/2 transform -translate-x-1/2">
               <span className="text-xl font-bold text-sky-100 bg-gray-900/95 px-6 py-3 rounded-full backdrop-blur-sm border-2 border-sky-200/60">
                 Police
               </span>
