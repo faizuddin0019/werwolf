@@ -73,8 +73,19 @@ export default function GameScreen({ onEndGame, onRemovePlayer, onChangeRole }: 
     return 'Alive'
   }
 
+  // Dynamic background based on game phase
+  const getBackgroundClass = () => {
+    if (isNightPhase) {
+      return "min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-black relative overflow-hidden"
+    } else if (isDayPhase) {
+      return "min-h-screen bg-gradient-to-br from-blue-900 via-sky-900 to-amber-900 relative overflow-hidden"
+    } else {
+      return "min-h-screen bg-gradient-to-br from-slate-900 via-indigo-900 to-slate-800 relative overflow-hidden"
+    }
+  }
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-indigo-900 to-slate-800 relative overflow-hidden">
+    <div className={getBackgroundClass()}>
       {/* Royal Decorative Background */}
       <div className="absolute inset-0 overflow-hidden">
         {/* Royal Pattern Overlay */}
@@ -98,16 +109,11 @@ export default function GameScreen({ onEndGame, onRemovePlayer, onChangeRole }: 
         {/* Villagers - Top Left Area - Updated Position */}
         <div className="absolute z-0" style={{top: '20px', left: '80px'}}>
           <div className="relative">
-            <div className="w-80 h-80 bg-gradient-to-br from-amber-200/90 to-amber-400/90 rounded-full flex items-center justify-center shadow-2xl shadow-amber-200/80 character-float gentle-pulse" style={{border: '8px solid rgba(245, 158, 11, 0.9)'}}>
-              <div className="relative character-breathe">
+            <div className="w-80 h-80 bg-gradient-to-br from-amber-200/90 to-amber-400/90 rounded-full flex items-center justify-center shadow-2xl shadow-amber-200/80" style={{border: '8px solid rgba(245, 158, 11, 0.9)'}}>
+              <div className="relative">
                 {/* Villagers Icon - Male Villager */}
-                <div className="w-64 h-64 relative head-nod flex items-center justify-center">
-                  <div className="character-bounce" style={{
-                    fontSize: '8rem',
-                    filter: 'drop-shadow(0 0 20px rgba(245, 158, 11, 0.8)) drop-shadow(0 0 40px rgba(245, 158, 11, 0.4))',
-                    textShadow: '0 0 30px rgba(245, 158, 11, 0.9), 0 0 60px rgba(245, 158, 11, 0.5)',
-                    transform: 'scale(1.1)'
-                  }}>👨‍🌾</div>
+                <div className="w-64 h-64 relative flex items-center justify-center">
+                  <div style={{fontSize: '8rem'}}>👨‍🌾</div>
                 </div>
               </div>
             </div>
@@ -124,16 +130,11 @@ export default function GameScreen({ onEndGame, onRemovePlayer, onChangeRole }: 
         {/* Werwolf - Top Right Area - Updated Position */}
         <div className="absolute z-0" style={{top: '20px', right: '80px'}}>
           <div className="relative">
-            <div className="w-88 h-88 bg-gradient-to-br from-red-200/90 to-red-400/90 rounded-full flex items-center justify-center shadow-2xl shadow-red-200/80 character-float gentle-pulse" style={{border: '8px solid rgba(239, 68, 68, 0.9)'}}>
-              <div className="relative character-breathe">
+            <div className="w-80 h-80 bg-gradient-to-br from-red-200/90 to-red-400/90 rounded-full flex items-center justify-center shadow-2xl shadow-red-200/80" style={{border: '8px solid rgba(239, 68, 68, 0.9)'}}>
+              <div className="relative">
                 {/* Werwolf Icon - Animated Wolf */}
-                <div className="w-64 h-64 relative head-nod flex items-center justify-center">
-                  <div className="character-bounce" style={{
-                    fontSize: '8rem',
-                    filter: 'drop-shadow(0 0 20px rgba(239, 68, 68, 0.8)) drop-shadow(0 0 40px rgba(239, 68, 68, 0.4))',
-                    textShadow: '0 0 30px rgba(239, 68, 68, 0.9), 0 0 60px rgba(239, 68, 68, 0.5)',
-                    transform: 'scale(1.1)'
-                  }}>🐺</div>
+                <div className="w-64 h-64 relative flex items-center justify-center">
+                  <div style={{fontSize: '8rem'}}>🐺</div>
                 </div>
               </div>
             </div>
@@ -150,16 +151,11 @@ export default function GameScreen({ onEndGame, onRemovePlayer, onChangeRole }: 
         {/* Doctor - Bottom Left Area - Hidden on mobile to avoid form overlap - Updated Position */}
         <div className="absolute hidden md:block z-0" style={{bottom: '300px', left: '80px'}}>
           <div className="relative">
-            <div className="w-80 h-80 bg-gradient-to-br from-emerald-200/90 to-emerald-400/90 rounded-full flex items-center justify-center shadow-2xl shadow-emerald-200/80 character-float gentle-pulse" style={{animationDelay: '1s', border: '8px solid rgba(16, 185, 129, 0.9)'}}>
-              <div className="relative character-breathe">
+            <div className="w-80 h-80 bg-gradient-to-br from-emerald-200/90 to-emerald-400/90 rounded-full flex items-center justify-center shadow-2xl shadow-emerald-200/80" style={{border: '8px solid rgba(16, 185, 129, 0.9)'}}>
+              <div className="relative">
                 {/* Doctor Icon - Male Doctor */}
-                <div className="w-64 h-64 relative head-nod flex items-center justify-center">
-                  <div className="character-bounce" style={{
-                    fontSize: '8rem',
-                    filter: 'drop-shadow(0 0 20px rgba(16, 185, 129, 0.8)) drop-shadow(0 0 40px rgba(16, 185, 129, 0.4))',
-                    textShadow: '0 0 30px rgba(16, 185, 129, 0.9), 0 0 60px rgba(16, 185, 129, 0.5)',
-                    transform: 'scale(1.1)'
-                  }}>👨‍⚕️</div>
+                <div className="w-64 h-64 relative flex items-center justify-center">
+                  <div style={{fontSize: '8rem'}}>👨‍⚕️</div>
                 </div>
               </div>
             </div>
@@ -176,16 +172,11 @@ export default function GameScreen({ onEndGame, onRemovePlayer, onChangeRole }: 
         {/* Police - Bottom Right Area - Hidden on mobile to avoid form overlap - Updated Position */}
         <div className="absolute hidden md:block z-0" style={{bottom: '300px', right: '80px'}}>
           <div className="relative">
-            <div className="w-80 h-80 bg-gradient-to-br from-sky-200/90 to-sky-400/90 rounded-full flex items-center justify-center shadow-2xl shadow-sky-200/80 character-float gentle-pulse" style={{animationDelay: '2s', border: '8px solid rgba(14, 165, 233, 0.9)'}}>
-              <div className="relative character-breathe">
+            <div className="w-80 h-80 bg-gradient-to-br from-sky-200/90 to-sky-400/90 rounded-full flex items-center justify-center shadow-2xl shadow-sky-200/80" style={{border: '8px solid rgba(14, 165, 233, 0.9)'}}>
+              <div className="relative">
                 {/* Police Icon - Male Police Officer */}
-                <div className="w-64 h-64 relative head-nod flex items-center justify-center">
-                  <div className="character-bounce" style={{
-                    fontSize: '8rem',
-                    filter: 'drop-shadow(0 0 20px rgba(14, 165, 233, 0.8)) drop-shadow(0 0 40px rgba(14, 165, 233, 0.4))',
-                    textShadow: '0 0 30px rgba(14, 165, 233, 0.9), 0 0 60px rgba(14, 165, 233, 0.5)',
-                    transform: 'scale(1.1)'
-                  }}>👮‍♂️</div>
+                <div className="w-64 h-64 relative flex items-center justify-center">
+                  <div style={{fontSize: '8rem'}}>👮‍♂️</div>
                 </div>
               </div>
             </div>
@@ -201,15 +192,10 @@ export default function GameScreen({ onEndGame, onRemovePlayer, onChangeRole }: 
         {/* Mobile Character Circles - Smaller and positioned to avoid form overlap */}
         <div className="absolute md:hidden" style={{top: '10px', left: '10px', zIndex: 1}}>
           <div className="relative">
-            <div className="w-20 h-20 bg-gradient-to-br from-emerald-200/90 to-emerald-400/90 rounded-full flex items-center justify-center shadow-lg shadow-emerald-200/80 character-float gentle-pulse" style={{animationDelay: '1s', border: '4px solid rgba(16, 185, 129, 0.9)'}}>
-              <div className="relative character-breathe">
-                <div className="w-16 h-16 relative head-nod flex items-center justify-center">
-                  <div className="character-bounce" style={{
-                    fontSize: '2rem',
-                    filter: 'drop-shadow(0 0 8px rgba(16, 185, 129, 0.8)) drop-shadow(0 0 16px rgba(16, 185, 129, 0.4))',
-                    textShadow: '0 0 12px rgba(16, 185, 129, 0.9), 0 0 24px rgba(16, 185, 129, 0.5)',
-                    transform: 'scale(1.1)'
-                  }}>👨‍⚕️</div>
+            <div className="w-20 h-20 bg-gradient-to-br from-emerald-200/90 to-emerald-400/90 rounded-full flex items-center justify-center shadow-lg shadow-emerald-200/80" style={{border: '4px solid rgba(16, 185, 129, 0.9)'}}>
+              <div className="relative">
+                <div className="w-16 h-16 relative flex items-center justify-center">
+                  <div style={{fontSize: '2rem'}}>👨‍⚕️</div>
                 </div>
               </div>
             </div>
@@ -219,15 +205,10 @@ export default function GameScreen({ onEndGame, onRemovePlayer, onChangeRole }: 
 
         <div className="absolute md:hidden" style={{top: '10px', right: '10px', zIndex: 1}}>
           <div className="relative">
-            <div className="w-20 h-20 bg-gradient-to-br from-sky-200/90 to-sky-400/90 rounded-full flex items-center justify-center shadow-lg shadow-sky-200/80 character-float gentle-pulse" style={{animationDelay: '2s', border: '4px solid rgba(14, 165, 233, 0.9)'}}>
-              <div className="relative character-breathe">
-                <div className="w-16 h-16 relative head-nod flex items-center justify-center">
-                  <div className="character-bounce" style={{
-                    fontSize: '2rem',
-                    filter: 'drop-shadow(0 0 8px rgba(14, 165, 233, 0.8)) drop-shadow(0 0 16px rgba(14, 165, 233, 0.4))',
-                    textShadow: '0 0 12px rgba(14, 165, 233, 0.9), 0 0 24px rgba(14, 165, 233, 0.5)',
-                    transform: 'scale(1.1)'
-                  }}>👮‍♂️</div>
+            <div className="w-20 h-20 bg-gradient-to-br from-sky-200/90 to-sky-400/90 rounded-full flex items-center justify-center shadow-lg shadow-sky-200/80" style={{border: '4px solid rgba(14, 165, 233, 0.9)'}}>
+              <div className="relative">
+                <div className="w-16 h-16 relative flex items-center justify-center">
+                  <div style={{fontSize: '2rem'}}>👮‍♂️</div>
                 </div>
               </div>
             </div>
