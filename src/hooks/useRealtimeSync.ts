@@ -37,12 +37,14 @@ export function useRealtimeSync(gameId: string | null, onGameEnded?: () => void)
   const roundStateRef = useRef(roundState)
   const votesRef = useRef(votes)
   const playersRef = useRef(players)
+  const currentPlayerRef = useRef(currentPlayer)
   
   leaveRequestsRef.current = leaveRequests
   gameRef.current = game
   roundStateRef.current = roundState
   votesRef.current = votes
   playersRef.current = players
+  currentPlayerRef.current = currentPlayer
 
   useEffect(() => {
     if (!gameId || !isSupabaseConfigured() || !supabase) return
@@ -62,7 +64,8 @@ export function useRealtimeSync(gameId: string | null, onGameEnded?: () => void)
             players: playersRef.current || [],
             roundState: roundStateRef.current,
             votes: votesRef.current || [],
-            leaveRequests: leaveRequestsRef.current || []
+            leaveRequests: leaveRequestsRef.current || [],
+            currentPlayer: currentPlayerRef.current
           })
           
           // If game ended, redirect to welcome page
@@ -129,12 +132,19 @@ export function useRealtimeSync(gameId: string | null, onGameEnded?: () => void)
                 playersCount: updatedPlayers.length,
                 players: updatedPlayers
               })
+              
+              // Find the current player in the updated players list
+              const currentPlayer = currentPlayerRef.current
+              const updatedCurrentPlayer = currentPlayer ? 
+                updatedPlayers.find(p => p.id === currentPlayer.id) || currentPlayer : null
+              
               setGameData({
                 game: gameRef.current || {} as Game,
                 players: updatedPlayers,
                 roundState: roundStateRef.current,
                 votes: votesRef.current,
-                leaveRequests: leaveRequestsRef.current
+                leaveRequests: leaveRequestsRef.current,
+                currentPlayer: updatedCurrentPlayer
               })
             } else {
               console.log('🔧 Players unchanged, skipping state update')
@@ -207,47 +217,48 @@ export function useRealtimeSync(gameId: string | null, onGameEnded?: () => void)
     //   )
     //   .subscribe()
 
-    // TEMPORARILY DISABLED - Subscribe to leave request changes
-    // const leaveRequestsSubscription = supabase
-    //   .channel(`leave_requests:${gameId}`)
-    //   .on('postgres_changes',
-    //     { event: '*', schema: 'public', table: 'leave_requests', filter: `game_id=eq.${gameId}` },
-    //     async () => {
-    //       // Refetch all leave requests for this game
-    //       const { data: updatedLeaveRequests } = await supabase
-    //         .from('leave_requests')
-    //         .select('*')
-    //         .eq('game_id', gameId)
-    //       
-    //       if (updatedLeaveRequests) {
-    //         // Check if leave requests actually changed to prevent infinite loops
-    //         const currentLeaveRequests = leaveRequestsRef.current
-    //         const leaveRequestsChanged = !currentLeaveRequests || 
-    //           currentLeaveRequests.length !== updatedLeaveRequests.length ||
-    //           currentLeaveRequests.some((currentRequest, index) => {
-    //             const updatedRequest = updatedLeaveRequests[index]
-    //             return !updatedRequest || 
-    //               currentRequest.id !== updatedRequest.id ||
-    //               currentRequest.status !== updatedRequest.status ||
-    //               currentRequest.player_id !== updatedRequest.player_id
-    //           })
-    //         
-    //         if (leaveRequestsChanged) {
-    //           console.log('🔧 Leave requests changed, updating state')
-    //           setGameData({
-    //             game: gameRef.current || {} as Game,
-    //             players: playersRef.current || [],
-    //             roundState: roundStateRef.current,
-    //             votes: votesRef.current || [],
-    //             leaveRequests: updatedLeaveRequests
-    //           })
-    //         } else {
-    //           console.log('🔧 Leave requests unchanged, skipping state update')
-    //         }
-    //       }
-    //     }
-    //   )
-    //   .subscribe()
+    // Subscribe to leave request changes
+    const leaveRequestsSubscription = supabase
+      .channel(`leave_requests:${gameId}`)
+      .on('postgres_changes',
+        { event: '*', schema: 'public', table: 'leave_requests', filter: `game_id=eq.${gameId}` },
+        async () => {
+          // Refetch all leave requests for this game
+          const { data: updatedLeaveRequests } = await supabase
+            .from('leave_requests')
+            .select('*')
+            .eq('game_id', gameId)
+          
+          if (updatedLeaveRequests) {
+            // Check if leave requests actually changed to prevent infinite loops
+            const currentLeaveRequests = leaveRequestsRef.current
+            const leaveRequestsChanged = !currentLeaveRequests || 
+              currentLeaveRequests.length !== updatedLeaveRequests.length ||
+              currentLeaveRequests.some((currentRequest, index) => {
+                const updatedRequest = updatedLeaveRequests[index]
+                return !updatedRequest || 
+                  currentRequest.id !== updatedRequest.id ||
+                  currentRequest.status !== updatedRequest.status ||
+                  currentRequest.player_id !== updatedRequest.player_id
+              })
+            
+            if (leaveRequestsChanged) {
+              console.log('🔧 Leave requests changed, updating state')
+              setGameData({
+                game: gameRef.current || {} as Game,
+                players: playersRef.current || [],
+                roundState: roundStateRef.current,
+                votes: votesRef.current || [],
+                leaveRequests: updatedLeaveRequests,
+                currentPlayer: currentPlayerRef.current
+              })
+            } else {
+              console.log('🔧 Leave requests unchanged, skipping state update')
+            }
+          }
+        }
+      )
+      .subscribe()
 
     // Store subscription references for cleanup
     subscriptionRef.current = {
@@ -255,7 +266,7 @@ export function useRealtimeSync(gameId: string | null, onGameEnded?: () => void)
       players: playersSubscription,
       roundState: null, // roundStateSubscription,
       votes: null, // votesSubscription,
-      leaveRequests: null // leaveRequestsSubscription
+      leaveRequests: leaveRequestsSubscription
     }
     
     console.log('🔧 Real-time subscriptions created for game:', gameId)

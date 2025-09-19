@@ -106,7 +106,8 @@ export default function HomePage() {
           clientId,
           gameDataPlayers: gameData.players.map(p => ({ id: p.id, name: p.name, client_id: p.client_id, is_host: p.is_host })),
           foundCurrentPlayer: currentPlayer ? { id: currentPlayer.id, name: currentPlayer.name, client_id: currentPlayer.client_id, is_host: currentPlayer.is_host } : null,
-          gameHostClientId: gameData.game.host_client_id
+          gameHostClientId: gameData.game.host_client_id,
+          clientIdMatch: gameData.players.some(p => p.client_id === clientId)
         })
         
         if (currentPlayer) {
@@ -151,13 +152,22 @@ export default function HomePage() {
     
     if (!clientId) {
       const newClientId = getOrCreateBrowserClientId()
+      console.log('🔧 Generated new client ID:', newClientId)
       setClientId(newClientId)
       clientIdInitialized.current = true
     } else {
       // Check if the existing client ID is from the current browser
-      if (!isClientIdFromCurrentBrowser(clientId)) {
+      const isFromCurrentBrowser = isClientIdFromCurrentBrowser(clientId)
+      console.log('🔧 Client ID validation:', {
+        existingClientId: clientId,
+        isFromCurrentBrowser,
+        currentFingerprint: typeof window !== 'undefined' ? 'Browser fingerprint available' : 'N/A'
+      })
+      
+      if (!isFromCurrentBrowser) {
         // Client ID is from a different browser, generate a new one
         const newClientId = getOrCreateBrowserClientId()
+        console.log('🔧 Client ID from different browser, generated new one:', newClientId)
         setClientId(newClientId)
         // Clear any saved game state since this is a different browser
         localStorage.removeItem('werwolf-game-state')
