@@ -316,9 +316,25 @@ export function useRealtimeSync(gameId: string | null, onGameEnded?: () => void)
       .channel(`leave_requests:${gameId}`)
       .on('postgres_changes',
         { event: '*', schema: 'public', table: 'leave_requests', filter: `game_id=eq.${gameId}` },
-        (payload) => {
-          log('🔧 Leave requests subscription triggered', payload.eventType)
-          debouncedRefetchLeaveRequests()
+        async (payload) => {
+          log('🔧 Leave requests subscription triggered', payload.eventType, payload)
+          // Immediate update for leave requests (no debounce)
+          const { data: updatedLeaveRequests } = await supabase
+            .from('leave_requests')
+            .select('*')
+            .eq('game_id', gameId)
+              
+          if (updatedLeaveRequests) {
+            log('🔧 Immediate leave requests update:', updatedLeaveRequests.length, 'requests')
+            setGameData({
+              game: gameRef.current || {} as Game,
+              players: playersRef.current || [],
+              roundState: roundStateRef.current,
+              votes: votesRef.current || [],
+              leaveRequests: updatedLeaveRequests,
+              currentPlayer: currentPlayerRef.current
+            })
+          }
         }
       )
       .subscribe()

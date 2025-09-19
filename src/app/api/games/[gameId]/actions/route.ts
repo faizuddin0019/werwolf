@@ -683,6 +683,8 @@ async function handleRequestLeave(gameId: string, currentPlayer: Player) {
     return NextResponse.json({ error: 'Failed to create leave request' }, { status: 500 })
   }
   
+  console.log('🔧 Leave request created successfully:', leaveRequest)
+  
   return NextResponse.json({ 
     success: true, 
     leaveRequest,

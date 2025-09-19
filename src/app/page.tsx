@@ -378,6 +378,8 @@ export default function HomePage() {
     setError(null)
     
     try {
+      if (process.env.NODE_ENV === 'development') console.log('🔧 Submitting leave request for player:', currentPlayer.name)
+      
       const response = await fetch(`/api/games/${game.id}/actions`, {
         method: 'POST',
         headers: {
@@ -395,7 +397,7 @@ export default function HomePage() {
       }
       
       const result = await response.json()
-      if (process.env.NODE_ENV === 'development') console.log('Leave request submitted:', result.message)
+      if (process.env.NODE_ENV === 'development') console.log('🔧 Leave request submitted successfully:', result.message)
       
     } catch (err) {
       console.error('Error requesting leave:', err)
