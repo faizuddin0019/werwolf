@@ -103,19 +103,19 @@ export default function WelcomeScreen({ onStartGame, onJoinGame }: WelcomeScreen
 
         {/* VILLAGERS - Icon-based */}
         {/* Villagers - Top Left Area */}
-        <div className="absolute z-0" style={{top: '20px', left: '10px'}}>
+        <div className="absolute z-0" style={{top: '20px', left: '20px'}}>
           <div className="relative">
-            <div className="w-60 h-60 bg-gradient-to-br from-amber-200/90 to-amber-400/90 rounded-full flex items-center justify-center shadow-2xl shadow-amber-200/80 character-float dramatic-pulse" style={{border: '6px solid rgba(245, 158, 11, 0.9)'}}>
+            <div className="w-80 h-80 bg-gradient-to-br from-amber-200/90 to-amber-400/90 rounded-full flex items-center justify-center shadow-2xl shadow-amber-200/80 character-float dramatic-pulse" style={{border: '8px solid rgba(245, 158, 11, 0.9)'}}>
               <div className="relative character-breathe">
                 {/* Villagers Icon - Male Villager */}
-                <div className="w-48 h-48 relative head-nod flex items-center justify-center">
-                  <div className="character-bounce" style={{fontSize: '6rem'}}>👨‍🌾</div>
+                <div className="w-64 h-64 relative head-nod flex items-center justify-center">
+                  <div className="character-bounce" style={{fontSize: '8rem'}}>👨‍🌾</div>
                 </div>
               </div>
             </div>
-            <div className="absolute -inset-8 bg-gradient-to-r from-amber-200/70 to-amber-400/70 rounded-full blur-3xl"></div>
-            <div className="absolute top-64 left-1/2 transform -translate-x-1/2">
-              <span className="text-lg font-bold text-amber-100 bg-gray-900/95 px-4 py-2 rounded-full backdrop-blur-sm border-2 border-amber-200/60">
+            <div className="absolute -inset-10 bg-gradient-to-r from-amber-200/70 to-amber-400/70 rounded-full blur-3xl"></div>
+            <div className="absolute top-84 left-1/2 transform -translate-x-1/2">
+              <span className="text-xl font-bold text-amber-100 bg-gray-900/95 px-6 py-3 rounded-full backdrop-blur-sm border-2 border-amber-200/60">
                 Villagers
               </span>
             </div>
@@ -124,19 +124,19 @@ export default function WelcomeScreen({ onStartGame, onJoinGame }: WelcomeScreen
 
         {/* WERWOLF - Icon-based */}
         {/* Werwolf - Top Right Area */}
-        <div className="absolute z-0" style={{top: '20px', right: '10px'}}>
+        <div className="absolute z-0" style={{top: '20px', right: '20px'}}>
           <div className="relative">
-            <div className="w-60 h-60 bg-gradient-to-br from-red-200/90 to-red-400/90 rounded-full flex items-center justify-center shadow-2xl shadow-red-200/80 character-float dramatic-pulse" style={{border: '6px solid rgba(239, 68, 68, 0.9)'}}>
+            <div className="w-80 h-80 bg-gradient-to-br from-red-200/90 to-red-400/90 rounded-full flex items-center justify-center shadow-2xl shadow-red-200/80 character-float dramatic-pulse" style={{border: '8px solid rgba(239, 68, 68, 0.9)'}}>
               <div className="relative character-breathe">
                 {/* Werwolf Icon - Animated Wolf */}
-                <div className="w-48 h-48 relative head-nod flex items-center justify-center">
-                  <div className="character-bounce" style={{fontSize: '6rem'}}>🐺</div>
+                <div className="w-64 h-64 relative head-nod flex items-center justify-center">
+                  <div className="character-bounce" style={{fontSize: '8rem'}}>🐺</div>
                 </div>
               </div>
             </div>
-            <div className="absolute -inset-8 bg-gradient-to-r from-red-200/70 to-red-400/70 rounded-full blur-3xl"></div>
-            <div className="absolute top-64 left-1/2 transform -translate-x-1/2">
-              <span className="text-lg font-bold text-red-100 bg-gray-900/95 px-4 py-2 rounded-full backdrop-blur-sm border-2 border-red-200/60">
+            <div className="absolute -inset-10 bg-gradient-to-r from-red-200/70 to-red-400/70 rounded-full blur-3xl"></div>
+            <div className="absolute top-84 left-1/2 transform -translate-x-1/2">
+              <span className="text-xl font-bold text-red-100 bg-gray-900/95 px-6 py-3 rounded-full backdrop-blur-sm border-2 border-red-200/60">
                 Werwolves
               </span>
             </div>
@@ -145,19 +145,19 @@ export default function WelcomeScreen({ onStartGame, onJoinGame }: WelcomeScreen
 
         {/* DOCTOR - Icon-based */}
         {/* Doctor - Bottom Left Area - Hidden on mobile to avoid form overlap */}
-        <div className="absolute hidden md:block z-0" style={{bottom: '20px', left: '10px'}}>
+        <div className="absolute hidden md:block z-0" style={{bottom: '120px', left: '20px'}}>
           <div className="relative">
-            <div className="w-60 h-60 bg-gradient-to-br from-emerald-200/90 to-emerald-400/90 rounded-full flex items-center justify-center shadow-2xl shadow-emerald-200/80 character-float dramatic-pulse" style={{animationDelay: '1s', border: '6px solid rgba(16, 185, 129, 0.9)'}}>
+            <div className="w-80 h-80 bg-gradient-to-br from-emerald-200/90 to-emerald-400/90 rounded-full flex items-center justify-center shadow-2xl shadow-emerald-200/80 character-float dramatic-pulse" style={{animationDelay: '1s', border: '8px solid rgba(16, 185, 129, 0.9)'}}>
               <div className="relative character-breathe">
                 {/* Doctor Icon - Male Doctor */}
-                <div className="w-48 h-48 relative head-nod flex items-center justify-center">
-                  <div className="character-bounce" style={{fontSize: '6rem'}}>👨‍⚕️</div>
+                <div className="w-64 h-64 relative head-nod flex items-center justify-center">
+                  <div className="character-bounce" style={{fontSize: '8rem'}}>👨‍⚕️</div>
                 </div>
               </div>
             </div>
-            <div className="absolute -inset-8 bg-gradient-to-r from-emerald-200/70 to-emerald-400/70 rounded-full blur-3xl"></div>
-            <div className="absolute -top-16 left-1/2 transform -translate-x-1/2">
-              <span className="text-lg font-bold text-emerald-100 bg-gray-900/95 px-4 py-2 rounded-full backdrop-blur-sm border-2 border-emerald-200/60">
+            <div className="absolute -inset-10 bg-gradient-to-r from-emerald-200/70 to-emerald-400/70 rounded-full blur-3xl"></div>
+            <div className="absolute -top-20 left-1/2 transform -translate-x-1/2">
+              <span className="text-xl font-bold text-emerald-100 bg-gray-900/95 px-6 py-3 rounded-full backdrop-blur-sm border-2 border-emerald-200/60">
                 Doctor
               </span>
             </div>
@@ -166,19 +166,19 @@ export default function WelcomeScreen({ onStartGame, onJoinGame }: WelcomeScreen
 
         {/* POLICE - Icon-based */}
         {/* Police - Bottom Right Area - Hidden on mobile to avoid form overlap */}
-        <div className="absolute hidden md:block z-0" style={{bottom: '20px', right: '10px'}}>
+        <div className="absolute hidden md:block z-0" style={{bottom: '120px', right: '20px'}}>
           <div className="relative">
-            <div className="w-60 h-60 bg-gradient-to-br from-sky-200/90 to-sky-400/90 rounded-full flex items-center justify-center shadow-2xl shadow-sky-200/80 character-float dramatic-pulse" style={{animationDelay: '2s', border: '6px solid rgba(14, 165, 233, 0.9)'}}>
+            <div className="w-80 h-80 bg-gradient-to-br from-sky-200/90 to-sky-400/90 rounded-full flex items-center justify-center shadow-2xl shadow-sky-200/80 character-float dramatic-pulse" style={{animationDelay: '2s', border: '8px solid rgba(14, 165, 233, 0.9)'}}>
               <div className="relative character-breathe">
                 {/* Police Icon - Male Police Officer */}
-                <div className="w-48 h-48 relative head-nod flex items-center justify-center">
-                  <div className="character-bounce" style={{fontSize: '6rem'}}>👮‍♂️</div>
+                <div className="w-64 h-64 relative head-nod flex items-center justify-center">
+                  <div className="character-bounce" style={{fontSize: '8rem'}}>👮‍♂️</div>
                 </div>
               </div>
             </div>
-            <div className="absolute -inset-8 bg-gradient-to-r from-sky-200/70 to-sky-400/70 rounded-full blur-3xl"></div>
-            <div className="absolute -top-16 left-1/2 transform -translate-x-1/2">
-              <span className="text-lg font-bold text-sky-100 bg-gray-900/95 px-4 py-2 rounded-full backdrop-blur-sm border-2 border-sky-200/60">
+            <div className="absolute -inset-10 bg-gradient-to-r from-sky-200/70 to-sky-400/70 rounded-full blur-3xl"></div>
+            <div className="absolute -top-20 left-1/2 transform -translate-x-1/2">
+              <span className="text-xl font-bold text-sky-100 bg-gray-900/95 px-6 py-3 rounded-full backdrop-blur-sm border-2 border-sky-200/60">
                 Police
               </span>
             </div>
@@ -354,14 +354,10 @@ export default function WelcomeScreen({ onStartGame, onJoinGame }: WelcomeScreen
       {/* Main Content */}
       <div className="relative z-20 flex flex-col items-center justify-center min-h-screen px-4">
         <div className="w-full max-w-md space-y-8">
-          {/* Royal Title Section */}
-          <div className="text-center relative">
-            {/* Royal Crown Background */}
-            <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 w-24 h-24 bg-gradient-to-br from-amber-400/20 to-yellow-600/20 rounded-full blur-xl"></div>
-            <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 text-4xl">👑</div>
-            
-            <h1 className="text-5xl font-bold bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-400 bg-clip-text text-transparent mb-4 drop-shadow-2xl">
-              Werwolf
+          {/* Title */}
+          <div className="text-center">
+            <h1 className="text-5xl font-bold text-white mb-2 drop-shadow-lg">
+              🐺 Werwolf
             </h1>
             <div className="bg-gradient-to-r from-purple-900/80 via-indigo-900/80 to-purple-900/80 backdrop-blur-sm rounded-2xl p-6 border border-purple-500/30 shadow-2xl">
               <p className="text-xl text-amber-200 mb-2 font-semibold">
