@@ -129,7 +129,7 @@ export default function WelcomeScreen({ onStartGame, onJoinGame }: WelcomeScreen
 
         {/* DOCTOR - Icon-based */}
         {/* Doctor - Bottom Left Area - Hidden on mobile to avoid form overlap */}
-        <div className="absolute hidden md:block z-0" style={{bottom: '20px', left: '20px'}}>
+        <div className="absolute hidden md:block z-0" style={{bottom: '300px', left: '20px'}}>
           <div className="relative">
             <div className="w-80 h-80 bg-gradient-to-br from-emerald-200/90 to-emerald-400/90 rounded-full flex items-center justify-center shadow-2xl shadow-emerald-200/80 character-float dramatic-pulse" style={{animationDelay: '1s', border: '8px solid rgba(16, 185, 129, 0.9)'}}>
               <div className="relative character-breathe">
@@ -150,7 +150,7 @@ export default function WelcomeScreen({ onStartGame, onJoinGame }: WelcomeScreen
 
         {/* POLICE - Icon-based */}
         {/* Police - Bottom Right Area - Hidden on mobile to avoid form overlap */}
-        <div className="absolute hidden md:block z-0" style={{bottom: '20px', right: '20px'}}>
+        <div className="absolute hidden md:block z-0" style={{bottom: '300px', right: '20px'}}>
           <div className="relative">
             <div className="w-80 h-80 bg-gradient-to-br from-sky-200/90 to-sky-400/90 rounded-full flex items-center justify-center shadow-2xl shadow-sky-200/80 character-float dramatic-pulse" style={{animationDelay: '2s', border: '8px solid rgba(14, 165, 233, 0.9)'}}>
               <div className="relative character-breathe">
