@@ -31,9 +31,8 @@ export function generateBrowserFingerprint(): string {
     navigator.hardwareConcurrency || 'unknown',
     navigator.maxTouchPoints || '0',
     window.devicePixelRatio || '1',
-    canvas.toDataURL(),
-    // Add session-specific data to make it more unique
-    Date.now().toString(36)
+    canvas.toDataURL()
+    // Removed Date.now() to make fingerprint consistent across page refreshes
   ].join('|')
 
   // Create a simple hash of the fingerprint

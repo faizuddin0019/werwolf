@@ -47,104 +47,102 @@ export function useRealtimeSync(gameId: string | null, onGameEnded?: () => void)
   useEffect(() => {
     if (!gameId || !isSupabaseConfigured() || !supabase) return
 
-    console.log('🔧 TEMPORARILY DISABLED: Real-time subscriptions to debug infinite loop')
-    
-    // TEMPORARILY DISABLED - Subscribe to game changes
-    // const gameSubscription = supabase
-    //   .channel(`game:${gameId}`)
-    //   .on('postgres_changes', 
-    //     { event: 'UPDATE', schema: 'public', table: 'games', filter: `id=eq.${gameId}` },
-    //     (payload) => {
-    //       console.log('🔧 Game updated:', payload.new)
-    //       const updatedGame = payload.new as Game
-    //       
-    //       // Update game using setGameData to maintain consistency
-    //       setGameData({
-    //         game: updatedGame,
-    //         players: playersRef.current || [],
-    //         roundState: roundStateRef.current,
-    //         votes: votesRef.current || [],
-    //         leaveRequests: leaveRequestsRef.current || []
-    //       })
-    //       
-    //       // If game ended, redirect to welcome page
-    //       if (updatedGame.phase === 'ended') {
-    //         console.log('🔧 Game phase changed to ended - redirecting to welcome page')
-    //         // Clear localStorage
-    //         localStorage.removeItem('werwolf-game-state')
-    //         localStorage.removeItem('werwolf-game-code')
-    //         localStorage.removeItem('werwolf-player-name')
-    //         localStorage.removeItem('werwolf-client-id')
-    //         
-    //         // Reset game state
-    //         resetGame()
-    //         
-    //         // Call the callback to redirect to welcome page
-    //         if (onGameEnded) {
-    //           onGameEnded()
-    //         }
-    //       }
-    //     }
-    //   )
-    //   .subscribe()
+    // Subscribe to game changes
+    const gameSubscription = supabase
+      .channel(`game:${gameId}`)
+      .on('postgres_changes', 
+        { event: 'UPDATE', schema: 'public', table: 'games', filter: `id=eq.${gameId}` },
+        (payload) => {
+          console.log('🔧 Game updated:', payload.new)
+          const updatedGame = payload.new as Game
+          
+          // Update game using setGameData to maintain consistency
+          setGameData({
+            game: updatedGame,
+            players: playersRef.current || [],
+            roundState: roundStateRef.current,
+            votes: votesRef.current || [],
+            leaveRequests: leaveRequestsRef.current || []
+          })
+          
+          // If game ended, redirect to welcome page
+          if (updatedGame.phase === 'ended') {
+            console.log('🔧 Game phase changed to ended - redirecting to welcome page')
+            // Clear localStorage
+            localStorage.removeItem('werwolf-game-state')
+            localStorage.removeItem('werwolf-game-code')
+            localStorage.removeItem('werwolf-player-name')
+            localStorage.removeItem('werwolf-client-id')
+            
+            // Reset game state
+            resetGame()
+            
+            // Call the callback to redirect to welcome page
+            if (onGameEnded) {
+              onGameEnded()
+            }
+          }
+        }
+      )
+      .subscribe()
 
-    // TEMPORARILY DISABLED - Subscribe to player changes
-    // const playersSubscription = supabase
-    //   .channel(`players:${gameId}`)
-    //   .on('postgres_changes',
-    //     { event: '*', schema: 'public', table: 'players', filter: `game_id=eq.${gameId}` },
-    //     async (payload) => {
-    //       console.log('🔧 Players subscription triggered - refetching players', payload)
-    //       console.log('🔧 Payload details:', {
-    //         eventType: payload.eventType,
-    //         table: payload.table,
-    //         old: payload.old,
-    //         new: payload.new
-    //       })
-    //       // Refetch all players for this game
-    //       const { data: updatedPlayers } = await supabase
-    //         .from('players')
-    //         .select('*')
-    //         .eq('game_id', gameId)
-    //         .order('id')
-    //       
-    //       if (updatedPlayers) {
-    //         console.log('🔧 Updated players list:', updatedPlayers.map(p => ({ id: p.id, name: p.name, is_host: p.is_host })))
-    //         
-    //         // Check if players actually changed to prevent infinite loops
-    //         const currentPlayers = playersRef.current
-    //         const playersChanged = !currentPlayers || 
-    //           currentPlayers.length !== updatedPlayers.length ||
-    //           currentPlayers.some((currentPlayer, index) => {
-    //             const updatedPlayer = updatedPlayers[index]
-    //             return !updatedPlayer || 
-    //               currentPlayer.id !== updatedPlayer.id ||
-    //               currentPlayer.name !== updatedPlayer.name ||
-    //               currentPlayer.is_host !== updatedPlayer.is_host ||
-    //               currentPlayer.role !== updatedPlayer.role ||
-    //               currentPlayer.alive !== updatedPlayer.alive
-    //           })
-    //         
-    //         if (playersChanged) {
-    //           console.log('useRealtimeSync - Players changed, updating state:', {
-    //             game: gameRef.current?.id,
-    //             playersCount: updatedPlayers.length,
-    //             players: updatedPlayers
-    //           })
-    //           setGameData({
-    //             game: gameRef.current || {} as Game,
-    //             players: updatedPlayers,
-    //             roundState: roundStateRef.current,
-    //             votes: votesRef.current,
-    //             leaveRequests: leaveRequestsRef.current
-    //           })
-    //         } else {
-    //           console.log('🔧 Players unchanged, skipping state update')
-    //         }
-    //       }
-    //     }
-    //   )
-    //   .subscribe()
+    // Subscribe to player changes
+    const playersSubscription = supabase
+      .channel(`players:${gameId}`)
+      .on('postgres_changes',
+        { event: '*', schema: 'public', table: 'players', filter: `game_id=eq.${gameId}` },
+        async (payload) => {
+          console.log('🔧 Players subscription triggered - refetching players', payload)
+          console.log('🔧 Payload details:', {
+            eventType: payload.eventType,
+            table: payload.table,
+            old: payload.old,
+            new: payload.new
+          })
+          // Refetch all players for this game
+          const { data: updatedPlayers } = await supabase
+            .from('players')
+            .select('*')
+            .eq('game_id', gameId)
+            .order('id')
+          
+          if (updatedPlayers) {
+            console.log('🔧 Updated players list:', updatedPlayers.map(p => ({ id: p.id, name: p.name, is_host: p.is_host })))
+            
+            // Check if players actually changed to prevent infinite loops
+            const currentPlayers = playersRef.current
+            const playersChanged = !currentPlayers || 
+              currentPlayers.length !== updatedPlayers.length ||
+              currentPlayers.some((currentPlayer, index) => {
+                const updatedPlayer = updatedPlayers[index]
+                return !updatedPlayer || 
+                  currentPlayer.id !== updatedPlayer.id ||
+                  currentPlayer.name !== updatedPlayer.name ||
+                  currentPlayer.is_host !== updatedPlayer.is_host ||
+                  currentPlayer.role !== updatedPlayer.role ||
+                  currentPlayer.alive !== updatedPlayer.alive
+              })
+            
+            if (playersChanged) {
+              console.log('useRealtimeSync - Players changed, updating state:', {
+                game: gameRef.current?.id,
+                playersCount: updatedPlayers.length,
+                players: updatedPlayers
+              })
+              setGameData({
+                game: gameRef.current || {} as Game,
+                players: updatedPlayers,
+                roundState: roundStateRef.current,
+                votes: votesRef.current,
+                leaveRequests: leaveRequestsRef.current
+              })
+            } else {
+              console.log('🔧 Players unchanged, skipping state update')
+            }
+          }
+        }
+      )
+      .subscribe()
 
     // TEMPORARILY DISABLED - Subscribe to round state changes
     // const roundStateSubscription = supabase
@@ -253,8 +251,8 @@ export function useRealtimeSync(gameId: string | null, onGameEnded?: () => void)
 
     // Store subscription references for cleanup
     subscriptionRef.current = {
-      game: null, // gameSubscription,
-      players: null, // playersSubscription,
+      game: gameSubscription,
+      players: playersSubscription,
       roundState: null, // roundStateSubscription,
       votes: null, // votesSubscription,
       leaveRequests: null // leaveRequestsSubscription
