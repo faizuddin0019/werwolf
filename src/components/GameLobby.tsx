@@ -346,6 +346,40 @@ export default function GameLobby({
               </div>
             )}
 
+            {/* Host Player Management */}
+            {isHost && (
+              <div className="bg-gray-900/80 backdrop-blur-sm rounded-lg p-6 border border-gray-600/30 shadow-lg">
+                <h3 className="text-lg font-semibold text-white mb-4">
+                  Player Management
+                </h3>
+                
+                {players.filter(p => !p.is_host).length > 0 ? (
+                  <div className="space-y-2">
+                    {players.filter(p => !p.is_host).map((player) => (
+                      <div key={player.id} className="flex items-center justify-between bg-gray-800/50 rounded-lg p-3">
+                        <span className="text-white">{player.name}</span>
+                        <button
+                          onClick={() => onRemovePlayer(player.id)}
+                          className="px-3 py-1 bg-red-600 text-white rounded text-sm hover:bg-red-700 transition-colors"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-4">
+                    <p className="text-gray-400 text-sm">No other players to manage</p>
+                    <p className="text-gray-500 text-xs mt-1">Add more players to see remove options</p>
+                  </div>
+                )}
+                
+                <p className="text-xs text-gray-400 mt-3 text-center">
+                  Host can remove any player from the game
+                </p>
+              </div>
+            )}
+
             {/* Leave Request System */}
             {!isHost && (
               <div className="bg-gray-900/80 backdrop-blur-sm rounded-lg p-6 border border-gray-600/30 shadow-lg">
@@ -425,54 +459,6 @@ export default function GameLobby({
               </div>
             )}
 
-            {/* Debug Info for Host */}
-            {isHost && (
-              <div className="bg-blue-900/80 backdrop-blur-sm rounded-lg p-4 border border-blue-600/30 shadow-lg">
-                <h3 className="text-sm font-semibold text-blue-200 mb-2">
-                  🔧 Debug Info (Host Only)
-                </h3>
-                <div className="text-xs text-blue-300 space-y-1">
-                  <p>isHost: {isHost ? '✅ true' : '❌ false'}</p>
-                  <p>Total Players: {players.length}</p>
-                  <p>Non-Host Players: {players.filter(p => !p.is_host).length}</p>
-                  <p>Should Show Management: {isHost && players.filter(p => !p.is_host).length > 0 ? '✅ Yes' : '❌ No'}</p>
-                </div>
-              </div>
-            )}
-
-            {/* Host Player Management */}
-            {isHost && (
-              <div className="bg-gray-900/80 backdrop-blur-sm rounded-lg p-6 border border-gray-600/30 shadow-lg">
-                <h3 className="text-lg font-semibold text-white mb-4">
-                  Player Management
-                </h3>
-                
-                {players.filter(p => !p.is_host).length > 0 ? (
-                  <div className="space-y-2">
-                    {players.filter(p => !p.is_host).map((player) => (
-                      <div key={player.id} className="flex items-center justify-between bg-gray-800/50 rounded-lg p-3">
-                        <span className="text-white">{player.name}</span>
-                        <button
-                          onClick={() => onRemovePlayer(player.id)}
-                          className="px-3 py-1 bg-red-600 text-white rounded text-sm hover:bg-red-700 transition-colors"
-                        >
-                          Remove
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-4">
-                    <p className="text-gray-400 text-sm">No other players to manage</p>
-                    <p className="text-gray-500 text-xs mt-1">Add more players to see remove options</p>
-                  </div>
-                )}
-                
-                <p className="text-xs text-gray-400 mt-3 text-center">
-                  Host can remove any player from the game
-                </p>
-              </div>
-            )}
 
             {/* Game Rules */}
             <div className="bg-gray-900/80 backdrop-blur-sm rounded-lg p-6 border border-gray-600/30 shadow-lg">

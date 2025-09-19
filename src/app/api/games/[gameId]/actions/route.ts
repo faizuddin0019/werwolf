@@ -751,7 +751,6 @@ async function handleRemovePlayer(gameId: string, hostPlayer: Player, playerId: 
     .from('players')
     .select('*')
     .eq('game_id', gameId)
-    .eq('alive', true)
   
   if (playersError) {
     console.error('Error checking remaining players:', playersError)
