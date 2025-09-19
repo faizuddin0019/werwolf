@@ -21,6 +21,7 @@ export default function VotingInterface() {
   const [selectedTarget, setSelectedTarget] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error', message: string } | null>(null)
+  const [optimisticVotes, setOptimisticVotes] = useState<Record<string, number>>({})
 
   const alivePlayers = players.filter(p => p.alive && p.id !== currentPlayer?.id && !p.is_host)
   const canVote = currentPlayer?.alive && !currentPlayer?.is_host && ['day_vote', 'day_final_vote'].includes(gamePhase)
@@ -34,6 +35,12 @@ export default function VotingInterface() {
     }
   }, [currentVote])
 
+  // Clear optimistic votes when real votes are updated
+  useEffect(() => {
+    // Clear optimistic votes when real-time sync updates the votes
+    setOptimisticVotes({})
+  }, [currentVotes])
+
   useEffect(() => {
     if (feedback) {
       const timer = setTimeout(() => setFeedback(null), 3000)
@@ -45,6 +52,13 @@ export default function VotingInterface() {
     if (!game || !currentPlayer || isLoading) return
     
     setIsLoading(true)
+    
+    // Optimistic update: immediately update the vote count
+    setOptimisticVotes(prev => ({
+      ...prev,
+      [targetId]: (prev[targetId] || 0) + 1
+    }))
+    setSelectedTarget(targetId)
     
     try {
       const response = await fetch(`/api/games/${game.id}/actions`, {
@@ -61,23 +75,72 @@ export default function VotingInterface() {
       
       if (response.ok) {
         setFeedback({ type: 'success', message: 'Vote cast!' })
-        setSelectedTarget(targetId)
+        // Clear optimistic vote when real vote is confirmed
+        setTimeout(() => {
+          setOptimisticVotes(prev => {
+            const newVotes = { ...prev }
+            if (newVotes[targetId] > 0) {
+              newVotes[targetId] -= 1
+              if (newVotes[targetId] === 0) {
+                delete newVotes[targetId]
+              }
+            }
+            return newVotes
+          })
+        }, 1000) // Clear after 1 second to allow real-time sync to update
       } else {
         const error = await response.json()
         setFeedback({ type: 'error', message: error.error || 'Failed to vote' })
+        // Revert optimistic update on error
+        setOptimisticVotes(prev => {
+          const newVotes = { ...prev }
+          if (newVotes[targetId] > 0) {
+            newVotes[targetId] -= 1
+            if (newVotes[targetId] === 0) {
+              delete newVotes[targetId]
+            }
+          }
+          return newVotes
+        })
+        setSelectedTarget(null)
       }
     } catch (error) {
       console.error('Error voting:', error)
       setFeedback({ type: 'error', message: 'Failed to vote' })
+      // Revert optimistic update on error
+      setOptimisticVotes(prev => {
+        const newVotes = { ...prev }
+        if (newVotes[targetId] > 0) {
+          newVotes[targetId] -= 1
+          if (newVotes[targetId] === 0) {
+            delete newVotes[targetId]
+          }
+        }
+        return newVotes
+      })
+      setSelectedTarget(null)
     } finally {
       setIsLoading(false)
     }
   }
 
   const handleRevokeVote = async () => {
-    if (!game || !currentPlayer || isLoading) return
+    if (!game || !currentPlayer || isLoading || !selectedTarget) return
     
     setIsLoading(true)
+    
+    // Optimistic update: immediately decrease the vote count
+    setOptimisticVotes(prev => {
+      const newVotes = { ...prev }
+      if (newVotes[selectedTarget] > 0) {
+        newVotes[selectedTarget] -= 1
+        if (newVotes[selectedTarget] === 0) {
+          delete newVotes[selectedTarget]
+        }
+      }
+      return newVotes
+    })
+    setSelectedTarget(null)
     
     try {
       const response = await fetch(`/api/games/${game.id}/actions`, {
@@ -93,14 +156,38 @@ export default function VotingInterface() {
       
       if (response.ok) {
         setFeedback({ type: 'success', message: 'Vote revoked!' })
-        setSelectedTarget(null)
+        // Clear optimistic vote when real vote is confirmed
+        setTimeout(() => {
+          setOptimisticVotes(prev => {
+            const newVotes = { ...prev }
+            if (newVotes[selectedTarget] > 0) {
+              newVotes[selectedTarget] -= 1
+              if (newVotes[selectedTarget] === 0) {
+                delete newVotes[selectedTarget]
+              }
+            }
+            return newVotes
+          })
+        }, 1000) // Clear after 1 second to allow real-time sync to update
       } else {
         const error = await response.json()
         setFeedback({ type: 'error', message: error.error || 'Failed to revoke vote' })
+        // Revert optimistic update on error
+        setOptimisticVotes(prev => ({
+          ...prev,
+          [selectedTarget]: (prev[selectedTarget] || 0) + 1
+        }))
+        setSelectedTarget(selectedTarget) // Restore selection
       }
     } catch (error) {
       console.error('Error revoking vote:', error)
       setFeedback({ type: 'error', message: 'Failed to revoke vote' })
+      // Revert optimistic update on error
+      setOptimisticVotes(prev => ({
+        ...prev,
+        [selectedTarget]: (prev[selectedTarget] || 0) + 1
+      }))
+      setSelectedTarget(selectedTarget) // Restore selection
     } finally {
       setIsLoading(false)
     }
@@ -182,7 +269,9 @@ export default function VotingInterface() {
         
         <div className="grid grid-cols-1 gap-2 max-h-64 overflow-y-auto">
           {alivePlayers.map((player) => {
-            const voteCount = currentVotes.filter(vote => vote.target_player_id === player.id).length
+            const realVoteCount = currentVotes.filter(vote => vote.target_player_id === player.id).length
+            const optimisticVoteCount = optimisticVotes[player.id] || 0
+            const voteCount = realVoteCount + optimisticVoteCount
             const isSelected = selectedTarget === player.id
             
             return (
