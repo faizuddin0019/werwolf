@@ -70,8 +70,14 @@ export function useRealtimeSync(gameId: string | null, onGameEnded?: () => void)
       .channel(`players:${gameId}`)
       .on('postgres_changes',
         { event: '*', schema: 'public', table: 'players', filter: `game_id=eq.${gameId}` },
-        async () => {
-          console.log('🔧 Players subscription triggered - refetching players')
+        async (payload) => {
+          console.log('🔧 Players subscription triggered - refetching players', payload)
+          console.log('🔧 Payload details:', {
+            eventType: payload.eventType,
+            table: payload.table,
+            old: payload.old,
+            new: payload.new
+          })
           // Refetch all players for this game
           const { data: updatedPlayers } = await supabase
             .from('players')
@@ -160,6 +166,8 @@ export function useRealtimeSync(gameId: string | null, onGameEnded?: () => void)
       votes: votesSubscription,
       leaveRequests: leaveRequestsSubscription
     }
+    
+    console.log('🔧 Real-time subscriptions created for game:', gameId)
 
     return () => {
       // Cleanup subscriptions

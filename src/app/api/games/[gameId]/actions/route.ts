@@ -786,7 +786,7 @@ async function handleRemovePlayer(gameId: string, hostPlayer: Player, playerId: 
     return NextResponse.json({ error: 'Failed to remove player' }, { status: 500 })
   }
   
-  console.log('🔧 Player removed successfully:', playerId)
+  console.log('🔧 Player removed successfully from database:', playerId)
   
   // Check if game should end (less than 6 players)
   const { data: remainingPlayers, error: playersError } = await supabase

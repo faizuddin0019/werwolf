@@ -510,7 +510,8 @@ export default function HomePage() {
         gameReset: result.gameReset,
         message: result.message,
         totalPlayersBefore: players.length,
-        expectedPlayersAfter: players.length - 1
+        expectedPlayersAfter: players.length - 1,
+        currentPlayersList: players.map(p => ({ id: p.id, name: p.name }))
       })
       
       // If game ended due to insufficient players, redirect to welcome
