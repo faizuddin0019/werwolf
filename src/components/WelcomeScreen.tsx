@@ -156,7 +156,7 @@ export default function WelcomeScreen({ onStartGame, onJoinGame }: WelcomeScreen
               </div>
             </div>
             <div className="absolute -inset-10 bg-gradient-to-r from-emerald-200/70 to-emerald-400/70 rounded-full blur-3xl"></div>
-            <div className="absolute -top-20 left-1/2 transform -translate-x-1/2">
+            <div className="absolute -top-12 left-1/2 transform -translate-x-1/2">
               <span className="text-xl font-bold text-emerald-100 bg-gray-900/95 px-6 py-3 rounded-full backdrop-blur-sm border-2 border-emerald-200/60">
                 Doctor
               </span>
@@ -177,7 +177,7 @@ export default function WelcomeScreen({ onStartGame, onJoinGame }: WelcomeScreen
               </div>
             </div>
             <div className="absolute -inset-10 bg-gradient-to-r from-sky-200/70 to-sky-400/70 rounded-full blur-3xl"></div>
-            <div className="absolute -top-20 left-1/2 transform -translate-x-1/2">
+            <div className="absolute -top-12 left-1/2 transform -translate-x-1/2">
               <span className="text-xl font-bold text-sky-100 bg-gray-900/95 px-6 py-3 rounded-full backdrop-blur-sm border-2 border-sky-200/60">
                 Police
               </span>
