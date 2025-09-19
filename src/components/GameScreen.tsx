@@ -102,7 +102,12 @@ export default function GameScreen({ onEndGame, onRemovePlayer, onChangeRole }: 
               <div className="relative character-breathe">
                 {/* Villagers Icon - Male Villager */}
                 <div className="w-64 h-64 relative head-nod flex items-center justify-center">
-                  <div className="character-bounce" style={{fontSize: '8rem'}}>👨‍🌾</div>
+                  <div className="character-bounce" style={{
+                    fontSize: '8rem',
+                    filter: 'drop-shadow(0 0 20px rgba(245, 158, 11, 0.8)) drop-shadow(0 0 40px rgba(245, 158, 11, 0.4))',
+                    textShadow: '0 0 30px rgba(245, 158, 11, 0.9), 0 0 60px rgba(245, 158, 11, 0.5)',
+                    transform: 'scale(1.1)'
+                  }}>👨‍🌾</div>
                 </div>
               </div>
             </div>
@@ -123,7 +128,12 @@ export default function GameScreen({ onEndGame, onRemovePlayer, onChangeRole }: 
               <div className="relative character-breathe">
                 {/* Werwolf Icon - Animated Wolf */}
                 <div className="w-64 h-64 relative head-nod flex items-center justify-center">
-                  <div className="character-bounce" style={{fontSize: '8rem'}}>🐺</div>
+                  <div className="character-bounce" style={{
+                    fontSize: '8rem',
+                    filter: 'drop-shadow(0 0 20px rgba(239, 68, 68, 0.8)) drop-shadow(0 0 40px rgba(239, 68, 68, 0.4))',
+                    textShadow: '0 0 30px rgba(239, 68, 68, 0.9), 0 0 60px rgba(239, 68, 68, 0.5)',
+                    transform: 'scale(1.1)'
+                  }}>🐺</div>
                 </div>
               </div>
             </div>
@@ -144,7 +154,12 @@ export default function GameScreen({ onEndGame, onRemovePlayer, onChangeRole }: 
               <div className="relative character-breathe">
                 {/* Doctor Icon - Male Doctor */}
                 <div className="w-64 h-64 relative head-nod flex items-center justify-center">
-                  <div className="character-bounce" style={{fontSize: '8rem'}}>👨‍⚕️</div>
+                  <div className="character-bounce" style={{
+                    fontSize: '8rem',
+                    filter: 'drop-shadow(0 0 20px rgba(16, 185, 129, 0.8)) drop-shadow(0 0 40px rgba(16, 185, 129, 0.4))',
+                    textShadow: '0 0 30px rgba(16, 185, 129, 0.9), 0 0 60px rgba(16, 185, 129, 0.5)',
+                    transform: 'scale(1.1)'
+                  }}>👨‍⚕️</div>
                 </div>
               </div>
             </div>
@@ -165,7 +180,12 @@ export default function GameScreen({ onEndGame, onRemovePlayer, onChangeRole }: 
               <div className="relative character-breathe">
                 {/* Police Icon - Male Police Officer */}
                 <div className="w-64 h-64 relative head-nod flex items-center justify-center">
-                  <div className="character-bounce" style={{fontSize: '8rem'}}>👮‍♂️</div>
+                  <div className="character-bounce" style={{
+                    fontSize: '8rem',
+                    filter: 'drop-shadow(0 0 20px rgba(14, 165, 233, 0.8)) drop-shadow(0 0 40px rgba(14, 165, 233, 0.4))',
+                    textShadow: '0 0 30px rgba(14, 165, 233, 0.9), 0 0 60px rgba(14, 165, 233, 0.5)',
+                    transform: 'scale(1.1)'
+                  }}>👮‍♂️</div>
                 </div>
               </div>
             </div>
@@ -184,7 +204,12 @@ export default function GameScreen({ onEndGame, onRemovePlayer, onChangeRole }: 
             <div className="w-20 h-20 bg-gradient-to-br from-emerald-200/90 to-emerald-400/90 rounded-full flex items-center justify-center shadow-lg shadow-emerald-200/80 character-float gentle-pulse" style={{animationDelay: '1s', border: '4px solid rgba(16, 185, 129, 0.9)'}}>
               <div className="relative character-breathe">
                 <div className="w-16 h-16 relative head-nod flex items-center justify-center">
-                  <div className="character-bounce" style={{fontSize: '2rem'}}>👨‍⚕️</div>
+                  <div className="character-bounce" style={{
+                    fontSize: '2rem',
+                    filter: 'drop-shadow(0 0 8px rgba(16, 185, 129, 0.8)) drop-shadow(0 0 16px rgba(16, 185, 129, 0.4))',
+                    textShadow: '0 0 12px rgba(16, 185, 129, 0.9), 0 0 24px rgba(16, 185, 129, 0.5)',
+                    transform: 'scale(1.1)'
+                  }}>👨‍⚕️</div>
                 </div>
               </div>
             </div>
@@ -197,7 +222,12 @@ export default function GameScreen({ onEndGame, onRemovePlayer, onChangeRole }: 
             <div className="w-20 h-20 bg-gradient-to-br from-sky-200/90 to-sky-400/90 rounded-full flex items-center justify-center shadow-lg shadow-sky-200/80 character-float gentle-pulse" style={{animationDelay: '2s', border: '4px solid rgba(14, 165, 233, 0.9)'}}>
               <div className="relative character-breathe">
                 <div className="w-16 h-16 relative head-nod flex items-center justify-center">
-                  <div className="character-bounce" style={{fontSize: '2rem'}}>👮‍♂️</div>
+                  <div className="character-bounce" style={{
+                    fontSize: '2rem',
+                    filter: 'drop-shadow(0 0 8px rgba(14, 165, 233, 0.8)) drop-shadow(0 0 16px rgba(14, 165, 233, 0.4))',
+                    textShadow: '0 0 12px rgba(14, 165, 233, 0.9), 0 0 24px rgba(14, 165, 233, 0.5)',
+                    transform: 'scale(1.1)'
+                  }}>👮‍♂️</div>
                 </div>
               </div>
             </div>

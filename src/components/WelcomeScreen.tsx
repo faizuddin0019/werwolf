@@ -88,7 +88,12 @@ export default function WelcomeScreen({ onStartGame, onJoinGame }: WelcomeScreen
                   <div className="relative">
                     {/* Villagers Icon - Male Villager */}
                     <div className="w-64 h-64 relative flex items-center justify-center">
-                      <div className="simple-bounce" style={{fontSize: '8rem'}}>👨‍🌾</div>
+                      <div className="simple-bounce" style={{
+                        fontSize: '8rem',
+                        filter: 'drop-shadow(0 0 20px rgba(245, 158, 11, 0.8)) drop-shadow(0 0 40px rgba(245, 158, 11, 0.4))',
+                        textShadow: '0 0 30px rgba(245, 158, 11, 0.9), 0 0 60px rgba(245, 158, 11, 0.5)',
+                        transform: 'scale(1.1)'
+                      }}>👨‍🌾</div>
                     </div>
                   </div>
                 </div>
@@ -109,7 +114,12 @@ export default function WelcomeScreen({ onStartGame, onJoinGame }: WelcomeScreen
                   <div className="relative">
                     {/* Werwolf Icon - Animated Wolf */}
                     <div className="w-64 h-64 relative flex items-center justify-center">
-                      <div className="simple-bounce" style={{fontSize: '8rem'}}>🐺</div>
+                      <div className="simple-bounce" style={{
+                        fontSize: '8rem',
+                        filter: 'drop-shadow(0 0 20px rgba(239, 68, 68, 0.8)) drop-shadow(0 0 40px rgba(239, 68, 68, 0.4))',
+                        textShadow: '0 0 30px rgba(239, 68, 68, 0.9), 0 0 60px rgba(239, 68, 68, 0.5)',
+                        transform: 'scale(1.1)'
+                      }}>🐺</div>
                     </div>
                   </div>
                 </div>
@@ -130,7 +140,12 @@ export default function WelcomeScreen({ onStartGame, onJoinGame }: WelcomeScreen
                   <div className="relative">
                     {/* Doctor Icon - Male Doctor */}
                     <div className="w-64 h-64 relative flex items-center justify-center">
-                      <div className="simple-bounce" style={{fontSize: '8rem'}}>👨‍⚕️</div>
+                      <div className="simple-bounce" style={{
+                        fontSize: '8rem',
+                        filter: 'drop-shadow(0 0 20px rgba(16, 185, 129, 0.8)) drop-shadow(0 0 40px rgba(16, 185, 129, 0.4))',
+                        textShadow: '0 0 30px rgba(16, 185, 129, 0.9), 0 0 60px rgba(16, 185, 129, 0.5)',
+                        transform: 'scale(1.1)'
+                      }}>👨‍⚕️</div>
                     </div>
                   </div>
                 </div>
@@ -151,7 +166,12 @@ export default function WelcomeScreen({ onStartGame, onJoinGame }: WelcomeScreen
                   <div className="relative">
                     {/* Police Icon - Male Police Officer */}
                     <div className="w-64 h-64 relative flex items-center justify-center">
-                      <div className="simple-bounce" style={{fontSize: '8rem'}}>👮‍♂️</div>
+                      <div className="simple-bounce" style={{
+                        fontSize: '8rem',
+                        filter: 'drop-shadow(0 0 20px rgba(14, 165, 233, 0.8)) drop-shadow(0 0 40px rgba(14, 165, 233, 0.4))',
+                        textShadow: '0 0 30px rgba(14, 165, 233, 0.9), 0 0 60px rgba(14, 165, 233, 0.5)',
+                        transform: 'scale(1.1)'
+                      }}>👮‍♂️</div>
                     </div>
                   </div>
                 </div>
@@ -312,7 +332,12 @@ export default function WelcomeScreen({ onStartGame, onJoinGame }: WelcomeScreen
                 {/* Villagers */}
                 <div className="flex flex-col items-center">
                   <div className="w-16 h-16 bg-gradient-to-br from-amber-200/90 to-amber-400/90 rounded-full flex items-center justify-center shadow-lg shadow-amber-200/80 gentle-pulse" style={{border: '3px solid rgba(245, 158, 11, 0.9)'}}>
-                    <div className="simple-bounce" style={{fontSize: '1.5rem'}}>👨‍🌾</div>
+                    <div className="simple-bounce" style={{
+                      fontSize: '1.5rem',
+                      filter: 'drop-shadow(0 0 8px rgba(245, 158, 11, 0.8)) drop-shadow(0 0 16px rgba(245, 158, 11, 0.4))',
+                      textShadow: '0 0 12px rgba(245, 158, 11, 0.9), 0 0 24px rgba(245, 158, 11, 0.5)',
+                      transform: 'scale(1.1)'
+                    }}>👨‍🌾</div>
                   </div>
                   <span className="text-xs text-amber-200 mt-1 font-medium">Villagers</span>
                 </div>
@@ -320,7 +345,12 @@ export default function WelcomeScreen({ onStartGame, onJoinGame }: WelcomeScreen
                 {/* Werwolf */}
                 <div className="flex flex-col items-center">
                   <div className="w-16 h-16 bg-gradient-to-br from-red-200/90 to-red-400/90 rounded-full flex items-center justify-center shadow-lg shadow-red-200/80 gentle-pulse" style={{border: '3px solid rgba(239, 68, 68, 0.9)'}}>
-                    <div className="simple-bounce" style={{fontSize: '1.5rem'}}>🐺</div>
+                    <div className="simple-bounce" style={{
+                      fontSize: '1.5rem',
+                      filter: 'drop-shadow(0 0 8px rgba(239, 68, 68, 0.8)) drop-shadow(0 0 16px rgba(239, 68, 68, 0.4))',
+                      textShadow: '0 0 12px rgba(239, 68, 68, 0.9), 0 0 24px rgba(239, 68, 68, 0.5)',
+                      transform: 'scale(1.1)'
+                    }}>🐺</div>
                   </div>
                   <span className="text-xs text-red-200 mt-1 font-medium">Werwolves</span>
           </div>
@@ -328,7 +358,12 @@ export default function WelcomeScreen({ onStartGame, onJoinGame }: WelcomeScreen
           {/* Doctor */}
           <div className="flex flex-col items-center">
                   <div className="w-16 h-16 bg-gradient-to-br from-emerald-200/90 to-emerald-400/90 rounded-full flex items-center justify-center shadow-lg shadow-emerald-200/80 gentle-pulse" style={{animationDelay: '1s', border: '3px solid rgba(16, 185, 129, 0.9)'}}>
-                    <div className="simple-bounce" style={{fontSize: '1.5rem'}}>👨‍⚕️</div>
+                    <div className="simple-bounce" style={{
+                      fontSize: '1.5rem',
+                      filter: 'drop-shadow(0 0 8px rgba(16, 185, 129, 0.8)) drop-shadow(0 0 16px rgba(16, 185, 129, 0.4))',
+                      textShadow: '0 0 12px rgba(16, 185, 129, 0.9), 0 0 24px rgba(16, 185, 129, 0.5)',
+                      transform: 'scale(1.1)'
+                    }}>👨‍⚕️</div>
                   </div>
                   <span className="text-xs text-emerald-200 mt-1 font-medium">Doctor</span>
           </div>
@@ -336,7 +371,12 @@ export default function WelcomeScreen({ onStartGame, onJoinGame }: WelcomeScreen
           {/* Police */}
           <div className="flex flex-col items-center">
                   <div className="w-16 h-16 bg-gradient-to-br from-sky-200/90 to-sky-400/90 rounded-full flex items-center justify-center shadow-lg shadow-sky-200/80 gentle-pulse" style={{animationDelay: '2s', border: '3px solid rgba(14, 165, 233, 0.9)'}}>
-                    <div className="simple-bounce" style={{fontSize: '1.5rem'}}>👮‍♂️</div>
+                    <div className="simple-bounce" style={{
+                      fontSize: '1.5rem',
+                      filter: 'drop-shadow(0 0 8px rgba(14, 165, 233, 0.8)) drop-shadow(0 0 16px rgba(14, 165, 233, 0.4))',
+                      textShadow: '0 0 12px rgba(14, 165, 233, 0.9), 0 0 24px rgba(14, 165, 233, 0.5)',
+                      transform: 'scale(1.1)'
+                    }}>👮‍♂️</div>
                   </div>
                   <span className="text-xs text-sky-200 mt-1 font-medium">Police</span>
           </div>
