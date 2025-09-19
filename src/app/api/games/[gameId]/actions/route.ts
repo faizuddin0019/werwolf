@@ -626,37 +626,56 @@ async function handleApproveLeave(gameId: string, hostPlayer: Player, playerId: 
     return NextResponse.json({ error: 'Failed to remove player' }, { status: 500 })
   }
   
-  // Check if game should end (less than 6 players or host left)
+  // Check if game should reset (less than 6 players)
   const { data: remainingPlayers, error: playersError } = await supabase
     .from('players')
     .select('*')
     .eq('game_id', gameId)
-    .eq('alive', true)
   
   if (playersError) {
     console.error('Error checking remaining players:', playersError)
     return NextResponse.json({ error: 'Failed to check remaining players' }, { status: 500 })
   }
   
-  // If less than 6 players remain, end the game
+  // If less than 6 players remain, reset game to lobby state
   if (remainingPlayers.length < 6) {
-    const { error: endGameError } = await supabase
+    // Reset game to lobby phase and clear any game progress
+    const { error: resetGameError } = await supabase
       .from('games')
-      .update({ phase: 'ended' })
+      .update({ 
+        phase: 'lobby',
+        day_count: 0,
+        win_state: null
+      })
       .eq('id', gameId)
     
-    if (endGameError) {
-      console.error('Error ending game after player left:', endGameError)
-      return NextResponse.json({ error: 'Failed to end game' }, { status: 500 })
+    if (resetGameError) {
+      console.error('Error resetting game to lobby after player left:', resetGameError)
+      return NextResponse.json({ error: 'Failed to reset game' }, { status: 500 })
     }
     
-    // Clean up game data
-    await cleanupGameData(gameId)
+    // Clear any round state and votes (but keep players)
+    await supabase
+      .from('round_state')
+      .delete()
+      .eq('game_id', gameId)
+    
+    await supabase
+      .from('votes')
+      .delete()
+      .eq('game_id', gameId)
+    
+    // Clear any pending leave requests
+    await supabase
+      .from('leave_requests')
+      .delete()
+      .eq('game_id', gameId)
     
     return NextResponse.json({ 
       success: true, 
-      gameEnded: true,
-      message: 'Player removed and game ended due to insufficient players' 
+      gameEnded: false,
+      gameReset: true,
+      message: 'Player removed and game reset to lobby due to insufficient players' 
     })
   }
   
@@ -757,25 +776,45 @@ async function handleRemovePlayer(gameId: string, hostPlayer: Player, playerId: 
     return NextResponse.json({ error: 'Failed to check remaining players' }, { status: 500 })
   }
   
-  // If less than 6 players remain, end the game
+  // If less than 6 players remain, reset game to lobby state
   if (remainingPlayers.length < 6) {
-    const { error: endGameError } = await supabase
+    // Reset game to lobby phase and clear any game progress
+    const { error: resetGameError } = await supabase
       .from('games')
-      .update({ phase: 'ended' })
+      .update({ 
+        phase: 'lobby',
+        day_count: 0,
+        win_state: null
+      })
       .eq('id', gameId)
     
-    if (endGameError) {
-      console.error('Error ending game after player removed:', endGameError)
-      return NextResponse.json({ error: 'Failed to end game' }, { status: 500 })
+    if (resetGameError) {
+      console.error('Error resetting game to lobby after player removed:', resetGameError)
+      return NextResponse.json({ error: 'Failed to reset game' }, { status: 500 })
     }
     
-    // Clean up game data
-    await cleanupGameData(gameId)
+    // Clear any round state and votes (but keep players)
+    await supabase
+      .from('round_state')
+      .delete()
+      .eq('game_id', gameId)
+    
+    await supabase
+      .from('votes')
+      .delete()
+      .eq('game_id', gameId)
+    
+    // Clear any pending leave requests
+    await supabase
+      .from('leave_requests')
+      .delete()
+      .eq('game_id', gameId)
     
     return NextResponse.json({ 
       success: true, 
-      gameEnded: true,
-      message: 'Player removed and game ended due to insufficient players' 
+      gameEnded: false,
+      gameReset: true,
+      message: 'Player removed and game reset to lobby due to insufficient players' 
     })
   }
   

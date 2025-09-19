@@ -390,10 +390,16 @@ export default function HomePage() {
       }
       
       const result = await response.json()
-      console.log('Leave approved:', result.message)
+      console.log('🔧 Approve Leave Result:', {
+        success: result.success,
+        gameEnded: result.gameEnded,
+        gameReset: result.gameReset,
+        message: result.message
+      })
       
       // If game ended due to insufficient players, redirect to welcome
       if (result.gameEnded) {
+        console.log('🔧 Game ended due to insufficient players - redirecting to welcome')
         // Clear localStorage and reset to welcome
         localStorage.removeItem('werwolf-game-state')
         localStorage.removeItem('werwolf-game-code')
@@ -402,6 +408,13 @@ export default function HomePage() {
         
         resetGame()
         setGameState('welcome')
+      } else if (result.gameReset) {
+        console.log('🔧 Game reset to lobby due to insufficient players - staying in lobby')
+        // Game was reset to lobby state, real-time sync will handle the update
+        // Players stay in the same game but game state is reset
+      } else {
+        console.log('🔧 Game continues - player left successfully')
+        // The real-time sync should handle updating the player list
       }
       
     } catch (err) {
@@ -487,6 +500,7 @@ export default function HomePage() {
       console.log('🔧 Remove Player Result:', {
         success: result.success,
         gameEnded: result.gameEnded,
+        gameReset: result.gameReset,
         message: result.message,
         totalPlayersBefore: players.length,
         expectedPlayersAfter: players.length - 1
@@ -504,6 +518,10 @@ export default function HomePage() {
         
         resetGame()
         setGameState('welcome')
+      } else if (result.gameReset) {
+        console.log('🔧 Game reset to lobby due to insufficient players - staying in lobby')
+        // Game was reset to lobby state, real-time sync will handle the update
+        // Players stay in the same game but game state is reset
       } else {
         console.log('🔧 Game continues - player removed successfully')
         // The real-time sync should handle updating the player list
