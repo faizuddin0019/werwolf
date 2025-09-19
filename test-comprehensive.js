@@ -290,21 +290,44 @@ async function testPlayerRemovalWithGameReset() {
   const game = await testCreateGame()
   const hostClientId = game.player.client_id
   
-  // Add 7 players (6 non-host + 1 host = 7 total, so removing 1 leaves 6)
+  // Add 8 players (7 non-host + 1 host = 8 total, so removing 2 leaves 6 non-host)
   const players = []
-  for (let i = 1; i <= 7; i++) {
+  for (let i = 1; i <= 8; i++) {
     const joinResponse = await testJoinGame(game.gameCode, `Player${i}`)
     players.push(joinResponse.player)
+    await sleep(100) // Small delay between joins
   }
+  
+  // Verify we have the right number of players before starting
+  const gameDataBeforeStart = await retryRequest(`${BASE_URL}/api/games?code=${game.gameCode}`)
+  console.log('🔧 Game state before start:', {
+    playerCount: gameDataBeforeStart.players.length,
+    nonHostPlayerCount: gameDataBeforeStart.players.filter(p => !p.is_host).length
+  })
   
   // Start the game
   await testAssignRoles(game.game.id, hostClientId)
   
-  // Remove a player (should reset game to lobby)
-  const playerToRemove = players[0]
-  const removeResponse = await testRemovePlayer(game.game.id, hostClientId, playerToRemove.id)
+  // Remove 3 players (should reset game to lobby - 5 non-host players remaining)
+  const playerToRemove1 = players[0]
+  const playerToRemove2 = players[1]
+  const playerToRemove3 = players[2]
+  
+  const removeResponse1 = await testRemovePlayer(game.game.id, hostClientId, playerToRemove1.id)
+  console.log('🔧 First removal response:', removeResponse1)
+  
+  const removeResponse2 = await testRemovePlayer(game.game.id, hostClientId, playerToRemove2.id)
+  console.log('🔧 Second removal response:', removeResponse2)
+  
+  const removeResponse3 = await testRemovePlayer(game.game.id, hostClientId, playerToRemove3.id)
+  console.log('🔧 Third removal response:', removeResponse3)
+  
+  const removeResponse = removeResponse3 // Use the third removal response
   
   console.log('🔧 Remove response:', removeResponse)
+  
+  // Wait a moment for real-time sync to update
+  await sleep(1000)
   
   // Also check the game state after removal
   const gameDataAfterRemoval = await retryRequest(`${BASE_URL}/api/games?code=${game.gameCode}`)
