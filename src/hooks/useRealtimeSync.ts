@@ -117,7 +117,7 @@ export function useRealtimeSync(gameId: string | null, onGameEnded?: () => void)
       )
       .subscribe()
 
-    // Debounced function to refetch players
+    // Debounced function to refetch players (reduced delay for faster updates)
     const debouncedRefetchPlayers = debounce(async () => {
       log('🔧 Refetching players after debounce')
       const { data: updatedPlayers } = await supabase
@@ -172,7 +172,7 @@ export function useRealtimeSync(gameId: string | null, onGameEnded?: () => void)
           log('🔧 Players unchanged, skipping state update')
         }
       }
-    }, 300) // 300ms debounce
+    }, 100) // 100ms debounce for faster updates
 
     // Subscribe to player changes
     const playersSubscription = supabase
@@ -300,7 +300,7 @@ export function useRealtimeSync(gameId: string | null, onGameEnded?: () => void)
           log('🔧 Leave requests unchanged, skipping state update')
         }
       }
-    }, 300) // 300ms debounce
+    }, 100) // 100ms debounce for faster updates
 
     // Subscribe to leave request changes
     const leaveRequestsSubscription = supabase

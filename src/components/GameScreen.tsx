@@ -387,56 +387,6 @@ export default function GameScreen({ onEndGame, onRemovePlayer, onChangeRole }: 
               </div>
             )}
 
-            {/* Host Player Management */}
-            {isHost && (
-              <div className="bg-slate-800/80 backdrop-blur-sm rounded-lg p-6 border border-slate-600/30 shadow-lg">
-                <h3 className="text-lg font-semibold text-white mb-4">
-                  Player Management
-                </h3>
-                
-                {players.filter(p => !p.is_host).length > 0 ? (
-                  <div className="space-y-2">
-                    {players.filter(p => !p.is_host).map((player) => (
-                      <div key={player.id} className="bg-slate-800/50 rounded-lg p-3">
-                        <div className="flex items-center justify-between mb-2">
-                          <div className="flex items-center space-x-2">
-                            <span className="text-white">{player.name}</span>
-                            {!player.alive && <span className="text-red-400 text-xs">(Dead)</span>}
-                          </div>
-                          <button
-                            onClick={() => onRemovePlayer(player.id)}
-                            className="px-3 py-1 bg-red-600 text-white rounded text-sm hover:bg-red-700 transition-colors"
-                          >
-                            Remove
-                          </button>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <span className="text-slate-400 text-xs">Role:</span>
-                          <select
-                            value={player.role || 'villager'}
-                            onChange={(e) => onChangeRole(player.id, e.target.value)}
-                            className="px-2 py-1 bg-gray-700 text-white rounded text-xs border border-gray-600"
-                          >
-                            <option value="villager">Villager</option>
-                            <option value="werewolf">Werewolf</option>
-                            <option value="doctor">Doctor</option>
-                            <option value="police">Police</option>
-                          </select>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-4">
-                    <p className="text-slate-400 text-sm">No other players to manage</p>
-                  </div>
-                )}
-                
-                <p className="text-xs text-slate-400 mt-3 text-center">
-                  Host can remove any player from the game
-                </p>
-              </div>
-            )}
 
             {/* Host Controls */}
             {isHost && (
@@ -446,9 +396,18 @@ export default function GameScreen({ onEndGame, onRemovePlayer, onChangeRole }: 
             {/* Host Round State Information */}
             {isHost && (
               <div className="bg-slate-800/80 backdrop-blur-sm rounded-lg p-6 border border-slate-600/30 shadow-lg">
-                <h3 className="text-lg font-semibold mb-4 text-white">
-                  Night Actions - Real-time Updates
-                </h3>
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-lg font-semibold text-white">
+                    Night Actions - Real-time Updates
+                  </h3>
+                  <button
+                    onClick={() => window.location.reload()}
+                    className="px-3 py-1 bg-blue-600 text-white rounded text-sm hover:bg-blue-700 transition-colors"
+                    title="Refresh to get latest updates"
+                  >
+                    🔄 Refresh
+                  </button>
+                </div>
                 
                 {roundState ? (
                   <div className="space-y-3">
@@ -505,6 +464,57 @@ export default function GameScreen({ onEndGame, onRemovePlayer, onChangeRole }: 
                     <p className="text-xs text-slate-500 mt-1">Round state should be created when game starts</p>
                   </div>
                 )}
+              </div>
+            )}
+
+            {/* Host Player Management */}
+            {isHost && (
+              <div className="bg-slate-800/80 backdrop-blur-sm rounded-lg p-6 border border-slate-600/30 shadow-lg">
+                <h3 className="text-lg font-semibold text-white mb-4">
+                  Player Management
+                </h3>
+                
+                {players.filter(p => !p.is_host).length > 0 ? (
+                  <div className="space-y-2">
+                    {players.filter(p => !p.is_host).map((player) => (
+                      <div key={player.id} className="bg-slate-800/50 rounded-lg p-3">
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center space-x-2">
+                            <span className="text-white">{player.name}</span>
+                            {!player.alive && <span className="text-red-400 text-xs">(Dead)</span>}
+                          </div>
+                          <button
+                            onClick={() => onRemovePlayer(player.id)}
+                            className="px-3 py-1 bg-red-600 text-white rounded text-sm hover:bg-red-700 transition-colors"
+                          >
+                            Remove
+                          </button>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <span className="text-slate-400 text-xs">Role:</span>
+                          <select
+                            value={player.role || 'villager'}
+                            onChange={(e) => onChangeRole(player.id, e.target.value)}
+                            className="px-2 py-1 bg-slate-700 text-white rounded text-xs border border-slate-600"
+                          >
+                            <option value="villager">Villager</option>
+                            <option value="werewolf">Werewolf</option>
+                            <option value="doctor">Doctor</option>
+                            <option value="police">Police</option>
+                          </select>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-4">
+                    <p className="text-slate-400 text-sm">No other players to manage</p>
+                  </div>
+                )}
+                
+                <p className="text-xs text-slate-400 mt-3 text-center">
+                  Host can remove any player from the game
+                </p>
               </div>
             )}
 
