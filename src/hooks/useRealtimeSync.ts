@@ -40,12 +40,13 @@ export function useRealtimeSync(gameId: string | null, onGameEnded?: () => void)
       .on('postgres_changes', 
         { event: 'UPDATE', schema: 'public', table: 'games', filter: `id=eq.${gameId}` },
         (payload) => {
-          console.log('Game updated:', payload.new)
+          console.log('🔧 Game updated:', payload.new)
           const updatedGame = payload.new as Game
           setGame(updatedGame)
           
           // If game ended, redirect to welcome page
           if (updatedGame.phase === 'ended') {
+            console.log('🔧 Game phase changed to ended - redirecting to welcome page')
             // Clear localStorage
             localStorage.removeItem('werwolf-game-state')
             localStorage.removeItem('werwolf-game-code')
@@ -70,6 +71,7 @@ export function useRealtimeSync(gameId: string | null, onGameEnded?: () => void)
       .on('postgres_changes',
         { event: '*', schema: 'public', table: 'players', filter: `game_id=eq.${gameId}` },
         async () => {
+          console.log('🔧 Players subscription triggered - refetching players')
           // Refetch all players for this game
           const { data: updatedPlayers } = await supabase
             .from('players')
@@ -78,6 +80,7 @@ export function useRealtimeSync(gameId: string | null, onGameEnded?: () => void)
             .order('id')
           
           if (updatedPlayers) {
+            console.log('🔧 Updated players list:', updatedPlayers.map(p => ({ id: p.id, name: p.name, is_host: p.is_host })))
             // Update players while preserving other state
             const currentGame = game
             const currentRoundState = roundState

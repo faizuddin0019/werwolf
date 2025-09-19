@@ -782,6 +782,8 @@ async function handleRemovePlayer(gameId: string, hostPlayer: Player, playerId: 
     return NextResponse.json({ error: 'Failed to remove player' }, { status: 500 })
   }
   
+  console.log('🔧 Player removed successfully:', playerId)
+  
   // Check if game should end (less than 6 players)
   const { data: remainingPlayers, error: playersError } = await supabase
     .from('players')
@@ -793,8 +795,12 @@ async function handleRemovePlayer(gameId: string, hostPlayer: Player, playerId: 
     return NextResponse.json({ error: 'Failed to check remaining players' }, { status: 500 })
   }
   
+  console.log('🔧 Remaining players after removal:', remainingPlayers?.length, remainingPlayers?.map(p => ({ id: p.id, name: p.name, is_host: p.is_host })))
+  
   // If less than 6 players remain, reset game to lobby state
   if (remainingPlayers.length < 6) {
+    console.log('🔧 Less than 6 players remaining, resetting game to lobby state')
+    
     // Reset game to lobby phase and clear any game progress
     const { error: resetGameError } = await supabase
       .from('games')
@@ -809,6 +815,8 @@ async function handleRemovePlayer(gameId: string, hostPlayer: Player, playerId: 
       console.error('Error resetting game to lobby after player removed:', resetGameError)
       return NextResponse.json({ error: 'Failed to reset game' }, { status: 500 })
     }
+    
+    console.log('🔧 Game reset to lobby state successfully')
     
     // Clear any round state and votes (but keep players)
     await supabase
