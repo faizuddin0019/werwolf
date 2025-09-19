@@ -4,7 +4,7 @@ A web-based companion app for playing Werwolf remotely while keeping all convers
 
 ## 🌐 Live Game
 
-**🎮 Play Now:** [https://wearwolf-oa7pcqidv-faizuddin0019s-projects.vercel.app](https://wearwolf-oa7pcqidv-faizuddin0019s-projects.vercel.app)
+**🎮 Play Now:** [https://wearwolf-theta.vercel.app](https://wearwolf-theta.vercel.app)
 
 **📱 Mobile Friendly:** Works perfectly on phones, tablets, and desktops!
 
@@ -126,7 +126,7 @@ Add these files to `public/sounds/`:
 
 ### ✅ Successfully Deployed on Vercel
 
-**Live URL:** [https://wearwolf-oa7pcqidv-faizuddin0019s-projects.vercel.app](https://wearwolf-oa7pcqidv-faizuddin0019s-projects.vercel.app)
+**Live URL:** [https://wearwolf-theta.vercel.app](https://wearwolf-theta.vercel.app)
 
 **Vercel Dashboard:** [https://vercel.com/faizuddin0019s-projects/wearwolf](https://vercel.com/faizuddin0019s-projects/wearwolf)
 
