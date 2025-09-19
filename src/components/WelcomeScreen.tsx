@@ -59,9 +59,26 @@ export default function WelcomeScreen({ onStartGame, onJoinGame }: WelcomeScreen
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800 relative overflow-hidden">
-      {/* Animated Background Elements */}
+    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-indigo-900 to-black relative overflow-hidden">
+      {/* Royal Decorative Background */}
       <div className="absolute inset-0 overflow-hidden">
+        {/* Royal Pattern Overlay */}
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-purple-600/20 via-transparent to-indigo-600/20"></div>
+          <div className="absolute top-0 right-0 w-full h-full bg-gradient-to-bl from-amber-600/20 via-transparent to-purple-600/20"></div>
+        </div>
+        
+        {/* Decorative Corner Elements */}
+        <div className="absolute top-0 left-0 w-32 h-32 bg-gradient-to-br from-purple-500/30 to-transparent rounded-full blur-3xl"></div>
+        <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-amber-500/30 to-transparent rounded-full blur-3xl"></div>
+        <div className="absolute bottom-0 left-0 w-32 h-32 bg-gradient-to-tr from-indigo-500/30 to-transparent rounded-full blur-3xl"></div>
+        <div className="absolute bottom-0 right-0 w-32 h-32 bg-gradient-to-tl from-purple-500/30 to-transparent rounded-full blur-3xl"></div>
+        
+        {/* Floating Royal Elements */}
+        <div className="absolute top-20 left-1/4 w-4 h-4 bg-amber-400/60 rounded-full animate-pulse"></div>
+        <div className="absolute top-32 right-1/3 w-3 h-3 bg-purple-400/60 rounded-full animate-pulse" style={{animationDelay: '1s'}}></div>
+        <div className="absolute bottom-32 left-1/3 w-5 h-5 bg-indigo-400/60 rounded-full animate-pulse" style={{animationDelay: '2s'}}></div>
+        <div className="absolute bottom-20 right-1/4 w-4 h-4 bg-amber-400/60 rounded-full animate-pulse" style={{animationDelay: '3s'}}></div>
         {/* Floating particles */}
         <div className="absolute top-20 left-10 w-3 h-3 bg-red-500/50 rounded-full floating"></div>
         <div className="absolute top-40 right-20 w-4 h-4 bg-blue-500/50 rounded-full floating" style={{animationDelay: '1s'}}></div>
@@ -86,7 +103,7 @@ export default function WelcomeScreen({ onStartGame, onJoinGame }: WelcomeScreen
 
         {/* VILLAGERS - Icon-based */}
         {/* Villagers - Top Left Area */}
-        <div className="absolute" style={{top: '40px', left: '20px', zIndex: 5}}>
+        <div className="absolute z-0" style={{top: '40px', left: '20px'}}>
           <div className="relative">
             <div className="w-80 h-80 bg-gradient-to-br from-amber-200/90 to-amber-400/90 rounded-full flex items-center justify-center shadow-2xl shadow-amber-200/80 character-float dramatic-pulse" style={{border: '8px solid rgba(245, 158, 11, 0.9)'}}>
               <div className="relative character-breathe">
@@ -107,7 +124,7 @@ export default function WelcomeScreen({ onStartGame, onJoinGame }: WelcomeScreen
 
         {/* WERWOLF - Icon-based */}
         {/* Werwolf - Top Right Area */}
-        <div className="absolute" style={{top: '40px', right: '20px', zIndex: 5}}>
+        <div className="absolute z-0" style={{top: '40px', right: '20px'}}>
           <div className="relative">
             <div className="w-88 h-88 bg-gradient-to-br from-red-200/90 to-red-400/90 rounded-full flex items-center justify-center shadow-2xl shadow-red-200/80 character-float dramatic-pulse" style={{border: '8px solid rgba(239, 68, 68, 0.9)'}}>
               <div className="relative character-breathe">
@@ -128,7 +145,7 @@ export default function WelcomeScreen({ onStartGame, onJoinGame }: WelcomeScreen
 
         {/* DOCTOR - Icon-based */}
         {/* Doctor - Bottom Left Area - Hidden on mobile to avoid form overlap */}
-        <div className="absolute hidden md:block" style={{bottom: '40px', left: '20px', zIndex: 1}}>
+        <div className="absolute hidden md:block z-0" style={{bottom: '40px', left: '20px'}}>
           <div className="relative">
             <div className="w-80 h-80 bg-gradient-to-br from-emerald-200/90 to-emerald-400/90 rounded-full flex items-center justify-center shadow-2xl shadow-emerald-200/80 character-float dramatic-pulse" style={{animationDelay: '1s', border: '8px solid rgba(16, 185, 129, 0.9)'}}>
               <div className="relative character-breathe">
@@ -149,7 +166,7 @@ export default function WelcomeScreen({ onStartGame, onJoinGame }: WelcomeScreen
 
         {/* POLICE - Icon-based */}
         {/* Police - Bottom Right Area - Hidden on mobile to avoid form overlap */}
-        <div className="absolute hidden md:block" style={{bottom: '40px', right: '20px', zIndex: 1}}>
+        <div className="absolute hidden md:block z-0" style={{bottom: '40px', right: '20px'}}>
           <div className="relative">
             <div className="w-80 h-80 bg-gradient-to-br from-sky-200/90 to-sky-400/90 rounded-full flex items-center justify-center shadow-2xl shadow-sky-200/80 character-float dramatic-pulse" style={{animationDelay: '2s', border: '8px solid rgba(14, 165, 233, 0.9)'}}>
               <div className="relative character-breathe">
@@ -335,19 +352,25 @@ export default function WelcomeScreen({ onStartGame, onJoinGame }: WelcomeScreen
       </div>
 
       {/* Main Content */}
-      <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-4">
+      <div className="relative z-20 flex flex-col items-center justify-center min-h-screen px-4">
         <div className="w-full max-w-md space-y-8">
-          {/* Title */}
-          <div className="text-center">
-            <h1 className="text-5xl font-bold text-white mb-2 drop-shadow-lg">
+          {/* Royal Title Section */}
+          <div className="text-center relative">
+            {/* Royal Crown Background */}
+            <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 w-24 h-24 bg-gradient-to-br from-amber-400/20 to-yellow-600/20 rounded-full blur-xl"></div>
+            <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 text-4xl">👑</div>
+            
+            <h1 className="text-6xl font-bold bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-400 bg-clip-text text-transparent mb-4 drop-shadow-2xl">
               🐺 Werwolf
             </h1>
-            <p className="text-xl text-gray-300 mb-1">
-              Video-Conference Companion
-            </p>
-            <p className="text-sm text-gray-400">
-              Host-controlled, zero-typing play
-            </p>
+            <div className="bg-gradient-to-r from-purple-900/80 via-indigo-900/80 to-purple-900/80 backdrop-blur-sm rounded-2xl p-6 border border-purple-500/30 shadow-2xl">
+              <p className="text-xl text-amber-200 mb-2 font-semibold">
+                Royal Court Companion
+              </p>
+              <p className="text-sm text-purple-300">
+                Host-controlled, zero-typing play
+              </p>
+            </div>
           </div>
 
           {/* Game Code Display */}
@@ -375,22 +398,26 @@ export default function WelcomeScreen({ onStartGame, onJoinGame }: WelcomeScreen
           )}
 
           {/* Start New Game */}
-          <div className="bg-gray-900/80 backdrop-blur-sm rounded-lg p-6 border border-gray-600/30 shadow-lg">
-            <h2 className="text-xl font-semibold text-white mb-4">
-              Start New Game
-            </h2>
+          <div className="bg-gradient-to-br from-purple-900/90 via-indigo-900/90 to-purple-900/90 backdrop-blur-sm rounded-2xl p-6 border border-purple-500/30 shadow-2xl">
+            <div className="text-center mb-6">
+              <div className="text-3xl mb-2">👑</div>
+              <h2 className="text-2xl font-bold bg-gradient-to-r from-amber-400 to-yellow-300 bg-clip-text text-transparent">
+                Start New Game
+              </h2>
+              <p className="text-sm text-purple-300 mt-1">Become the Royal Host</p>
+            </div>
             
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">
+                <label className="block text-sm font-medium text-amber-200 mb-1">
                   Host Name
                 </label>
                 <input
                   type="text"
                   value={playerName}
                   onChange={(e) => setPlayerName(e.target.value)}
-                  className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 text-white placeholder-gray-400"
-                  placeholder="Enter your name"
+                  className="w-full px-3 py-2 bg-purple-800/50 border border-purple-500/50 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500 text-white placeholder-purple-300"
+                  placeholder="Enter your royal name"
                   maxLength={20}
                 />
               </div>
@@ -398,44 +425,48 @@ export default function WelcomeScreen({ onStartGame, onJoinGame }: WelcomeScreen
               <button
                 onClick={handleStartGame}
                 disabled={!playerName.trim()}
-                className="w-full py-2 px-4 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:bg-gray-700 disabled:cursor-not-allowed transition-colors font-medium"
+                className="w-full py-3 px-4 bg-gradient-to-r from-amber-600 to-yellow-600 hover:from-amber-700 hover:to-yellow-700 disabled:from-gray-600 disabled:to-gray-700 disabled:cursor-not-allowed text-white font-bold rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
               >
-                Start Game
+                👑 Create Royal Court
               </button>
             </div>
           </div>
 
           {/* Join Existing Game */}
-          <div className="bg-gray-900/80 backdrop-blur-sm rounded-lg p-6 border border-gray-600/30 shadow-lg">
-            <h2 className="text-xl font-semibold text-white mb-4">
-              Join Game
-            </h2>
+          <div className="bg-gradient-to-br from-indigo-900/90 via-purple-900/90 to-indigo-900/90 backdrop-blur-sm rounded-2xl p-6 border border-indigo-500/30 shadow-2xl">
+            <div className="text-center mb-6">
+              <div className="text-3xl mb-2">⚔️</div>
+              <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-indigo-300 bg-clip-text text-transparent">
+                Join Game
+              </h2>
+              <p className="text-sm text-indigo-300 mt-1">Enter the Royal Court</p>
+            </div>
             
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">
+                <label className="block text-sm font-medium text-blue-200 mb-1">
                   Game Code
                 </label>
                 <input
                   type="text"
                   value={joinCode}
                   onChange={(e) => setJoinCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                  className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 font-mono text-center text-white placeholder-gray-400"
+                  className="w-full px-3 py-2 bg-indigo-800/50 border border-indigo-500/50 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono text-center text-white placeholder-indigo-300"
                   placeholder="000000"
                   maxLength={6}
                 />
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">
+                <label className="block text-sm font-medium text-blue-200 mb-1">
                   Player Name
                 </label>
                 <input
                   type="text"
                   value={joinName}
                   onChange={(e) => setJoinName(e.target.value)}
-                  className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 text-white placeholder-gray-400"
-                  placeholder="Enter your name"
+                  className="w-full px-3 py-2 bg-indigo-800/50 border border-indigo-500/50 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-white placeholder-indigo-300"
+                  placeholder="Enter your royal name"
                   maxLength={20}
                 />
               </div>
@@ -443,9 +474,9 @@ export default function WelcomeScreen({ onStartGame, onJoinGame }: WelcomeScreen
               <button
                 onClick={handleJoinGame}
                 disabled={!joinCode.trim() || !joinName.trim() || joinCode.length !== 6}
-                className="w-full py-2 px-4 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:bg-gray-700 disabled:cursor-not-allowed transition-colors font-medium"
+                className="w-full py-3 px-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 disabled:from-gray-600 disabled:to-gray-700 disabled:cursor-not-allowed text-white font-bold rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
               >
-                Enter Game
+                ⚔️ Enter Royal Court
               </button>
             </div>
           </div>
