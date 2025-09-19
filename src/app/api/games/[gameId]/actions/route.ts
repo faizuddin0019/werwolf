@@ -841,13 +841,28 @@ async function handleRemovePlayer(gameId: string, hostPlayer: Player, playerId: 
     .from('players')
     .delete()
     .eq('id', playerId)
-  
+
   if (deleteError) {
     console.error('Error removing player:', deleteError)
     return NextResponse.json({ error: 'Failed to remove player' }, { status: 500 })
   }
   
   console.log('🔧 Player removed successfully from database:', playerId)
+  
+  // Verify the player was actually removed
+  const { data: verifyPlayer, error: verifyError } = await supabase
+    .from('players')
+    .select('*')
+    .eq('id', playerId)
+    .single()
+  
+  if (verifyError && verifyError.code !== 'PGRST116') {
+    console.error('Error verifying player removal:', verifyError)
+  } else if (verifyPlayer) {
+    console.error('🔧 ERROR: Player still exists after deletion:', verifyPlayer)
+  } else {
+    console.log('🔧 Player successfully verified as removed')
+  }
   
   // Check if game should end (less than 6 players)
   const { data: remainingPlayers, error: playersError } = await supabase

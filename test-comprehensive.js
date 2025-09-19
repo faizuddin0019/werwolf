@@ -306,6 +306,14 @@ async function testPlayerRemovalWithGameReset() {
   
   console.log('🔧 Remove response:', removeResponse)
   
+  // Also check the game state after removal
+  const gameDataAfterRemoval = await retryRequest(`${BASE_URL}/api/games?code=${game.gameCode}`)
+  console.log('🔧 Game state after removal:', {
+    phase: gameDataAfterRemoval.game.phase,
+    playerCount: gameDataAfterRemoval.players.length,
+    nonHostPlayerCount: gameDataAfterRemoval.players.filter(p => !p.is_host).length
+  })
+  
   if (!removeResponse.gameReset) {
     throw new Error('Game should have been reset to lobby after player removal')
   }
