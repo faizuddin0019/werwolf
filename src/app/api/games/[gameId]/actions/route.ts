@@ -162,6 +162,15 @@ async function handleAssignRoles(gameId: string, game: Game) {
       .eq('id', player.id)
   }
   
+  // Create initial round state
+  await supabase
+    .from('round_state')
+    .insert({
+      game_id: gameId,
+      phase: 'night_wolf',
+      day_count: 1
+    })
+  
   // Update game phase
   await supabase
     .from('games')
@@ -192,12 +201,7 @@ async function handleWolfSelect(gameId: string, player: Player, targetId: string
     .update({ wolf_target_player_id: targetId })
     .eq('game_id', gameId)
   
-  // Automatically advance to next phase after werewolf action
-  await supabase
-    .from('games')
-    .update({ phase: 'night_police' })
-    .eq('id', gameId)
-  
+  // Don't automatically advance phase - let host control it
   return NextResponse.json({ success: true })
 }
 
@@ -223,12 +227,7 @@ async function handlePoliceInspect(gameId: string, player: Player, targetId: str
     })
     .eq('game_id', gameId)
   
-  // Automatically advance to next phase after police action
-  await supabase
-    .from('games')
-    .update({ phase: 'night_doctor' })
-    .eq('id', gameId)
-  
+  // Don't automatically advance phase - let host control it
   return NextResponse.json({ success: true, result })
 }
 
@@ -242,12 +241,7 @@ async function handleDoctorSave(gameId: string, player: Player, targetId: string
     .update({ doctor_save_player_id: targetId })
     .eq('game_id', gameId)
   
-  // Automatically advance to reveal phase after doctor action
-  await supabase
-    .from('games')
-    .update({ phase: 'reveal' })
-    .eq('id', gameId)
-  
+  // Don't automatically advance phase - let host control it
   return NextResponse.json({ success: true })
 }
 
@@ -283,6 +277,12 @@ async function handleRevealDead(gameId: string, game: Game) {
       .update({ alive: false })
       .eq('id', deadPlayerId)
   }
+  
+  // Advance to day_vote phase after revealing dead
+  await supabase
+    .from('games')
+    .update({ phase: 'day_vote' })
+    .eq('id', gameId)
   
   return NextResponse.json({ success: true, deadPlayerId })
 }
