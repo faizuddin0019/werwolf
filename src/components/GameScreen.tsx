@@ -95,7 +95,7 @@ export default function GameScreen({ onEndGame, onRemovePlayer, onChangeRole }: 
         <div className="absolute bottom-32 left-1/3 w-5 h-5 bg-indigo-400/60 rounded-full animate-pulse" style={{animationDelay: '2s'}}></div>
         <div className="absolute bottom-20 right-1/4 w-4 h-4 bg-amber-400/60 rounded-full animate-pulse" style={{animationDelay: '3s'}}></div>
         {/* VILLAGERS - Icon-based */}
-        {/* Villagers - Top Left Area */}
+        {/* Villagers - Top Left Area - Updated Position */}
         <div className="absolute z-0" style={{top: '20px', left: '80px'}}>
           <div className="relative">
             <div className="w-80 h-80 bg-gradient-to-br from-amber-200/90 to-amber-400/90 rounded-full flex items-center justify-center shadow-2xl shadow-amber-200/80 character-float dramatic-pulse" style={{border: '8px solid rgba(245, 158, 11, 0.9)'}}>
@@ -116,7 +116,7 @@ export default function GameScreen({ onEndGame, onRemovePlayer, onChangeRole }: 
         </div>
 
         {/* WERWOLF - Icon-based */}
-        {/* Werwolf - Top Right Area */}
+        {/* Werwolf - Top Right Area - Updated Position */}
         <div className="absolute z-0" style={{top: '20px', right: '80px'}}>
           <div className="relative">
             <div className="w-88 h-88 bg-gradient-to-br from-red-200/90 to-red-400/90 rounded-full flex items-center justify-center shadow-2xl shadow-red-200/80 character-float dramatic-pulse" style={{border: '8px solid rgba(239, 68, 68, 0.9)'}}>
@@ -137,7 +137,7 @@ export default function GameScreen({ onEndGame, onRemovePlayer, onChangeRole }: 
         </div>
 
         {/* DOCTOR - Icon-based */}
-        {/* Doctor - Bottom Left Area - Hidden on mobile to avoid form overlap */}
+        {/* Doctor - Bottom Left Area - Hidden on mobile to avoid form overlap - Updated Position */}
         <div className="absolute hidden md:block z-0" style={{bottom: '300px', left: '80px'}}>
           <div className="relative">
             <div className="w-80 h-80 bg-gradient-to-br from-emerald-200/90 to-emerald-400/90 rounded-full flex items-center justify-center shadow-2xl shadow-emerald-200/80 character-float dramatic-pulse" style={{animationDelay: '1s', border: '8px solid rgba(16, 185, 129, 0.9)'}}>
@@ -158,7 +158,7 @@ export default function GameScreen({ onEndGame, onRemovePlayer, onChangeRole }: 
         </div>
 
         {/* POLICE - Icon-based */}
-        {/* Police - Bottom Right Area - Hidden on mobile to avoid form overlap */}
+        {/* Police - Bottom Right Area - Hidden on mobile to avoid form overlap - Updated Position */}
         <div className="absolute hidden md:block z-0" style={{bottom: '300px', right: '80px'}}>
           <div className="relative">
             <div className="w-80 h-80 bg-gradient-to-br from-sky-200/90 to-sky-400/90 rounded-full flex items-center justify-center shadow-2xl shadow-sky-200/80 character-float dramatic-pulse" style={{animationDelay: '2s', border: '8px solid rgba(14, 165, 233, 0.9)'}}>
