@@ -78,7 +78,7 @@ export default function GameLobby({
             </div>
             <div className="absolute -inset-10 bg-gradient-to-r from-amber-200/70 to-amber-400/70 rounded-full blur-3xl"></div>
             <div className="absolute top-84 left-1/2 transform -translate-x-1/2">
-              <span className="text-xl font-bold text-amber-100 bg-gray-900/95 px-6 py-3 rounded-full backdrop-blur-sm border-2 border-amber-200/60">
+              <span className="text-xl font-bold text-amber-100 bg-slate-800/95 px-6 py-3 rounded-full backdrop-blur-sm border-2 border-amber-200/60">
                 Villagers
               </span>
             </div>
@@ -99,7 +99,7 @@ export default function GameLobby({
             </div>
             <div className="absolute -inset-12 bg-gradient-to-r from-red-200/70 to-red-400/70 rounded-full blur-3xl"></div>
             <div className="absolute top-92 left-1/2 transform -translate-x-1/2">
-              <span className="text-xl font-bold text-red-100 bg-gray-900/95 px-6 py-3 rounded-full backdrop-blur-sm border-2 border-red-200/60">
+              <span className="text-xl font-bold text-red-100 bg-slate-800/95 px-6 py-3 rounded-full backdrop-blur-sm border-2 border-red-200/60">
                 Werwolves
               </span>
             </div>
@@ -120,7 +120,7 @@ export default function GameLobby({
             </div>
             <div className="absolute -inset-10 bg-gradient-to-r from-emerald-200/70 to-emerald-400/70 rounded-full blur-3xl"></div>
             <div className="absolute -top-20 left-1/2 transform -translate-x-1/2">
-              <span className="text-xl font-bold text-emerald-100 bg-gray-900/95 px-6 py-3 rounded-full backdrop-blur-sm border-2 border-emerald-200/60">
+              <span className="text-xl font-bold text-emerald-100 bg-slate-800/95 px-6 py-3 rounded-full backdrop-blur-sm border-2 border-emerald-200/60">
                 Doctor
               </span>
             </div>
@@ -141,7 +141,7 @@ export default function GameLobby({
             </div>
             <div className="absolute -inset-10 bg-gradient-to-r from-sky-200/70 to-sky-400/70 rounded-full blur-3xl"></div>
             <div className="absolute -top-20 left-1/2 transform -translate-x-1/2">
-              <span className="text-xl font-bold text-sky-100 bg-gray-900/95 px-6 py-3 rounded-full backdrop-blur-sm border-2 border-sky-200/60">
+              <span className="text-xl font-bold text-sky-100 bg-slate-800/95 px-6 py-3 rounded-full backdrop-blur-sm border-2 border-sky-200/60">
                 Police
               </span>
             </div>
@@ -184,7 +184,7 @@ export default function GameLobby({
       </div>
 
       {/* Header */}
-      <div className="relative z-10 bg-gray-900/80 backdrop-blur-sm border-b border-gray-600/30">
+      <div className="relative z-10 bg-slate-800/80 backdrop-blur-sm border-b border-slate-600/30">
         <div className="max-w-6xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div>
@@ -214,7 +214,7 @@ export default function GameLobby({
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Players Grid */}
           <div className="lg:col-span-2">
-            <div className="bg-gray-900/80 backdrop-blur-sm rounded-lg p-6 border border-gray-600/30 shadow-lg">
+            <div className="bg-slate-800/80 backdrop-blur-sm rounded-lg p-6 border border-slate-600/30 shadow-lg">
               <h2 className="text-xl font-semibold text-white mb-4">
                 Players ({playerCount})
               </h2>
@@ -304,7 +304,7 @@ export default function GameLobby({
           {/* Game Info & Controls */}
           <div className="space-y-6">
             {/* Game Status */}
-            <div className="bg-gray-900/80 backdrop-blur-sm rounded-lg p-6 border border-gray-600/30 shadow-lg">
+            <div className="bg-slate-800/80 backdrop-blur-sm rounded-lg p-6 border border-slate-600/30 shadow-lg">
               <h3 className="text-lg font-semibold text-white mb-4">
                 Game Status
               </h3>
@@ -343,7 +343,7 @@ export default function GameLobby({
 
             {/* Host Controls */}
             {isHost && (
-              <div className="bg-gray-900/80 backdrop-blur-sm rounded-lg p-6 border border-gray-600/30 shadow-lg">
+              <div className="bg-slate-800/80 backdrop-blur-sm rounded-lg p-6 border border-slate-600/30 shadow-lg">
                 <h3 className="text-lg font-semibold text-white mb-4">
                   Host Controls
                 </h3>
@@ -379,7 +379,7 @@ export default function GameLobby({
 
             {/* Host Player Management */}
             {isHost && (
-              <div className="bg-gray-900/80 backdrop-blur-sm rounded-lg p-6 border border-gray-600/30 shadow-lg">
+              <div className="bg-slate-800/80 backdrop-blur-sm rounded-lg p-6 border border-slate-600/30 shadow-lg">
                 <h3 className="text-lg font-semibold text-white mb-4">
                   Player Management
                 </h3>
@@ -431,7 +431,7 @@ export default function GameLobby({
 
             {/* Leave Request System */}
             {!isHost && (
-              <div className="bg-gray-900/80 backdrop-blur-sm rounded-lg p-6 border border-gray-600/30 shadow-lg">
+              <div className="bg-slate-800/80 backdrop-blur-sm rounded-lg p-6 border border-slate-600/30 shadow-lg">
                 <h3 className="text-lg font-semibold text-white mb-4">
                   Game Actions
                 </h3>
@@ -465,7 +465,7 @@ export default function GameLobby({
 
             {/* Host Leave Request Management */}
             {isHost && pendingLeaveRequests.length > 0 && (
-              <div className="bg-gray-900/80 backdrop-blur-sm rounded-lg p-6 border border-gray-600/30 shadow-lg">
+              <div className="bg-slate-800/80 backdrop-blur-sm rounded-lg p-6 border border-slate-600/30 shadow-lg">
                 <h3 className="text-lg font-semibold text-white mb-4">
                   Leave Requests ({pendingLeaveRequests.length})
                 </h3>
@@ -476,7 +476,7 @@ export default function GameLobby({
                     if (!requestingPlayer) return null
                     
                     return (
-                      <div key={request.id} className="bg-gray-800/50 rounded-lg p-4 border border-gray-600/30">
+                      <div key={request.id} className="bg-gray-800/50 rounded-lg p-4 border border-slate-600/30">
                         <div className="flex items-center justify-between">
                           <div>
                             <p className="text-white font-medium">
@@ -510,7 +510,7 @@ export default function GameLobby({
 
 
             {/* Game Rules */}
-            <div className="bg-gray-900/80 backdrop-blur-sm rounded-lg p-6 border border-gray-600/30 shadow-lg">
+            <div className="bg-slate-800/80 backdrop-blur-sm rounded-lg p-6 border border-slate-600/30 shadow-lg">
               <h3 className="text-lg font-semibold text-white mb-4">
                 Quick Rules
               </h3>
@@ -525,7 +525,7 @@ export default function GameLobby({
             </div>
 
             {/* How to Play */}
-            <div className="bg-gray-900/80 backdrop-blur-sm rounded-lg p-6 border border-gray-600/30 shadow-lg">
+            <div className="bg-slate-800/80 backdrop-blur-sm rounded-lg p-6 border border-slate-600/30 shadow-lg">
               <h3 className="text-lg font-semibold text-white mb-4">
                 How to Play
               </h3>

@@ -99,7 +99,7 @@ export default function WelcomeScreen({ onStartGame, onJoinGame }: WelcomeScreen
             </div>
             <div className="absolute -inset-10 bg-gradient-to-r from-amber-200/70 to-amber-400/70 rounded-full blur-3xl"></div>
             <div className="absolute top-84 left-1/2 transform -translate-x-1/2">
-              <span className="text-xl font-bold text-amber-100 bg-gray-900/95 px-6 py-3 rounded-full backdrop-blur-sm border-2 border-amber-200/60">
+              <span className="text-xl font-bold text-amber-100 bg-slate-800/95 px-6 py-3 rounded-full backdrop-blur-sm border-2 border-amber-200/60">
                 Villagers
               </span>
             </div>
@@ -120,7 +120,7 @@ export default function WelcomeScreen({ onStartGame, onJoinGame }: WelcomeScreen
             </div>
             <div className="absolute -inset-10 bg-gradient-to-r from-red-200/70 to-red-400/70 rounded-full blur-3xl"></div>
             <div className="absolute top-84 left-1/2 transform -translate-x-1/2">
-              <span className="text-xl font-bold text-red-100 bg-gray-900/95 px-6 py-3 rounded-full backdrop-blur-sm border-2 border-red-200/60">
+              <span className="text-xl font-bold text-red-100 bg-slate-800/95 px-6 py-3 rounded-full backdrop-blur-sm border-2 border-red-200/60">
                 Werwolves
               </span>
             </div>
@@ -141,7 +141,7 @@ export default function WelcomeScreen({ onStartGame, onJoinGame }: WelcomeScreen
             </div>
             <div className="absolute -inset-10 bg-gradient-to-r from-emerald-200/70 to-emerald-400/70 rounded-full blur-3xl"></div>
             <div className="absolute -top-12 left-1/2 transform -translate-x-1/2">
-              <span className="text-xl font-bold text-emerald-100 bg-gray-900/95 px-6 py-3 rounded-full backdrop-blur-sm border-2 border-emerald-200/60">
+              <span className="text-xl font-bold text-emerald-100 bg-slate-800/95 px-6 py-3 rounded-full backdrop-blur-sm border-2 border-emerald-200/60">
                 Doctor
               </span>
             </div>
@@ -162,7 +162,7 @@ export default function WelcomeScreen({ onStartGame, onJoinGame }: WelcomeScreen
             </div>
             <div className="absolute -inset-10 bg-gradient-to-r from-sky-200/70 to-sky-400/70 rounded-full blur-3xl"></div>
             <div className="absolute -top-12 left-1/2 transform -translate-x-1/2">
-              <span className="text-xl font-bold text-sky-100 bg-gray-900/95 px-6 py-3 rounded-full backdrop-blur-sm border-2 border-sky-200/60">
+              <span className="text-xl font-bold text-sky-100 bg-slate-800/95 px-6 py-3 rounded-full backdrop-blur-sm border-2 border-sky-200/60">
                 Police
               </span>
             </div>
@@ -355,7 +355,7 @@ export default function WelcomeScreen({ onStartGame, onJoinGame }: WelcomeScreen
 
           {/* Game Code Display */}
           {gameCode && (
-            <div className="bg-gray-900/80 backdrop-blur-sm rounded-lg p-4 border border-gray-600/30 shadow-lg">
+            <div className="bg-slate-800/80 backdrop-blur-sm rounded-lg p-4 border border-slate-600/30 shadow-lg">
               <div className="text-center">
                 <p className="text-sm text-gray-400 mb-2">Game Code</p>
                 <div className="flex items-center justify-center space-x-2">
@@ -462,7 +462,7 @@ export default function WelcomeScreen({ onStartGame, onJoinGame }: WelcomeScreen
           </div>
 
           {/* Rules */}
-          <div className="bg-gray-900/80 backdrop-blur-sm rounded-lg p-4 border border-gray-600/30 shadow-lg">
+          <div className="bg-slate-800/80 backdrop-blur-sm rounded-lg p-4 border border-slate-600/30 shadow-lg">
             <h3 className="text-lg font-semibold text-white mb-3">
               How This Works
             </h3>
