@@ -36,11 +36,13 @@ export function useRealtimeSync(gameId: string | null, onGameEnded?: () => void)
   const gameRef = useRef(game)
   const roundStateRef = useRef(roundState)
   const votesRef = useRef(votes)
+  const playersRef = useRef(players)
   
   leaveRequestsRef.current = leaveRequests
   gameRef.current = game
   roundStateRef.current = roundState
   votesRef.current = votes
+  playersRef.current = players
 
   useEffect(() => {
     if (!gameId || !isSupabaseConfigured() || !supabase) return
@@ -98,22 +100,37 @@ export function useRealtimeSync(gameId: string | null, onGameEnded?: () => void)
           
           if (updatedPlayers) {
             console.log('🔧 Updated players list:', updatedPlayers.map(p => ({ id: p.id, name: p.name, is_host: p.is_host })))
-            // Update players while preserving other state
-            const currentGame = game
-            const currentRoundState = roundState
-            const currentVotes = votes
-            console.log('useRealtimeSync - Player update:', {
-              game: currentGame?.id,
-              playersCount: updatedPlayers.length,
-              players: updatedPlayers
-            })
-            setGameData({
-              game: gameRef.current || {} as Game,
-              players: updatedPlayers,
-              roundState: roundStateRef.current,
-              votes: votesRef.current,
-              leaveRequests: leaveRequestsRef.current
-            })
+            
+            // Check if players actually changed to prevent infinite loops
+            const currentPlayers = playersRef.current
+            const playersChanged = !currentPlayers || 
+              currentPlayers.length !== updatedPlayers.length ||
+              currentPlayers.some((currentPlayer, index) => {
+                const updatedPlayer = updatedPlayers[index]
+                return !updatedPlayer || 
+                  currentPlayer.id !== updatedPlayer.id ||
+                  currentPlayer.name !== updatedPlayer.name ||
+                  currentPlayer.is_host !== updatedPlayer.is_host ||
+                  currentPlayer.role !== updatedPlayer.role ||
+                  currentPlayer.alive !== updatedPlayer.alive
+              })
+            
+            if (playersChanged) {
+              console.log('useRealtimeSync - Players changed, updating state:', {
+                game: gameRef.current?.id,
+                playersCount: updatedPlayers.length,
+                players: updatedPlayers
+              })
+              setGameData({
+                game: gameRef.current || {} as Game,
+                players: updatedPlayers,
+                roundState: roundStateRef.current,
+                votes: votesRef.current,
+                leaveRequests: leaveRequestsRef.current
+              })
+            } else {
+              console.log('🔧 Players unchanged, skipping state update')
+            }
           }
         }
       )
@@ -144,7 +161,24 @@ export function useRealtimeSync(gameId: string | null, onGameEnded?: () => void)
             .eq('game_id', gameId)
           
           if (updatedVotes) {
-            setVotes(updatedVotes)
+            // Check if votes actually changed to prevent infinite loops
+            const currentVotes = votesRef.current
+            const votesChanged = !currentVotes || 
+              currentVotes.length !== updatedVotes.length ||
+              currentVotes.some((currentVote, index) => {
+                const updatedVote = updatedVotes[index]
+                return !updatedVote || 
+                  currentVote.id !== updatedVote.id ||
+                  currentVote.voter_id !== updatedVote.voter_id ||
+                  currentVote.target_player_id !== updatedVote.target_player_id
+              })
+            
+            if (votesChanged) {
+              console.log('🔧 Votes changed, updating state')
+              setVotes(updatedVotes)
+            } else {
+              console.log('🔧 Votes unchanged, skipping state update')
+            }
           }
         }
       )
@@ -163,7 +197,24 @@ export function useRealtimeSync(gameId: string | null, onGameEnded?: () => void)
             .eq('game_id', gameId)
           
           if (updatedLeaveRequests) {
-            setLeaveRequests(updatedLeaveRequests)
+            // Check if leave requests actually changed to prevent infinite loops
+            const currentLeaveRequests = leaveRequestsRef.current
+            const leaveRequestsChanged = !currentLeaveRequests || 
+              currentLeaveRequests.length !== updatedLeaveRequests.length ||
+              currentLeaveRequests.some((currentRequest, index) => {
+                const updatedRequest = updatedLeaveRequests[index]
+                return !updatedRequest || 
+                  currentRequest.id !== updatedRequest.id ||
+                  currentRequest.status !== updatedRequest.status ||
+                  currentRequest.player_id !== updatedRequest.player_id
+              })
+            
+            if (leaveRequestsChanged) {
+              console.log('🔧 Leave requests changed, updating state')
+              setLeaveRequests(updatedLeaveRequests)
+            } else {
+              console.log('🔧 Leave requests unchanged, skipping state update')
+            }
           }
         }
       )
