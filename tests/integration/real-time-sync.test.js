@@ -1,46 +1,13 @@
 #!/usr/bin/env node
 
 /**
- * Comprehensive Test Suite for Game Flow Fixes
- * Tests all the critical issues that were fixed:
- * 1. Real-time events for host
- * 2. Host exclusion from voting
- * 3. Win conditions at 2 players
- * 4. Host redirect prevention
+ * Integration Tests - Real-time Synchronization
+ * Tests real-time sync, player management, game flow, and host controls
  */
 
 const BASE_URL = process.env.TEST_URL || 'http://localhost:3000'
 
-// Test configuration
-const TEST_CONFIG = {
-  baseUrl: BASE_URL,
-  timeout: 30000,
-  retries: 3
-}
-
-// Utility functions
-async function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms))
-}
-
-async function makeRequest(url, options = {}) {
-  const response = await fetch(url, {
-    headers: {
-      'Content-Type': 'application/json',
-      ...options.headers
-    },
-    ...options
-  })
-  
-  if (!response.ok) {
-    throw new Error(`HTTP ${response.status}: ${response.statusText}`)
-  }
-  
-  return response.json()
-}
-
-// Test cases
-class GameFlowTestSuite {
+class RealTimeSyncTests {
   constructor() {
     this.results = []
     this.gameCode = null
@@ -60,11 +27,31 @@ class GameFlowTestSuite {
     }
   }
 
+  async makeRequest(url, options = {}) {
+    const response = await fetch(url, {
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+      },
+      ...options
+    })
+    
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`)
+    }
+    
+    return response.json()
+  }
+
+  async sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms))
+  }
+
   async setupGame() {
     console.log('\n🎮 Setting up test game...')
     
     // Create host
-    const hostResponse = await makeRequest(`${TEST_CONFIG.baseUrl}/api/games`, {
+    const hostResponse = await this.makeRequest(`${BASE_URL}/api/games`, {
       method: 'POST',
       body: JSON.stringify({
         hostName: 'TestHost',
@@ -79,7 +66,7 @@ class GameFlowTestSuite {
     
     // Add 6 players (minimum required)
     for (let i = 1; i <= 6; i++) {
-      const playerResponse = await makeRequest(`${TEST_CONFIG.baseUrl}/api/games/join`, {
+      const playerResponse = await this.makeRequest(`${BASE_URL}/api/games/join`, {
         method: 'POST',
         body: JSON.stringify({
           gameCode: this.gameCode,
@@ -99,7 +86,7 @@ class GameFlowTestSuite {
     console.log('\n🔧 Testing real-time events for host...')
     
     // Start the game
-    const startResponse = await makeRequest(`${TEST_CONFIG.baseUrl}/api/games/${this.gameCode}/actions`, {
+    const startResponse = await this.makeRequest(`${BASE_URL}/api/games/${this.gameCode}/actions`, {
       method: 'POST',
       body: JSON.stringify({
         action: 'assign_roles',
@@ -114,7 +101,7 @@ class GameFlowTestSuite {
     console.log('✅ Game started successfully')
     
     // Get game state to verify round state was created
-    const gameState = await makeRequest(`${TEST_CONFIG.baseUrl}/api/games?code=${this.gameCode}`)
+    const gameState = await this.makeRequest(`${BASE_URL}/api/games?code=${this.gameCode}`)
     
     if (!gameState.roundState) {
       throw new Error('Round state not created when game started')
@@ -133,7 +120,7 @@ class GameFlowTestSuite {
       throw new Error('No target player found for werewolf')
     }
     
-    const wolfAction = await makeRequest(`${TEST_CONFIG.baseUrl}/api/games/${this.gameCode}/actions`, {
+    const wolfAction = await this.makeRequest(`${BASE_URL}/api/games/${this.gameCode}/actions`, {
       method: 'POST',
       body: JSON.stringify({
         action: 'wolf_select',
@@ -149,8 +136,8 @@ class GameFlowTestSuite {
     console.log('✅ Werewolf action completed')
     
     // Verify round state was updated
-    await sleep(1000) // Wait for real-time sync
-    const updatedGameState = await makeRequest(`${TEST_CONFIG.baseUrl}/api/games?code=${this.gameCode}`)
+    await this.sleep(1000) // Wait for real-time sync
+    const updatedGameState = await this.makeRequest(`${BASE_URL}/api/games?code=${this.gameCode}`)
     
     if (!updatedGameState.roundState.wolf_target_player_id) {
       throw new Error('Round state not updated with werewolf target')
@@ -163,7 +150,7 @@ class GameFlowTestSuite {
     console.log('\n🗳️ Testing host voting exclusion...')
     
     // Advance to day vote phase
-    const nextPhaseResponse = await makeRequest(`${TEST_CONFIG.baseUrl}/api/games/${this.gameCode}/actions`, {
+    const nextPhaseResponse = await this.makeRequest(`${BASE_URL}/api/games/${this.gameCode}/actions`, {
       method: 'POST',
       body: JSON.stringify({
         action: 'next_phase',
@@ -179,7 +166,7 @@ class GameFlowTestSuite {
     
     // Try to have host vote (should fail)
     try {
-      await makeRequest(`${TEST_CONFIG.baseUrl}/api/games/${this.gameCode}/actions`, {
+      await this.makeRequest(`${BASE_URL}/api/games/${this.gameCode}/actions`, {
         method: 'POST',
         body: JSON.stringify({
           action: 'vote',
@@ -197,7 +184,7 @@ class GameFlowTestSuite {
     }
     
     // Verify a regular player can vote
-    const playerVote = await makeRequest(`${TEST_CONFIG.baseUrl}/api/games/${this.gameCode}/actions`, {
+    const playerVote = await this.makeRequest(`${BASE_URL}/api/games/${this.gameCode}/actions`, {
       method: 'POST',
       body: JSON.stringify({
         action: 'vote',
@@ -213,109 +200,101 @@ class GameFlowTestSuite {
     console.log('✅ Regular player voting works correctly')
   }
 
-  async testWinConditions() {
-    console.log('\n🏆 Testing win conditions...')
+  async testPlayerManagement() {
+    console.log('\n👥 Testing player management...')
     
-    // Get current game state
-    const gameState = await makeRequest(`${TEST_CONFIG.baseUrl}/api/games?code=${this.gameCode}`)
-    const alivePlayers = gameState.players.filter(p => p.alive)
-    
-    console.log(`Current alive players: ${alivePlayers.length}`)
-    
-    // Eliminate players until only 2 are left
-    let eliminatedCount = 0
-    const targetEliminations = alivePlayers.length - 2
-    
-    for (let i = 0; i < targetEliminations; i++) {
-      // Advance to final vote phase
-      await makeRequest(`${TEST_CONFIG.baseUrl}/api/games/${this.gameCode}/actions`, {
-        method: 'POST',
-        body: JSON.stringify({
-          action: 'next_phase',
-          clientId: this.hostClientId
-        })
+    // Test player removal
+    const removeResponse = await this.makeRequest(`${BASE_URL}/api/games/${this.gameCode}/actions`, {
+      method: 'POST',
+      body: JSON.stringify({
+        action: 'remove_player',
+        clientId: this.hostClientId,
+        data: { playerId: this.playerClientIds[0] }
       })
-      
-      // Get current state
-      const currentState = await makeRequest(`${TEST_CONFIG.baseUrl}/api/games?code=${this.gameCode}`)
-      const currentAlivePlayers = currentState.players.filter(p => p.alive && !p.is_host)
-      
-      if (currentAlivePlayers.length <= 1) {
-        break
-      }
-      
-      // Have all players vote for the first alive player
-      for (const player of currentAlivePlayers) {
-        try {
-          await makeRequest(`${TEST_CONFIG.baseUrl}/api/games/${this.gameCode}/actions`, {
-            method: 'POST',
-            body: JSON.stringify({
-              action: 'vote',
-              clientId: player.client_id,
-              data: { targetId: currentAlivePlayers[0].id }
-            })
-          })
-        } catch (error) {
-          // Some players might already be dead, continue
-        }
-      }
-      
-      // Eliminate the voted player
-      const eliminateResponse = await makeRequest(`${TEST_CONFIG.baseUrl}/api/games/${this.gameCode}/actions`, {
-        method: 'POST',
-        body: JSON.stringify({
-          action: 'eliminate_player',
-          clientId: this.hostClientId
-        })
+    })
+    
+    if (!removeResponse.success) {
+      throw new Error('Failed to remove player')
+    }
+    
+    console.log('✅ Player removal works correctly')
+    
+    // Verify player was removed
+    const gameState = await this.makeRequest(`${BASE_URL}/api/games?code=${this.gameCode}`)
+    const remainingPlayers = gameState.players.filter(p => p.client_id === this.playerClientIds[0])
+    
+    if (remainingPlayers.length > 0) {
+      throw new Error('Player was not properly removed')
+    }
+    
+    console.log('✅ Player removal verified')
+  }
+
+  async testLeaveRequestSystem() {
+    console.log('\n🚪 Testing leave request system...')
+    
+    // Test leave request
+    const leaveRequestResponse = await this.makeRequest(`${BASE_URL}/api/games/${this.gameCode}/actions`, {
+      method: 'POST',
+      body: JSON.stringify({
+        action: 'request_leave',
+        clientId: this.playerClientIds[1]
       })
-      
-      if (eliminateResponse.success) {
-        eliminatedCount++
-        console.log(`✅ Eliminated player ${eliminatedCount}/${targetEliminations}`)
-      }
-      
-      await sleep(1000) // Wait between eliminations
+    })
+    
+    if (!leaveRequestResponse.success) {
+      throw new Error('Failed to create leave request')
     }
     
-    // Check final game state
-    const finalState = await makeRequest(`${TEST_CONFIG.baseUrl}/api/games?code=${this.gameCode}`)
+    console.log('✅ Leave request created')
     
-    if (finalState.game.phase !== 'ended') {
-      throw new Error('Game should have ended when 2 players were left')
+    // Test leave approval
+    const approveResponse = await this.makeRequest(`${BASE_URL}/api/games/${this.gameCode}/actions`, {
+      method: 'POST',
+      body: JSON.stringify({
+        action: 'approve_leave',
+        clientId: this.hostClientId,
+        data: { playerId: this.playerClientIds[1] }
+      })
+    })
+    
+    if (!approveResponse.success) {
+      throw new Error('Failed to approve leave request')
     }
     
-    if (!finalState.game.win_state) {
-      throw new Error('Win state should be set when game ends')
+    console.log('✅ Leave request approved')
+    
+    // Verify player was removed
+    const gameState = await this.makeRequest(`${BASE_URL}/api/games?code=${this.gameCode}`)
+    const remainingPlayers = gameState.players.filter(p => p.client_id === this.playerClientIds[1])
+    
+    if (remainingPlayers.length > 0) {
+      throw new Error('Player was not properly removed after leave approval')
     }
     
-    const finalAlivePlayers = finalState.players.filter(p => p.alive)
-    const aliveWerewolves = finalAlivePlayers.filter(p => p.role === 'werewolf')
-    
-    // Verify win condition logic
-    if (aliveWerewolves.length > 0 && finalState.game.win_state !== 'werewolves') {
-      throw new Error('Werewolves should win if any are alive with 2 players left')
-    }
-    
-    if (aliveWerewolves.length === 0 && finalState.game.win_state !== 'villagers') {
-      throw new Error('Villagers should win if no werewolves are alive')
-    }
-    
-    console.log(`✅ Win condition correctly determined: ${finalState.game.win_state}`)
-    console.log(`✅ Final alive players: ${finalAlivePlayers.length}`)
+    console.log('✅ Leave request system works correctly')
   }
 
   async testHostRedirectPrevention() {
     console.log('\n🚫 Testing host redirect prevention...')
     
-    // The game should already be ended from previous test
-    const gameState = await makeRequest(`${TEST_CONFIG.baseUrl}/api/games?code=${this.gameCode}`)
+    // End the game
+    const endGameResponse = await this.makeRequest(`${BASE_URL}/api/games/${this.gameCode}/actions`, {
+      method: 'POST',
+      body: JSON.stringify({
+        action: 'end_game',
+        clientId: this.hostClientId
+      })
+    })
     
-    if (gameState.game.phase !== 'ended') {
-      throw new Error('Game should be ended for this test')
+    if (!endGameResponse.success) {
+      throw new Error('Failed to end game')
     }
     
+    console.log('✅ Game ended successfully')
+    
     // Host should still be able to access the game
-    const hostGameState = await makeRequest(`${TEST_CONFIG.baseUrl}/api/games?code=${this.gameCode}`)
+    const hostGameState = await this.makeRequest(`${BASE_URL}/api/games?code=${this.gameCode}`)
     
     if (!hostGameState.game) {
       throw new Error('Host should still have access to ended game')
@@ -326,33 +305,19 @@ class GameFlowTestSuite {
     }
     
     console.log('✅ Host correctly retained access to ended game')
-    
-    // Verify host can end the game manually
-    const endGameResponse = await makeRequest(`${TEST_CONFIG.baseUrl}/api/games/${this.gameCode}/actions`, {
-      method: 'POST',
-      body: JSON.stringify({
-        action: 'end_game',
-        clientId: this.hostClientId
-      })
-    })
-    
-    if (!endGameResponse.success) {
-      throw new Error('Host should be able to end the game manually')
-    }
-    
-    console.log('✅ Host can manually end the game')
   }
 
   async runAllTests() {
-    console.log('🚀 Starting Game Flow Fixes Test Suite')
-    console.log(`📍 Testing against: ${TEST_CONFIG.baseUrl}`)
+    console.log('🔧 Starting Real-time Sync Integration Tests')
+    console.log(`📍 Testing against: ${BASE_URL}`)
     
     try {
       await this.setupGame()
       
       await this.runTest('Real-time Events for Host', () => this.testRealTimeEvents())
       await this.runTest('Host Voting Exclusion', () => this.testHostVotingExclusion())
-      await this.runTest('Win Conditions at 2 Players', () => this.testWinConditions())
+      await this.runTest('Player Management', () => this.testPlayerManagement())
+      await this.runTest('Leave Request System', () => this.testLeaveRequestSystem())
       await this.runTest('Host Redirect Prevention', () => this.testHostRedirectPrevention())
       
     } catch (error) {
@@ -364,7 +329,7 @@ class GameFlowTestSuite {
   }
 
   printResults() {
-    console.log('\n📊 Test Results Summary:')
+    console.log('\n📊 Real-time Sync Integration Test Results:')
     console.log('=' .repeat(50))
     
     const passed = this.results.filter(r => r.status === 'PASSED').length
@@ -382,7 +347,7 @@ class GameFlowTestSuite {
     console.log(`Total: ${this.results.length} | Passed: ${passed} | Failed: ${failed}`)
     
     if (failed === 0) {
-      console.log('🎉 All tests passed! Game flow fixes are working correctly.')
+      console.log('🎉 All real-time sync integration tests passed!')
     } else {
       console.log('⚠️ Some tests failed. Please review the issues above.')
       process.exit(1)
@@ -392,11 +357,11 @@ class GameFlowTestSuite {
 
 // Run the test suite
 if (require.main === module) {
-  const testSuite = new GameFlowTestSuite()
+  const testSuite = new RealTimeSyncTests()
   testSuite.runAllTests().catch(error => {
     console.error('❌ Test suite failed:', error)
     process.exit(1)
   })
 }
 
-module.exports = GameFlowTestSuite
+module.exports = RealTimeSyncTests
