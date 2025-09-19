@@ -1,12 +1,13 @@
 'use client'
 
 import { useAtom } from 'jotai'
-import { gameAtom, playersAtom } from '@/lib/game-store'
+import { gameAtom, playersAtom, isHostAtom } from '@/lib/game-store'
 import { Trophy, Skull, Users } from 'lucide-react'
 
 export default function WinConditionDisplay() {
   const [game] = useAtom(gameAtom)
   const [players] = useAtom(playersAtom)
+  const [isHost] = useAtom(isHostAtom)
 
   if (!game || game.phase !== 'ended' || !game.win_state) {
     return null
@@ -85,13 +86,19 @@ export default function WinConditionDisplay() {
                 {alivePlayers.map(player => (
                   <div key={player.id} className="flex justify-between items-center">
                     <span className="text-gray-300">{player.name}</span>
-                    <span className={`px-2 py-1 rounded text-xs ${
-                      player.role === 'werewolf' 
-                        ? 'bg-red-600/20 text-red-400 border border-red-500/30' 
-                        : 'bg-green-600/20 text-green-400 border border-green-500/30'
-                    }`}>
-                      {player.role === 'werewolf' ? 'Werewolf' : 'Villager'}
-                    </span>
+                    {isHost ? (
+                      <span className={`px-2 py-1 rounded text-xs ${
+                        player.role === 'werewolf' 
+                          ? 'bg-red-600/20 text-red-400 border border-red-500/30' 
+                          : 'bg-green-600/20 text-green-400 border border-green-500/30'
+                      }`}>
+                        {player.role === 'werewolf' ? 'Werewolf' : 'Villager'}
+                      </span>
+                    ) : (
+                      <span className="px-2 py-1 rounded text-xs bg-gray-600/20 text-gray-400 border border-gray-500/30">
+                        Survivor
+                      </span>
+                    )}
                   </div>
                 ))}
               </div>

@@ -127,8 +127,8 @@ export default function WelcomeScreen({ onStartGame, onJoinGame }: WelcomeScreen
         </div>
 
         {/* DOCTOR - Icon-based */}
-        {/* Doctor - Bottom Left Area */}
-        <div className="absolute" style={{bottom: '40px', left: '20px', zIndex: 5}}>
+        {/* Doctor - Bottom Left Area - Hidden on mobile to avoid form overlap */}
+        <div className="absolute hidden md:block" style={{bottom: '40px', left: '20px', zIndex: 1}}>
           <div className="relative">
             <div className="w-80 h-80 bg-gradient-to-br from-emerald-200/90 to-emerald-400/90 rounded-full flex items-center justify-center shadow-2xl shadow-emerald-200/80 character-float dramatic-pulse" style={{animationDelay: '1s', border: '8px solid rgba(16, 185, 129, 0.9)'}}>
               <div className="relative character-breathe">
@@ -148,8 +148,8 @@ export default function WelcomeScreen({ onStartGame, onJoinGame }: WelcomeScreen
         </div>
 
         {/* POLICE - Icon-based */}
-        {/* Police - Bottom Right Area */}
-        <div className="absolute" style={{bottom: '40px', right: '20px', zIndex: 5}}>
+        {/* Police - Bottom Right Area - Hidden on mobile to avoid form overlap */}
+        <div className="absolute hidden md:block" style={{bottom: '40px', right: '20px', zIndex: 1}}>
           <div className="relative">
             <div className="w-80 h-80 bg-gradient-to-br from-sky-200/90 to-sky-400/90 rounded-full flex items-center justify-center shadow-2xl shadow-sky-200/80 character-float dramatic-pulse" style={{animationDelay: '2s', border: '8px solid rgba(14, 165, 233, 0.9)'}}>
               <div className="relative character-breathe">
@@ -165,6 +165,33 @@ export default function WelcomeScreen({ onStartGame, onJoinGame }: WelcomeScreen
                 Police
               </span>
             </div>
+          </div>
+        </div>
+
+        {/* Mobile Character Circles - Smaller and positioned to avoid form overlap */}
+        <div className="absolute md:hidden" style={{top: '10px', left: '10px', zIndex: 1}}>
+          <div className="relative">
+            <div className="w-20 h-20 bg-gradient-to-br from-emerald-200/90 to-emerald-400/90 rounded-full flex items-center justify-center shadow-lg shadow-emerald-200/80 character-float dramatic-pulse" style={{animationDelay: '1s', border: '4px solid rgba(16, 185, 129, 0.9)'}}>
+              <div className="relative character-breathe">
+                <div className="w-16 h-16 relative head-nod flex items-center justify-center">
+                  <div className="character-bounce" style={{fontSize: '2rem'}}>👨‍⚕️</div>
+                </div>
+              </div>
+            </div>
+            <div className="absolute -inset-2 bg-gradient-to-r from-emerald-200/70 to-emerald-400/70 rounded-full blur-lg"></div>
+          </div>
+        </div>
+
+        <div className="absolute md:hidden" style={{top: '10px', right: '10px', zIndex: 1}}>
+          <div className="relative">
+            <div className="w-20 h-20 bg-gradient-to-br from-sky-200/90 to-sky-400/90 rounded-full flex items-center justify-center shadow-lg shadow-sky-200/80 character-float dramatic-pulse" style={{animationDelay: '2s', border: '4px solid rgba(14, 165, 233, 0.9)'}}>
+              <div className="relative character-breathe">
+                <div className="w-16 h-16 relative head-nod flex items-center justify-center">
+                  <div className="character-bounce" style={{fontSize: '2rem'}}>👮‍♂️</div>
+                </div>
+              </div>
+            </div>
+            <div className="absolute -inset-2 bg-gradient-to-r from-sky-200/70 to-sky-400/70 rounded-full blur-lg"></div>
           </div>
         </div>
 
