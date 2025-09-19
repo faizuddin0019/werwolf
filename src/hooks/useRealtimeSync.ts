@@ -192,17 +192,27 @@ export function useRealtimeSync(gameId: string | null, onGameEnded?: () => void)
           .order('id')
 
         // Fetch round state
-        const { data: roundStateData } = await supabase
+        const { data: roundStateData, error: roundStateError } = await supabase
           .from('round_state')
           .select('*')
           .eq('game_id', gameId)
           .single()
+        
+        // Ignore "no rows" error for round state - it's normal when game is in lobby
+        if (roundStateError && roundStateError.code !== 'PGRST116') {
+          console.error('Error fetching round state:', roundStateError)
+        }
 
         // Fetch votes
-        const { data: votesData } = await supabase
+        const { data: votesData, error: votesError } = await supabase
           .from('votes')
           .select('*')
           .eq('game_id', gameId)
+        
+        // Ignore errors for votes - it's normal when game is in lobby
+        if (votesError) {
+          console.error('Error fetching votes:', votesError)
+        }
 
         // Fetch leave requests
         const { data: leaveRequestsData } = await supabase

@@ -403,45 +403,6 @@ async function handleEndGame(gameId: string, game: Game) {
 }
 
 async function handleLeaveGame(gameId: string, game: Game, currentPlayer: Player) {
-  // Check if game is in lobby phase - players can leave freely
-  if (game.phase === 'lobby') {
-    // Remove player from the game
-    const { error: deleteError } = await supabase
-      .from('players')
-      .delete()
-      .eq('id', currentPlayer.id)
-    
-    if (deleteError) {
-      console.error('Error removing player:', deleteError)
-      return NextResponse.json({ error: 'Failed to leave game' }, { status: 500 })
-    }
-    
-    // Check if this was the host leaving
-    if (currentPlayer.is_host) {
-      // If host leaves, end the game
-      const { error: endGameError } = await supabase
-        .from('games')
-        .update({ phase: 'ended' })
-        .eq('id', gameId)
-      
-      if (endGameError) {
-        console.error('Error ending game after host left:', endGameError)
-        return NextResponse.json({ error: 'Failed to end game' }, { status: 500 })
-      }
-      
-      // Clean up game data
-      await cleanupGameData(gameId)
-      
-      return NextResponse.json({ success: true, gameEnded: true })
-    }
-    
-    return NextResponse.json({ success: true, gameEnded: false })
-  }
-  
-  // For active games, we need host approval
-  // For now, we'll implement a simple system where players can leave
-  // but the game ends if it drops below 6 players
-  
   // Remove player from the game
   const { error: deleteError } = await supabase
     .from('players')
@@ -458,32 +419,59 @@ async function handleLeaveGame(gameId: string, game: Game, currentPlayer: Player
     .from('players')
     .select('*')
     .eq('game_id', gameId)
-    .eq('alive', true)
   
   if (playersError) {
     console.error('Error checking remaining players:', playersError)
     return NextResponse.json({ error: 'Failed to check remaining players' }, { status: 500 })
   }
   
-  // If less than 6 players remain, end the game
+  // If less than 6 players remain, reset game to lobby state
   if (remainingPlayers.length < 6) {
-    const { error: endGameError } = await supabase
+    // Reset game to lobby phase and clear any game progress
+    const { error: resetGameError } = await supabase
       .from('games')
-      .update({ phase: 'ended' })
+      .update({ 
+        phase: 'lobby',
+        day_count: 0,
+        win_state: null
+      })
       .eq('id', gameId)
     
-    if (endGameError) {
-      console.error('Error ending game after player left:', endGameError)
-      return NextResponse.json({ error: 'Failed to end game' }, { status: 500 })
+    if (resetGameError) {
+      console.error('Error resetting game to lobby after player left:', resetGameError)
+      return NextResponse.json({ error: 'Failed to reset game' }, { status: 500 })
     }
     
-    // Clean up game data
-    await cleanupGameData(gameId)
+    // Clear any round state and votes (but keep players)
+    await supabase
+      .from('round_state')
+      .delete()
+      .eq('game_id', gameId)
     
-    return NextResponse.json({ success: true, gameEnded: true })
+    await supabase
+      .from('votes')
+      .delete()
+      .eq('game_id', gameId)
+    
+    // Clear any pending leave requests
+    await supabase
+      .from('leave_requests')
+      .delete()
+      .eq('game_id', gameId)
+    
+    return NextResponse.json({ 
+      success: true, 
+      gameEnded: false,
+      gameReset: true,
+      message: 'Player left and game reset to lobby due to insufficient players' 
+    })
   }
   
-  return NextResponse.json({ success: true, gameEnded: false })
+  return NextResponse.json({ 
+    success: true, 
+    gameEnded: false,
+    message: 'Player successfully left the game' 
+  })
 }
 
 async function cleanupGameData(gameId: string) {
@@ -596,8 +584,18 @@ async function handleApproveLeave(gameId: string, hostPlayer: Player, playerId: 
     .eq('status', 'pending')
     .single()
   
-  if (requestError || !leaveRequest) {
-    return NextResponse.json({ error: 'Leave request not found' }, { status: 404 })
+  if (requestError && requestError.code !== 'PGRST116') {
+    console.error('Error fetching leave request:', requestError)
+    return NextResponse.json({ error: 'Failed to fetch leave request' }, { status: 500 })
+  }
+  
+  if (!leaveRequest) {
+    // Leave request doesn't exist, but this is not an error - it may have already been processed
+    return NextResponse.json({ 
+      success: true, 
+      gameEnded: false,
+      message: 'Leave request was already processed' 
+    })
   }
   
   // Update leave request status
@@ -700,8 +698,17 @@ async function handleDenyLeave(gameId: string, hostPlayer: Player, playerId: str
     .eq('status', 'pending')
     .single()
   
-  if (requestError || !leaveRequest) {
-    return NextResponse.json({ error: 'Leave request not found' }, { status: 404 })
+  if (requestError && requestError.code !== 'PGRST116') {
+    console.error('Error fetching leave request:', requestError)
+    return NextResponse.json({ error: 'Failed to fetch leave request' }, { status: 500 })
+  }
+  
+  if (!leaveRequest) {
+    // Leave request doesn't exist, but this is not an error - it may have already been processed
+    return NextResponse.json({ 
+      success: true, 
+      message: 'Leave request was already processed' 
+    })
   }
   
   // Update leave request status to denied
@@ -738,8 +745,18 @@ async function handleRemovePlayer(gameId: string, hostPlayer: Player, playerId: 
     .eq('game_id', gameId)
     .single()
   
-  if (playerError || !playerToRemove) {
-    return NextResponse.json({ error: 'Player not found' }, { status: 404 })
+  if (playerError && playerError.code !== 'PGRST116') {
+    console.error('Error fetching player to remove:', playerError)
+    return NextResponse.json({ error: 'Failed to fetch player' }, { status: 500 })
+  }
+  
+  if (!playerToRemove) {
+    // Player doesn't exist, but this is not an error - they may have already been removed
+    return NextResponse.json({ 
+      success: true, 
+      gameEnded: false,
+      message: 'Player was already removed from the game' 
+    })
   }
   
   // Prevent host from removing themselves
