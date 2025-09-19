@@ -88,7 +88,7 @@ export default function WelcomeScreen({ onStartGame, onJoinGame }: WelcomeScreen
         {/* Villagers - Top Left Area */}
         <div className="absolute" style={{top: '40px', left: '20px', zIndex: 5}}>
           <div className="relative">
-            <div className="w-80 h-80 bg-gradient-to-br from-amber-200/90 to-amber-400/90 rounded-full flex items-center justify-center shadow-2xl shadow-amber-200/80 character-float glow-pulse" style={{border: '8px solid rgba(245, 158, 11, 0.9)'}}>
+            <div className="w-80 h-80 bg-gradient-to-br from-amber-200/90 to-amber-400/90 rounded-full flex items-center justify-center shadow-2xl shadow-amber-200/80 character-float dramatic-pulse" style={{border: '8px solid rgba(245, 158, 11, 0.9)'}}>
               <div className="relative character-breathe">
                 {/* Villagers Icon - Male Villager */}
                 <div className="w-64 h-64 relative head-nod flex items-center justify-center">
@@ -130,7 +130,7 @@ export default function WelcomeScreen({ onStartGame, onJoinGame }: WelcomeScreen
         {/* Doctor - Bottom Left Area */}
         <div className="absolute" style={{bottom: '40px', left: '20px', zIndex: 5}}>
           <div className="relative">
-            <div className="w-80 h-80 bg-gradient-to-br from-emerald-200/90 to-emerald-400/90 rounded-full flex items-center justify-center shadow-2xl shadow-emerald-200/80 character-float glow-pulse" style={{animationDelay: '1s', border: '8px solid rgba(16, 185, 129, 0.9)'}}>
+            <div className="w-80 h-80 bg-gradient-to-br from-emerald-200/90 to-emerald-400/90 rounded-full flex items-center justify-center shadow-2xl shadow-emerald-200/80 character-float dramatic-pulse" style={{animationDelay: '1s', border: '8px solid rgba(16, 185, 129, 0.9)'}}>
               <div className="relative character-breathe">
                 {/* Doctor Icon - Male Doctor */}
                 <div className="w-64 h-64 relative head-nod flex items-center justify-center">
@@ -151,7 +151,7 @@ export default function WelcomeScreen({ onStartGame, onJoinGame }: WelcomeScreen
         {/* Police - Bottom Right Area */}
         <div className="absolute" style={{bottom: '40px', right: '20px', zIndex: 5}}>
           <div className="relative">
-            <div className="w-80 h-80 bg-gradient-to-br from-sky-200/90 to-sky-400/90 rounded-full flex items-center justify-center shadow-2xl shadow-sky-200/80 character-float glow-pulse" style={{animationDelay: '2s', border: '8px solid rgba(14, 165, 233, 0.9)'}}>
+            <div className="w-80 h-80 bg-gradient-to-br from-sky-200/90 to-sky-400/90 rounded-full flex items-center justify-center shadow-2xl shadow-sky-200/80 character-float dramatic-pulse" style={{animationDelay: '2s', border: '8px solid rgba(14, 165, 233, 0.9)'}}>
               <div className="relative character-breathe">
                 {/* Police Icon - Male Police Officer */}
                 <div className="w-64 h-64 relative head-nod flex items-center justify-center">
