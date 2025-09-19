@@ -48,6 +48,7 @@ export async function POST(request: NextRequest) {
     }
     
     // Check if client already exists in this game
+    // Note: clientId is browser-specific, so this prevents the same browser from joining twice
     const { data: existingPlayer, error: existingError } = await supabase
       .from('players')
       .select('id')
@@ -61,7 +62,7 @@ export async function POST(request: NextRequest) {
     }
     
     if (existingPlayer) {
-      return NextResponse.json({ error: 'You are already in this game' }, { status: 400 })
+      return NextResponse.json({ error: 'You are already in this game from this browser' }, { status: 400 })
     }
     
     // Create player

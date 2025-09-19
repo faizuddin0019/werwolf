@@ -6,13 +6,14 @@ import {
   gameAtom, 
   playersAtom, 
   currentPlayerAtom, 
-  gameCodeAtom,
-  playerNameAtom,
+  gameCodeAtom, 
+  playerNameAtom, 
   clientIdAtom,
   setGameDataAtom,
   resetGameAtom
 } from '@/lib/game-store'
 import { useRealtimeSync } from '@/hooks/useRealtimeSync'
+import { getOrCreateBrowserClientId, isClientIdFromCurrentBrowser } from '@/lib/browser-fingerprint'
 import { isSupabaseConfigured } from '@/lib/supabase'
 import WelcomeScreen from '@/components/WelcomeScreen'
 import GameLobby from '@/components/GameLobby'
@@ -54,15 +55,25 @@ export default function HomePage() {
     const savedClientId = localStorage.getItem('werwolf-client-id')
     
     if (savedGameCode && savedPlayerName && savedClientId) {
-      setGameCode(savedGameCode)
-      setPlayerName(savedPlayerName)
-      setClientId(savedClientId)
-      
-      // If we have a saved game state, try to restore the game
-      if (savedState !== 'welcome' && savedGameCode) {
-        restoreGame(savedGameCode, savedClientId)
+      // Check if the saved client ID is from the current browser
+      if (isClientIdFromCurrentBrowser(savedClientId)) {
+        setGameCode(savedGameCode)
+        setPlayerName(savedPlayerName)
+        setClientId(savedClientId)
+        
+        // If we have a saved game state, try to restore the game
+        if (savedState !== 'welcome' && savedGameCode) {
+          restoreGame(savedGameCode, savedClientId)
+        } else {
+          setGameState(savedState)
+        }
       } else {
-        setGameState(savedState)
+        // Client ID is from a different browser, clear saved state
+        localStorage.removeItem('werwolf-game-state')
+        localStorage.removeItem('werwolf-game-code')
+        localStorage.removeItem('werwolf-player-name')
+        localStorage.removeItem('werwolf-client-id')
+        setGameState('welcome')
       }
     } else {
       setGameState(savedState)
@@ -123,11 +134,23 @@ export default function HomePage() {
     }
   }
 
-  // Generate client ID if not exists
+  // Generate browser-specific client ID if not exists
   useEffect(() => {
     if (!clientId) {
-      const newClientId = Math.random().toString(36).substring(2) + Date.now().toString(36)
+      const newClientId = getOrCreateBrowserClientId()
       setClientId(newClientId)
+    } else {
+      // Check if the existing client ID is from the current browser
+      if (!isClientIdFromCurrentBrowser(clientId)) {
+        // Client ID is from a different browser, generate a new one
+        const newClientId = getOrCreateBrowserClientId()
+        setClientId(newClientId)
+        // Clear any saved game state since this is a different browser
+        localStorage.removeItem('werwolf-game-state')
+        localStorage.removeItem('werwolf-game-code')
+        localStorage.removeItem('werwolf-player-name')
+        setGameState('welcome')
+      }
     }
   }, [clientId, setClientId])
 
