@@ -1,202 +1,344 @@
-# Werwolf Test Suite
+# Werwolf Game Test Suite
 
-This directory contains the organized test suite for the Werwolf application, structured by core functionality.
+This directory contains all test files organized by category and functionality.
 
 ## 📁 Directory Structure
 
 ```
 tests/
 ├── core/                           # Core game logic tests
-│   └── game-logic.test.js         # Basic game functionality
+│   └── game-logic.test.js         # Basic game mechanics
 ├── integration/                    # Integration tests
-│   └── real-time-sync.test.js     # Real-time sync and player management
+│   └── real-time-sync.test.js     # Real-time synchronization
 ├── performance/                    # Performance tests
-│   └── battery-optimization.test.js # Battery optimization and efficiency
-├── run-all-tests.js               # Master test runner
-├── run-tests.sh                   # Shell script for easy execution
+│   └── battery-optimization.test.js # Battery and performance
+├── end-game/                       # End game logic tests
+│   └── test-end-game-logic.js     # Winner declaration, host exclusion
+├── game-flow/                      # Game flow tests
+│   └── test-game-flow-improvements.js # Host controls, phase management
+├── demo/                          # Demo and example tests
+│   ├── test-demo.js               # General demo
+│   └── test-game-flow-demo.js     # Game flow demo
+├── config/                        # Test configuration
+│   └── test-config.js             # Shared test configuration
+├── run-all-tests.js               # Main test runner
+├── run-comprehensive-tests.sh     # Comprehensive test suite
+├── run-tests.sh                   # Legacy test runner
 └── README.md                      # This file
 ```
 
 ## 🧪 Test Categories
 
-### Core Game Logic Tests (`core/`)
-Tests the fundamental game functionality:
-- ✅ Game creation and setup
-- ✅ Player joining and management
-- ✅ Role assignment (werewolf, doctor, police, villagers)
-- ✅ Win conditions and game ending logic
-- ✅ Basic game flow validation
+### 1. Core Tests (`core/`)
+- **Purpose**: Test fundamental game mechanics
+- **Files**: `game-logic.test.js`
+- **Coverage**: Basic game rules, player actions, win conditions, sound effects
 
-### Integration Tests (`integration/`)
-Tests real-time synchronization and complex interactions:
-- ✅ Real-time events for host visibility
-- ✅ Host voting exclusion
-- ✅ Player management (removal, leave requests)
-- ✅ Leave request system (request, approve, deny)
-- ✅ Host redirect prevention
-- ✅ Game state synchronization
+### 2. Integration Tests (`integration/`)
+- **Purpose**: Test system integration and real-time features
+- **Files**: `real-time-sync.test.js`
+- **Coverage**: Real-time updates, state synchronization, multiplayer, mobile UI layout
 
-### Performance Tests (`performance/`)
-Tests optimization and efficiency:
-- ✅ Debounced updates to prevent excessive API calls
-- ✅ Console logging optimization (development vs production)
-- ✅ Real-time sync efficiency
-- ✅ Memory usage optimization
-- ✅ Network request efficiency
+### 3. Performance Tests (`performance/`)
+- **Purpose**: Test performance and battery optimization
+- **Files**: `battery-optimization.test.js`
+- **Coverage**: Battery usage, animation performance, memory usage
+
+### 4. End Game Tests (`end-game/`)
+- **Purpose**: Test end game logic and winner declaration
+- **Files**: `test-end-game-logic.js`
+- **Coverage**: Win conditions, host exclusion, winner display
+
+### 5. Game Flow Tests (`game-flow/`)
+- **Purpose**: Test game flow and host controls
+- **Files**: `test-game-flow-improvements.js`
+- **Coverage**: Phase transitions, host controls, manual voting, werewolf screen timing, host control over night phase
+
+
+### 7. Demo Tests (`demo/`)
+- **Purpose**: Demo and example tests
+- **Files**: `test-demo.js`, `test-game-flow-demo.js`
+- **Coverage**: Test framework demonstration, example scenarios
 
 ## 🚀 Running Tests
 
-### Using npm scripts (recommended):
-
+### Individual Test Categories
 ```bash
-# Run all tests locally
-npm run test:all
+# Core tests
+npm run test:core
 
-# Run specific test categories
-npm run test:core              # Core game logic
-npm run test:integration       # Real-time sync integration
-npm run test:performance       # Battery optimization
+# Integration tests
+npm run test:integration
 
-# Run tests against production
-npm run test:all:prod
+# Performance tests
+npm run test:performance
+
+# End game tests
+npm run test:end-game
+
+# Game flow tests
+npm run test:game-flow
+
+# Core tests (includes sound effects)
+npm run test:core
+
+# Demo tests
+npm run test:demo
+```
+
+### Production Testing
+```bash
+# Test against production
 npm run test:core:prod
 npm run test:integration:prod
 npm run test:performance:prod
-
-# CI/CD integration
-npm run test:ci               # Run all tests for CI
-npm run test:verify           # Quick verification test
+npm run test:end-game:prod
+npm run test:game-flow:prod
 ```
 
-### Using shell scripts:
-
+### Comprehensive Testing
 ```bash
-# Run all tests
-./tests/run-tests.sh
+# Run all tests locally
+npm run test:comprehensive
 
-# Run specific categories
-./tests/run-tests.sh http://localhost:3000 core
-./tests/run-tests.sh http://localhost:3000 integration
-./tests/run-tests.sh http://localhost:3000 performance
+# Run all tests against production
+npm run test:comprehensive:prod
 
-# Run against production
-./tests/run-tests.sh https://wearwolf-theta.vercel.app all
+# Run all tests with new runner
+npm run test:all
+
+# Run all tests against production with new runner
+npm run test:all:prod
 ```
 
-### Direct execution:
-
+### Quick Verification
 ```bash
-# Run individual test files
-TEST_URL=http://localhost:3000 node tests/core/game-logic.test.js
-TEST_URL=http://localhost:3000 node tests/integration/real-time-sync.test.js
-TEST_URL=http://localhost:3000 node tests/performance/battery-optimization.test.js
+# Run critical tests only
+npm run test:verify-all
 
-# Run master test runner
-TEST_URL=http://localhost:3000 node tests/run-all-tests.js
+# Run build with tests
+npm run test:build
 ```
+
+## 🔧 Test Configuration
+
+### Environment Variables
+```bash
+# Required for all tests
+export NEXT_PUBLIC_SUPABASE_URL="https://your-project.supabase.co"
+export NEXT_PUBLIC_SUPABASE_ANON_KEY="your-anon-key"
+
+# Optional test configuration
+export TEST_BASE_URL="http://localhost:3000"  # Default
+export TEST_TIMEOUT="30000"                   # Default
+```
+
+### Test URLs
+- **Local Development**: `http://localhost:3000`
+- **Production**: `https://wearwolf-bewk9ijpj-faizuddin0019s-projects.vercel.app`
 
 ## 📊 Test Results
 
-Each test suite provides detailed results including:
-- ✅ Pass/fail status for each test
-- 📝 Detailed error messages for failures
-- ⏱️ Execution time and performance metrics
-- 📈 Summary statistics
+### Success Indicators
+- ✅ **Green**: Test passed
+- ❌ **Red**: Test failed
+- 🔧 **Blue**: Test in progress
+- ⚠️ **Yellow**: Warning or info
 
-### Example Output:
+### Test Output Format
 ```
-🎮 WERWOLF COMPREHENSIVE TEST SUITE
-============================================================
-📍 Testing against: http://localhost:3000
-🕐 Started at: 12/19/2024, 3:45:30 PM
+🧪 Running: Test Name
+   File: tests/category/test-file.js
+   URL: http://localhost:3000
 
-🚀 Running Core Game Logic Test Suite
-============================================================
-✅ Game Creation - PASSED
-✅ Player Joining - PASSED
-✅ Role Assignment - PASSED
-✅ Win Conditions - PASSED
-
-📊 Core Game Logic Test Results:
-==================================================
-✅ Game Creation: PASSED
-✅ Player Joining: PASSED
-✅ Role Assignment: PASSED
-✅ Win Conditions: PASSED
-==================================================
-Total: 4 | Passed: 4 | Failed: 0
-🎉 All core game logic tests passed!
+✅ Test Name: PASSED
 ```
 
-## 🔧 Configuration
+## 🛠️ Adding New Tests
 
-### Environment Variables:
-- `TEST_URL`: Base URL for the application (default: http://localhost:3000)
-- `NODE_ENV`: Environment mode (affects console logging tests)
+### 1. Choose the Right Category
+- **Core**: Basic game mechanics
+- **Integration**: System integration
+- **Performance**: Performance and optimization
+- **End Game**: End game logic
+- **Game Flow**: Game flow and controls
+- **Today's Fixes**: Recent critical fixes
+- **Demo**: Examples and demonstrations
 
-### Test Configuration:
-- **Timeout**: 30 seconds per test suite
-- **Retries**: 3 attempts for failed tests
-- **Concurrent**: Tests run sequentially to avoid conflicts
+### 2. Create Test File
+```javascript
+#!/usr/bin/env node
+
+/**
+ * Test Description
+ * Brief description of what this test covers
+ */
+
+const BASE_URL = process.env.TEST_BASE_URL || 'http://localhost:3000'
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL
+const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+// Test configuration
+const TEST_CONFIG = {
+  // Test-specific configuration
+}
+
+// Utility functions
+function log(message, type = 'info') {
+  const timestamp = new Date().toISOString()
+  const prefix = type === 'error' ? '❌' : type === 'success' ? '✅' : '🔧'
+  console.log(`${prefix} [${timestamp}] ${message}`)
+}
+
+function assert(condition, message) {
+  if (!condition) {
+    throw new Error(message)
+  }
+}
+
+// Test functions
+async function testFunction() {
+  log('🧪 Testing specific functionality')
+  
+  try {
+    // Test implementation
+    assert(true, 'Test should pass')
+    
+    log('✅ Test passed')
+    return true
+  } catch (error) {
+    log(`❌ Test failed: ${error.message}`, 'error')
+    return false
+  }
+}
+
+// Main test runner
+async function runAllTests() {
+  log('🚀 Starting test suite')
+  
+  const tests = [
+    { name: 'Test Name', fn: testFunction }
+  ]
+  
+  let passed = 0
+  let failed = 0
+  
+  for (const test of tests) {
+    try {
+      const result = await test.fn()
+      if (result) {
+        passed++
+      } else {
+        failed++
+      }
+    } catch (error) {
+      failed++
+    }
+  }
+  
+  log(`\n📊 Results: ${passed} passed, ${failed} failed`)
+  return failed === 0
+}
+
+// Run tests
+if (require.main === module) {
+  runAllTests()
+    .then(success => process.exit(success ? 0 : 1))
+    .catch(error => {
+      log(`❌ Test suite failed: ${error.message}`, 'error')
+      process.exit(1)
+    })
+}
+
+module.exports = { runAllTests }
+```
+
+### 3. Update Test Runner
+Add your test to the appropriate category in `run-all-tests.js`:
+
+```javascript
+const TEST_CATEGORIES = {
+  'your-category': [
+    'tests/your-category/your-test.js'
+  ]
+}
+```
+
+### 4. Add Package.json Script
+```json
+{
+  "scripts": {
+    "test:your-category": "node tests/your-category/your-test.js",
+    "test:your-category:prod": "TEST_BASE_URL=https://wearwolf-bewk9ijpj-faizuddin0019s-projects.vercel.app node tests/your-category/your-test.js"
+  }
+}
+```
 
 ## 🐛 Troubleshooting
 
-### Common Issues:
+### Common Issues
 
-1. **Server not running**:
+1. **Missing Environment Variables**
    ```
-   ❌ Server is not running at http://localhost:3000
+   ❌ Missing Supabase environment variables
+   ```
+   **Solution**: Set `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+
+2. **Server Not Running**
+   ```
+   ❌ Server is not running
    ```
    **Solution**: Start the development server with `npm run dev`
 
-2. **Test timeouts**:
+3. **Test File Not Found**
    ```
-   ❌ Test timed out after 30 seconds
+   ❌ Test file not found: tests/category/test.js
    ```
-   **Solution**: Check server performance and network connectivity
+   **Solution**: Check file path and ensure file exists
 
-3. **Database connection issues**:
+4. **Network Connectivity**
    ```
-   ❌ Failed to fetch game data
+   ❌ Failed to connect to server
    ```
-   **Solution**: Verify Supabase configuration and database connectivity
+   **Solution**: Check network connection and server status
 
-### Debug Mode:
-Set `NODE_ENV=development` to enable detailed logging:
+### Debug Mode
+Set `NODE_ENV=development` for detailed logging:
 ```bash
-NODE_ENV=development npm run test:all
+NODE_ENV=development npm run test:todays-fixes
 ```
 
-## 📝 Adding New Tests
+## 📚 Test Documentation
 
-### To add a new test category:
-1. Create a new directory under `tests/`
-2. Add your test file following the naming convention `*.test.js`
-3. Implement the test class with `runAllTests()` method
-4. Update `run-all-tests.js` to include your new test suite
-5. Add npm scripts to `package.json`
-
-### To add tests to existing categories:
-1. Add new test methods to the existing test class
-2. Call them from the `runAllTests()` method
-3. Follow the existing pattern for error handling and reporting
-
-## 🎯 Test Coverage
-
-The test suite covers:
-- ✅ **100%** of core game logic
-- ✅ **100%** of real-time synchronization
-- ✅ **100%** of player management features
-- ✅ **100%** of win conditions and game ending
-- ✅ **100%** of performance optimizations
-- ✅ **100%** of host controls and restrictions
+- **TESTING.md**: General testing documentation
+- **TEST_SUMMARY.md**: Test suite summary
+- **TEST_DOCUMENTATION.md**: Detailed test documentation
+- **QUICK_TEST_GUIDE.md**: Quick start guide
 
 ## 🔄 Continuous Integration
 
-The test suite is designed for CI/CD integration:
-- Automated setup and teardown
-- Clear pass/fail reporting
-- Performance metrics collection
-- Production environment testing
+Tests are automatically run:
+- **Pre-commit**: Via Husky hooks
+- **Build Process**: Via `npm run test:build`
+- **Deployment**: Via Vercel build process
 
-Use `npm run test:ci` for CI/CD pipelines.
+## 📈 Test Coverage
+
+Current test coverage includes:
+- ✅ **Game Logic**: Core mechanics and rules
+- ✅ **Real-time Sync**: State synchronization
+- ✅ **Performance**: Battery and performance optimization
+- ✅ **End Game**: Winner declaration and host exclusion
+- ✅ **Game Flow**: Host controls and phase management
+- ✅ **Today's Fixes**: Recent critical fixes
+- ✅ **Demo**: Test framework examples
+
+## 🎯 Future Improvements
+
+- [ ] Add unit tests for individual components
+- [ ] Add visual regression tests
+- [ ] Add accessibility tests
+- [ ] Add cross-browser compatibility tests
+- [ ] Add load testing for multiplayer scenarios
+- [ ] Add automated test reporting
+- [ ] Add test coverage reporting

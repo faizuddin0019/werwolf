@@ -172,7 +172,12 @@ async function testEndGameLogicWithTwoPlayers() {
     
     // Get initial game state
     let gameState = await getGameState(gameCode)
-    assert(gameState.game.phase === 'night_wolf', 'Game should be in night_wolf phase after role assignment')
+    assert(gameState.game.phase === 'lobby', 'Game should stay in lobby after role assignment')
+    
+    // Host advances to night_wolf phase
+    await nextPhase(gameCode, hostClientId)
+    gameState = await getGameState(gameCode)
+    assert(gameState.game.phase === 'night_wolf', 'Game should be in night_wolf phase after host advances')
     
     // Eliminate players one by one until only 2 remain
     for (let i = 0; i < 4; i++) {
@@ -344,6 +349,11 @@ async function testRealTimeSync() {
     await assignRoles(gameCode, hostClientId)
     await sleep(2000) // Wait for real-time sync
     
+    gameState = await getGameState(gameCode)
+    assert(gameState.game.phase === 'lobby', 'Game should stay in lobby after role assignment')
+    
+    // Host advances to night_wolf phase
+    await nextPhase(gameCode, hostClientId)
     gameState = await getGameState(gameCode)
     assert(gameState.game.phase === 'night_wolf', 'Game phase should update in real-time')
     

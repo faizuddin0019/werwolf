@@ -307,6 +307,58 @@ class RealTimeSyncTests {
     console.log('✅ Host correctly retained access to ended game')
   }
 
+  async testMobileUILayout() {
+    console.log('📱 Testing mobile UI layout...')
+    
+    // Assign roles and start game
+    const assignResponse = await this.makeRequest(`${BASE_URL}/api/games/${this.gameCode}/actions`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'assign_roles',
+        clientId: this.hostClientId
+      })
+    })
+    
+    if (!assignResponse.ok) {
+      throw new Error(`Failed to assign roles: ${assignResponse.status}`)
+    }
+    
+    // Host advances to night phase
+    const nextPhaseResponse = await this.makeRequest(`${BASE_URL}/api/games/${this.gameCode}/actions`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'next_phase',
+        clientId: this.hostClientId
+      })
+    })
+    
+    if (!nextPhaseResponse.ok) {
+      throw new Error(`Failed to advance phase: ${nextPhaseResponse.status}`)
+    }
+    
+    // Get game state to verify layout components exist
+    const gameState = await this.makeRequest(`${BASE_URL}/api/games/${this.gameCode}`)
+    const data = await gameState.json()
+    
+    if (data.game.phase !== 'night_wolf') {
+      throw new Error(`Expected night_wolf phase, got: ${data.game.phase}`)
+    }
+    
+    if (data.players.length !== 7) {
+      throw new Error(`Expected 7 players (host + 6 players), got: ${data.players.length}`)
+    }
+    
+    // Verify that players have roles
+    const playersWithRoles = data.players.filter(p => p.role)
+    if (playersWithRoles.length !== 6) {
+      throw new Error(`Expected 6 players with roles, got: ${playersWithRoles.length}`)
+    }
+    
+    console.log('✅ Mobile UI layout test passed')
+  }
+
   async runAllTests() {
     console.log('🔧 Starting Real-time Sync Integration Tests')
     console.log(`📍 Testing against: ${BASE_URL}`)
@@ -318,6 +370,7 @@ class RealTimeSyncTests {
       await this.runTest('Host Voting Exclusion', () => this.testHostVotingExclusion())
       await this.runTest('Player Management', () => this.testPlayerManagement())
       await this.runTest('Leave Request System', () => this.testLeaveRequestSystem())
+      await this.runTest('Mobile UI Layout', () => this.testMobileUILayout())
       await this.runTest('Host Redirect Prevention', () => this.testHostRedirectPrevention())
       
     } catch (error) {

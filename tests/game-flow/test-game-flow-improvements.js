@@ -178,10 +178,16 @@ async function testReorderedNightPhases() {
     await assignRoles(gameCode, hostClientId)
     await sleep(1000)
     
-    // Test phase sequence: lobby → night_wolf
+    // Test phase sequence: lobby → lobby (after role assignment)
     let gameState = await getGameState(gameCode)
-    assert(gameState.game.phase === 'night_wolf', 'Game should be in night_wolf phase after role assignment')
-    log('✅ Phase 1: Lobby → Night Wolf (PASSED)')
+    assert(gameState.game.phase === 'lobby', 'Game should stay in lobby after role assignment')
+    log('✅ Phase 1: Lobby → Lobby (after role assignment) (PASSED)')
+    
+    // Host advances to night_wolf phase
+    await nextPhase(gameCode, hostClientId)
+    gameState = await getGameState(gameCode)
+    assert(gameState.game.phase === 'night_wolf', 'Game should be in night_wolf phase after host advances')
+    log('✅ Phase 2: Lobby → Night Wolf (after host advances) (PASSED)')
     
     // Test werewolf action
     const werewolf = players.find(p => p.role === 'werewolf')
@@ -486,6 +492,129 @@ async function testCompleteGameFlow() {
   }
 }
 
+// Additional game flow tests from today's fixes
+async function testWerewolfScreenTimingFix() {
+  log('🧪 Testing Werewolf Screen Timing Fix')
+  
+  try {
+    // Create game and join players
+    const gameData = await createTestGame()
+    const gameCode = gameData.gameCode
+    const hostClientId = 'test-host-' + Date.now()
+    
+    // Join 6 players
+    const players = []
+    for (let i = 0; i < 6; i++) {
+      const clientId = `test-player-${i}-${Date.now()}`
+      const playerData = await joinGame(gameCode, TEST_CONFIG.playerNames[i], clientId)
+      players.push({ ...playerData.player, clientId })
+    }
+    
+    // Assign roles
+    await assignRoles(gameCode, hostClientId)
+    await sleep(1000)
+    
+    // Check that game phase is still 'lobby' after role assignment
+    const gameState = await getGameState(gameCode)
+    assert(gameState.game.phase === 'lobby', 'Game phase should be lobby after role assignment')
+    
+    // Check that players have roles assigned
+    const playersWithRoles = gameState.players.filter(p => p.role)
+    assert(playersWithRoles.length === 6, 'All players should have roles assigned')
+    
+    // Check that werewolf players exist
+    const werewolfPlayers = gameState.players.filter(p => p.role === 'werewolf')
+    assert(werewolfPlayers.length > 0, 'Should have at least one werewolf player')
+    
+    log('✅ Werewolf screen timing fix test passed')
+    return { success: true, message: 'Werewolf screen timing fix works correctly' }
+    
+  } catch (error) {
+    log(`❌ Werewolf screen timing fix test failed: ${error.message}`, 'error')
+    return { success: false, message: error.message }
+  }
+}
+
+async function testHostControlOverNightPhase() {
+  log('🧪 Testing Host Control Over Night Phase')
+  
+  try {
+    // Create game and join players
+    const gameData = await createTestGame()
+    const gameCode = gameData.gameCode
+    const hostClientId = 'test-host-' + Date.now()
+    
+    // Join 6 players
+    for (let i = 0; i < 6; i++) {
+      const clientId = `test-player-${i}-${Date.now()}`
+      await joinGame(gameCode, TEST_CONFIG.playerNames[i], clientId)
+    }
+    
+    // Assign roles
+    await assignRoles(gameCode, hostClientId)
+    await sleep(1000)
+    
+    // Verify game is still in lobby
+    let gameState = await getGameState(gameCode)
+    assert(gameState.game.phase === 'lobby', 'Game should still be in lobby after role assignment')
+    
+    // Host advances to night phase
+    await nextPhase(gameCode, hostClientId)
+    
+    // Verify game is now in night_wolf phase
+    gameState = await getGameState(gameCode)
+    assert(gameState.game.phase === 'night_wolf', 'Game should be in night_wolf phase after host advances')
+    
+    log('✅ Host control over night phase test passed')
+    return { success: true, message: 'Host control over night phase works correctly' }
+    
+  } catch (error) {
+    log(`❌ Host control over night phase test failed: ${error.message}`, 'error')
+    return { success: false, message: error.message }
+  }
+}
+
+async function testGamePhaseTransitions() {
+  log('🧪 Testing Game Phase Transitions')
+  
+  try {
+    // Create game and join players
+    const gameData = await createTestGame()
+    const gameCode = gameData.gameCode
+    const hostClientId = 'test-host-' + Date.now()
+    
+    // Join 6 players
+    for (let i = 0; i < 6; i++) {
+      const clientId = `test-player-${i}-${Date.now()}`
+      await joinGame(gameCode, TEST_CONFIG.playerNames[i], clientId)
+    }
+    
+    // Test phase transitions
+    await assignRoles(gameCode, hostClientId)
+    let gameState = await getGameState(gameCode)
+    assert(gameState.game.phase === 'lobby', 'Should be in lobby after role assignment')
+    
+    await nextPhase(gameCode, hostClientId)
+    gameState = await getGameState(gameCode)
+    assert(gameState.game.phase === 'night_wolf', 'Should be in night_wolf after next_phase')
+    
+    await nextPhase(gameCode, hostClientId)
+    gameState = await getGameState(gameCode)
+    assert(gameState.game.phase === 'night_police', 'Should be in night_police after next_phase')
+    
+    await nextPhase(gameCode, hostClientId)
+    gameState = await getGameState(gameCode)
+    assert(gameState.game.phase === 'night_doctor', 'Should be in night_doctor after next_phase')
+    
+    log('✅ Game phase transitions test passed')
+    return { success: true, message: 'Game phase transitions work correctly' }
+    
+  } catch (error) {
+    log(`❌ Game phase transitions test failed: ${error.message}`, 'error')
+    return { success: false, message: error.message }
+  }
+}
+
 // Main test runner
 async function runAllTests() {
   log('🚀 Starting game flow improvement tests...')
@@ -494,7 +623,10 @@ async function runAllTests() {
     { name: 'Reordered Night Phases (Wolf → Police → Doctor)', fn: testReorderedNightPhases },
     { name: 'Manual Voting Controls', fn: testManualVotingControls },
     { name: 'Host Button Labels and Visibility', fn: testHostButtonLabels },
-    { name: 'Complete Game Flow with New Controls', fn: testCompleteGameFlow }
+    { name: 'Complete Game Flow with New Controls', fn: testCompleteGameFlow },
+    { name: 'Werewolf Screen Timing Fix', fn: testWerewolfScreenTimingFix },
+    { name: 'Host Control Over Night Phase', fn: testHostControlOverNightPhase },
+    { name: 'Game Phase Transitions', fn: testGamePhaseTransitions }
   ]
   
   for (const test of tests) {

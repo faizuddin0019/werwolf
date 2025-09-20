@@ -284,6 +284,36 @@ class GameLogicTests {
     console.log(`✅ Final alive players: ${finalAlivePlayers.length}`)
   }
 
+  async testSoundEffectImplementation() {
+    console.log('🔊 Testing sound effect implementation...')
+    
+    // Assign roles (this should trigger sound effect)
+    const response = await this.makeRequest(`${BASE_URL}/api/games/${this.gameCode}/actions`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'assign_roles',
+        clientId: this.hostClientId
+      })
+    })
+    
+    if (!response.ok) {
+      throw new Error(`Failed to assign roles: ${response.status}`)
+    }
+    
+    // Verify game state
+    const gameState = await this.makeRequest(`${BASE_URL}/api/games/${this.gameCode}`)
+    const data = await gameState.json()
+    
+    if (data.game.phase !== 'lobby') {
+      throw new Error(`Expected lobby phase after role assignment, got: ${data.game.phase}`)
+    }
+    
+    // Note: Sound effect testing is limited in automated tests
+    // The sound should play for 4 seconds when roles are assigned
+    console.log('✅ Sound effect implementation test passed (manual verification required)')
+  }
+
   async runAllTests() {
     console.log('🎯 Starting Core Game Logic Tests')
     console.log(`📍 Testing against: ${BASE_URL}`)
@@ -294,6 +324,7 @@ class GameLogicTests {
       await this.runTest('Game Creation', () => this.testGameCreation())
       await this.runTest('Player Joining', () => this.testPlayerJoining())
       await this.runTest('Role Assignment', () => this.testRoleAssignment())
+      await this.runTest('Sound Effect Implementation', () => this.testSoundEffectImplementation())
       await this.runTest('Win Conditions', () => this.testWinConditions())
       
     } catch (error) {

@@ -667,9 +667,18 @@ export default function HomePage() {
     // Create audio element and play sound
     const audio = new Audio(`/sounds/${sound}.mp3`)
     audio.volume = 0.5
+    audio.loop = false
+    
+    // Play sound for 4 seconds
     audio.play().catch(err => {
       if (process.env.NODE_ENV === 'development') console.log('Could not play sound:', err)
     })
+    
+    // Stop sound after 4 seconds
+    setTimeout(() => {
+      audio.pause()
+      audio.currentTime = 0
+    }, 4000)
   }
 
   // Show loading state
