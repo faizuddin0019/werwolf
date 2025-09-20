@@ -183,6 +183,7 @@ export default function HostControls({ onEndGame }: HostControlsProps) {
           .filter(({ action }) => {
             // Hide assign_roles button when not in lobby phase
             if (action === 'assign_roles' && gamePhase !== 'lobby') {
+              console.log('🔧 Hiding assign_roles button, current phase:', gamePhase)
               return false
             }
             return true
@@ -225,6 +226,7 @@ export default function HostControls({ onEndGame }: HostControlsProps) {
         <div className="text-sm text-gray-600">
           <p className="font-medium">Current Phase:</p>
           <p className="text-gray-800">{getPhaseDisplayName(gamePhase)}</p>
+          <p className="text-xs text-gray-500">Debug: {gamePhase}</p>
         </div>
       </div>
     </div>
