@@ -12,7 +12,7 @@ import {
   pendingLeaveRequestsAtom,
   hasPendingLeaveRequestAtom
 } from '@/lib/game-store'
-import { Crown, Users, Play, Moon, Sun } from 'lucide-react'
+import { Crown, Users, Play, Moon, Sun, RotateCcw } from 'lucide-react'
 
 interface GameLobbyProps {
   onAssignRoles: () => void
