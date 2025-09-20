@@ -99,7 +99,7 @@ export default function GameScreen({ onEndGame, onRemovePlayer }: GameScreenProp
                 Werwolf Game
               </h1>
               <p className="text-slate-400">
-                Game Code: {game?.gameCode}
+                Game Code: {game?.code}
               </p>
             </div>
             <div className="flex items-center space-x-6">
