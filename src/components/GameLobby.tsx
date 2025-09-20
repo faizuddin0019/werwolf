@@ -235,9 +235,9 @@ export default function GameLobby({
 
       {/* Main Content */}
       <div className="relative z-10 max-w-6xl mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Game Info & Controls - Show first on mobile */}
-          <div className="lg:col-span-1 lg:order-2">
+          <div className="lg:order-2">
             {/* Game Status */}
             <div className="bg-slate-800/80 backdrop-blur-sm rounded-lg p-6 border border-slate-600/30 shadow-lg">
               <h3 className="text-lg font-semibold text-white mb-4">
@@ -318,10 +318,134 @@ export default function GameLobby({
                 </button>
               </div>
             )}
+
+            {/* Host Player Management */}
+            {isHost && (
+              <div className="bg-slate-800/80 backdrop-blur-sm rounded-lg p-6 border border-slate-600/30 shadow-lg mt-6">
+                <h3 className="text-lg font-semibold text-white mb-4">
+                  Player Management
+                </h3>
+                
+                {players.filter(p => !p.is_host).length > 0 ? (
+                  <div className="space-y-2">
+                    {players.filter(p => !p.is_host).map((player) => (
+                      <div key={player.id} className="bg-gray-800/50 rounded-lg p-3">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-white">{player.name}</span>
+                          <button
+                            onClick={() => onRemovePlayer(player.id)}
+                            className="px-3 py-1 bg-red-600 text-white rounded text-sm hover:bg-red-700 transition-colors"
+                          >
+                            Remove
+                          </button>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <span className="text-gray-400 text-xs">Role:</span>
+                          <select
+                            value={player.role || 'villager'}
+                            onChange={(e) => onChangeRole(player.id, e.target.value)}
+                            className="px-2 py-1 bg-gray-700 text-white rounded text-xs border border-gray-600"
+                          >
+                            <option value="villager">Villager</option>
+                            <option value="werewolf">Werewolf</option>
+                            <option value="doctor">Doctor</option>
+                            <option value="police">Police</option>
+                          </select>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-4">
+                    <p className="text-gray-400 text-sm">No other players to manage</p>
+                    <p className="text-gray-500 text-xs mt-1">Add more players to see remove options</p>
+                  </div>
+                )}
+                
+                <p className="text-xs text-gray-400 mt-3 text-center">
+                  Host can remove any player from the game
+                </p>
+              </div>
+            )}
+
+            {/* Host Leave Request Management */}
+            {isHost && pendingLeaveRequests.length > 0 && (
+              <div className="bg-slate-800/80 backdrop-blur-sm rounded-lg p-6 border border-slate-600/30 shadow-lg mt-6">
+                <h3 className="text-lg font-semibold text-white mb-4">
+                  Leave Requests ({pendingLeaveRequests.length})
+                </h3>
+                
+                <div className="space-y-3">
+                  {pendingLeaveRequests.map((request) => {
+                    const requestingPlayer = players.find(p => p.id === request.player_id)
+                    if (!requestingPlayer) return null
+                    
+                    return (
+                      <div key={request.id} className="bg-gray-800/50 rounded-lg p-4 border border-slate-600/30">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="text-white font-medium">
+                              {requestingPlayer.name}
+                            </p>
+                            <p className="text-xs text-gray-400">
+                              Wants to leave the game
+                            </p>
+                          </div>
+                          <div className="flex space-x-2">
+                            <button
+                              onClick={() => onApproveLeave(request.player_id)}
+                              className="px-3 py-1 bg-green-600 text-white rounded text-sm hover:bg-green-700 transition-colors"
+                            >
+                              Approve
+                            </button>
+                            <button
+                              onClick={() => onDenyLeave(request.player_id)}
+                              className="px-3 py-1 bg-red-600 text-white rounded text-sm hover:bg-red-700 transition-colors"
+                            >
+                              Deny
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Game Rules */}
+            <div className="bg-slate-800/80 backdrop-blur-sm rounded-lg p-6 border border-slate-600/30 shadow-lg mt-6">
+              <h3 className="text-lg font-semibold text-white mb-4">
+                Quick Rules
+              </h3>
+              
+              <div className="text-sm text-gray-300 space-y-2">
+                <p><strong className="text-red-400">Werwolves:</strong> Eliminate villagers at night</p>
+                <p><strong className="text-green-400">Doctor:</strong> Save one player each night</p>
+                <p><strong className="text-blue-400">Police:</strong> Inspect one player each night</p>
+                <p><strong className="text-purple-400">Villagers:</strong> Vote to eliminate suspects</p>
+                <p><strong className="text-white">Win:</strong> Eliminate all werwolves or outnumber villagers</p>
+              </div>
+            </div>
+
+            {/* How to Play */}
+            <div className="bg-slate-800/80 backdrop-blur-sm rounded-lg p-6 border border-slate-600/30 shadow-lg mt-6">
+              <h3 className="text-lg font-semibold text-white mb-4">
+                How to Play
+              </h3>
+              
+              <div className="text-sm text-gray-300 space-y-2">
+                <p>• <strong className="text-white">No typing</strong> during play - just click!</p>
+                <p>• <strong className="text-white">Host controls</strong> all game phases</p>
+                <p>• <strong className="text-white">Talk in your video call</strong> - this is just the game board</p>
+                <p>• <strong className="text-white">Follow host instructions</strong> for each phase</p>
+                <p>• <strong className="text-white">Mobile-friendly</strong> - works on phones too</p>
+              </div>
+            </div>
           </div>
 
           {/* Players Grid - Show second on mobile */}
-          <div className="lg:col-span-2 lg:order-1">
+          <div className="lg:order-1">
             <div className="bg-slate-800/80 backdrop-blur-sm rounded-lg p-6 border border-slate-600/30 shadow-lg">
               <h2 className="text-xl font-semibold text-white mb-4">
                 Players ({playerCount})
@@ -409,132 +533,6 @@ export default function GameLobby({
             </div>
           </div>
 
-          {/* Additional sections for mobile */}
-          <div className="lg:col-span-1 lg:order-3 space-y-6">
-            {/* Host Player Management */}
-            {isHost && (
-              <div className="bg-slate-800/80 backdrop-blur-sm rounded-lg p-6 border border-slate-600/30 shadow-lg">
-                <h3 className="text-lg font-semibold text-white mb-4">
-                  Player Management
-                </h3>
-                
-                {players.filter(p => !p.is_host).length > 0 ? (
-                  <div className="space-y-2">
-                    {players.filter(p => !p.is_host).map((player) => (
-                      <div key={player.id} className="bg-gray-800/50 rounded-lg p-3">
-                        <div className="flex items-center justify-between mb-2">
-                          <span className="text-white">{player.name}</span>
-                          <button
-                            onClick={() => onRemovePlayer(player.id)}
-                            className="px-3 py-1 bg-red-600 text-white rounded text-sm hover:bg-red-700 transition-colors"
-                          >
-                            Remove
-                          </button>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <span className="text-gray-400 text-xs">Role:</span>
-                          <select
-                            value={player.role || 'villager'}
-                            onChange={(e) => onChangeRole(player.id, e.target.value)}
-                            className="px-2 py-1 bg-gray-700 text-white rounded text-xs border border-gray-600"
-                          >
-                            <option value="villager">Villager</option>
-                            <option value="werewolf">Werewolf</option>
-                            <option value="doctor">Doctor</option>
-                            <option value="police">Police</option>
-                          </select>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-4">
-                    <p className="text-gray-400 text-sm">No other players to manage</p>
-                    <p className="text-gray-500 text-xs mt-1">Add more players to see remove options</p>
-                  </div>
-                )}
-                
-                <p className="text-xs text-gray-400 mt-3 text-center">
-                  Host can remove any player from the game
-                </p>
-              </div>
-            )}
-
-            {/* Host Leave Request Management */}
-            {isHost && pendingLeaveRequests.length > 0 && (
-              <div className="bg-slate-800/80 backdrop-blur-sm rounded-lg p-6 border border-slate-600/30 shadow-lg">
-                <h3 className="text-lg font-semibold text-white mb-4">
-                  Leave Requests ({pendingLeaveRequests.length})
-                </h3>
-                
-                <div className="space-y-3">
-                  {pendingLeaveRequests.map((request) => {
-                    const requestingPlayer = players.find(p => p.id === request.player_id)
-                    if (!requestingPlayer) return null
-                    
-                    return (
-                      <div key={request.id} className="bg-gray-800/50 rounded-lg p-4 border border-slate-600/30">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="text-white font-medium">
-                              {requestingPlayer.name}
-                            </p>
-                            <p className="text-xs text-gray-400">
-                              Wants to leave the game
-                            </p>
-                          </div>
-                          <div className="flex space-x-2">
-                            <button
-                              onClick={() => onApproveLeave(request.player_id)}
-                              className="px-3 py-1 bg-green-600 text-white rounded text-sm hover:bg-green-700 transition-colors"
-                            >
-                              Approve
-                            </button>
-                            <button
-                              onClick={() => onDenyLeave(request.player_id)}
-                              className="px-3 py-1 bg-red-600 text-white rounded text-sm hover:bg-red-700 transition-colors"
-                            >
-                              Deny
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    )
-                  })}
-                </div>
-              </div>
-            )}
-
-            {/* Game Rules */}
-            <div className="bg-slate-800/80 backdrop-blur-sm rounded-lg p-6 border border-slate-600/30 shadow-lg">
-              <h3 className="text-lg font-semibold text-white mb-4">
-                Quick Rules
-              </h3>
-              
-              <div className="text-sm text-gray-300 space-y-2">
-                <p><strong className="text-red-400">Werwolves:</strong> Eliminate villagers at night</p>
-                <p><strong className="text-green-400">Doctor:</strong> Save one player each night</p>
-                <p><strong className="text-blue-400">Police:</strong> Inspect one player each night</p>
-                <p><strong className="text-purple-400">Villagers:</strong> Vote to eliminate suspects</p>
-                <p><strong className="text-white">Win:</strong> Eliminate all werwolves or outnumber villagers</p>
-              </div>
-            </div>
-
-            {/* How to Play */}
-            <div className="bg-slate-800/80 backdrop-blur-sm rounded-lg p-6 border border-slate-600/30 shadow-lg">
-              <h3 className="text-lg font-semibold text-white mb-4">
-                How to Play
-              </h3>
-              
-              <div className="text-sm text-gray-300 space-y-2">
-                <p>• <strong className="text-white">No typing</strong> during play - just click!</p>
-                <p>• <strong className="text-white">Host controls</strong> all game phases</p>
-                <p>• <strong className="text-white">Talk in your video call</strong> - this is just the game board</p>
-                <p>• <strong className="text-white">Follow host instructions</strong> for each phase</p>
-                <p>• <strong className="text-white">Mobile-friendly</strong> - works on phones too</p>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
     </div>
