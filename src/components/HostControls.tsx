@@ -115,11 +115,11 @@ export default function HostControls({ onEndGame }: HostControlsProps) {
   const getButtonText = (action: string) => {
     switch (action) {
       case 'assign_roles':
-        return 'Assign Roles'
+        return 'Assign Roles & Start Game'
       case 'next_phase':
         // Show specific phase-based labels for night actions
         if (gamePhase === 'night_wolf') {
-          return 'Wake Up Police'
+          return 'Wake Up Werewolf'
         } else if (gamePhase === 'night_police') {
           return 'Wake Up Doctor'
         } else if (gamePhase === 'night_doctor') {
@@ -179,7 +179,15 @@ export default function HostControls({ onEndGame }: HostControlsProps) {
       </h3>
       
       <div className="space-y-3">
-        {actions.map(({ action, label }) => {
+        {actions
+          .filter(({ action }) => {
+            // Hide assign_roles button when not in lobby phase
+            if (action === 'assign_roles' && gamePhase !== 'lobby') {
+              return false
+            }
+            return true
+          })
+          .map(({ action, label }) => {
           const canPerform = canPerformAction(action)
           const isCurrentAction = gamePhase === action.replace('_', '_')
           
