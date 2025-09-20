@@ -140,9 +140,9 @@ main() {
     
     # Run all test suites
     run_test "End Game Logic Tests" "test-end-game-logic.js" "$TEST_URL"
+    run_test "Game Flow Improvement Tests" "test-game-flow-improvements.js" "$TEST_URL"
     
     # Add more test suites as they are created
-    # run_test "Game Flow Tests" "test-game-flow.js" "$TEST_URL"
     # run_test "Real-time Sync Tests" "test-realtime-sync.js" "$TEST_URL"
     # run_test "Mobile UI Tests" "test-mobile-ui.js" "$TEST_URL"
     

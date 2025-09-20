@@ -22,6 +22,23 @@ Tests the critical game logic fixes implemented today:
 - Host can close winner declaration
 - Real-time updates work correctly
 
+### 2. Game Flow Improvement Tests (`test-game-flow-improvements.js`)
+
+Tests the new host-controlled phases and manual voting system:
+
+#### Test Cases:
+- **Reordered Night Phases**: Verifies the new Wolf → Police → Doctor phase sequence
+- **Manual Voting Controls**: Tests Begin Initial Voting and Final Vote buttons
+- **Host Button Labels**: Ensures correct button labels and visibility for each phase
+- **Complete Game Flow**: Tests full game cycle with new host controls
+
+#### Key Assertions:
+- Night phases follow correct order: Wolf → Police → Doctor
+- Manual voting controls work correctly
+- No automatic phase transitions
+- Host controls all game phases
+- Button labels match current phase
+
 ### 2. Test Configuration (`test-config.js`)
 
 Centralized configuration for all test suites:
@@ -44,6 +61,9 @@ Comprehensive test runner that:
 ```bash
 # Run end game logic tests
 npm run test:end-game
+
+# Run game flow improvement tests
+npm run test:game-flow
 
 # Run all new tests
 npm run test:all-new

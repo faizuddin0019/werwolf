@@ -78,6 +78,58 @@ const config = {
         'test_vote_sync',
         'verify_immediate_refresh'
       ]
+    },
+    reorderedNightPhases: {
+      description: 'Test reordered night phases: Wolf → Police → Doctor',
+      requiredPlayers: 6,
+      testSteps: [
+        'create_game',
+        'join_players',
+        'assign_roles',
+        'test_wolf_phase',
+        'test_police_phase',
+        'test_doctor_phase',
+        'verify_phase_order'
+      ]
+    },
+    manualVotingControls: {
+      description: 'Test manual voting controls and host-controlled phases',
+      requiredPlayers: 6,
+      testSteps: [
+        'create_game',
+        'join_players',
+        'assign_roles',
+        'complete_night_phases',
+        'test_manual_begin_voting',
+        'test_manual_final_vote',
+        'verify_no_automatic_transitions'
+      ]
+    },
+    hostButtonLabels: {
+      description: 'Test host button labels and phase-specific visibility',
+      requiredPlayers: 6,
+      testSteps: [
+        'create_game',
+        'join_players',
+        'assign_roles',
+        'test_lobby_buttons',
+        'test_night_phase_buttons',
+        'test_voting_buttons',
+        'verify_button_visibility'
+      ]
+    },
+    completeGameFlow: {
+      description: 'Test complete game flow with new host controls',
+      requiredPlayers: 6,
+      testSteps: [
+        'create_game',
+        'join_players',
+        'assign_roles',
+        'complete_full_night_cycle',
+        'test_manual_voting_cycle',
+        'test_player_elimination',
+        'verify_game_continuation'
+      ]
     }
   },
   
