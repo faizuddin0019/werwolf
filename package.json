@@ -20,7 +20,11 @@
     "test:performance:prod": "TEST_URL=https://wearwolf-theta.vercel.app node tests/performance/battery-optimization.test.js",
     "test:all:prod": "TEST_URL=https://wearwolf-theta.vercel.app node tests/run-all-tests.js",
     "test:ci": "./tests/run-tests.sh http://localhost:3000 all",
-    "test:verify": "./tests/run-tests.sh http://localhost:3000 core"
+    "test:verify": "./tests/run-tests.sh http://localhost:3000 core",
+    "test:end-game": "node test-end-game-logic.js",
+    "test:end-game:prod": "TEST_BASE_URL=https://wearwolf-1f1xv9dk7-faizuddin0019s-projects.vercel.app node test-end-game-logic.js",
+    "test:all-new": "./run-all-tests.sh",
+    "test:build": "npm run build && npm run test:end-game:prod"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.57.4",
