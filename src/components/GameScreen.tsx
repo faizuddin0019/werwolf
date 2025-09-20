@@ -35,10 +35,9 @@ import WinConditionDisplay from './WinConditionDisplay'
 interface GameScreenProps {
   onEndGame: () => void
   onRemovePlayer: (playerId: string) => void
-  onChangeRole: (playerId: string, newRole: string) => void
 }
 
-export default function GameScreen({ onEndGame, onRemovePlayer, onChangeRole }: GameScreenProps) {
+export default function GameScreen({ onEndGame, onRemovePlayer }: GameScreenProps) {
   const [game] = useAtom(gameAtom)
   const [players] = useAtom(playersAtom)
   const [currentPlayer] = useAtom(currentPlayerAtom)
@@ -52,33 +51,22 @@ export default function GameScreen({ onEndGame, onRemovePlayer, onChangeRole }: 
 
   const alivePlayers = players.filter(p => p.alive)
   const deadPlayers = players.filter(p => !p.alive)
-  const isNight = isNightPhase
 
   const getPlayerIcon = (player: Player) => {
     if (!player.alive) return <XCircle className="w-4 h-4 text-red-500" />
-    // Only show role icons to the host, or to the player themselves
     if (isHost || player.id === currentPlayer?.id) {
-    if (player.role === 'werewolf') return <Moon className="w-4 h-4 text-red-600" />
-    if (player.role === 'doctor') return <Stethoscope className="w-4 h-4 text-green-600" />
-    if (player.role === 'police') return <Shield className="w-4 h-4 text-blue-600" />
+      if (player.role === 'werewolf') return <Moon className="w-4 h-4 text-red-600" />
+      if (player.role === 'doctor') return <Stethoscope className="w-4 h-4 text-green-600" />
+      if (player.role === 'police') return <Shield className="w-4 h-4 text-blue-600" />
     }
     return <Users className="w-4 h-4 text-gray-600" />
   }
 
-  const getPlayerStatus = (player: Player) => {
-    if (!player.alive) return 'Dead'
-    if (player.role && currentPlayer?.id === player.id) {
-      return getRoleDisplayName(player.role)
-    }
-    return 'Alive'
-  }
-
-  // Dynamic background based on game phase
   const getBackgroundClass = () => {
     if (isNightPhase) {
-      return "min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-black relative overflow-hidden"
+      return "min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-800 relative overflow-hidden"
     } else if (isDayPhase) {
-      return "min-h-screen bg-gradient-to-br from-blue-900 via-sky-900 to-amber-900 relative overflow-hidden"
+      return "min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-800 relative overflow-hidden"
     } else {
       return "min-h-screen bg-gradient-to-br from-slate-900 via-indigo-900 to-slate-800 relative overflow-hidden"
     }
@@ -86,141 +74,19 @@ export default function GameScreen({ onEndGame, onRemovePlayer, onChangeRole }: 
 
   return (
     <div className={getBackgroundClass()}>
-      {/* Royal Decorative Background */}
+      {/* Background Elements */}
       <div className="absolute inset-0 overflow-hidden">
-        {/* Royal Pattern Overlay */}
-        <div className="absolute inset-0 opacity-8">
-          <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-blue-600/15 via-transparent to-indigo-600/15"></div>
-          <div className="absolute top-0 right-0 w-full h-full bg-gradient-to-bl from-amber-600/15 via-transparent to-slate-600/15"></div>
+        <div className="absolute top-20 left-20 w-80 h-80 bg-gradient-to-br from-amber-200/90 to-amber-400/90 rounded-full flex items-center justify-center shadow-2xl shadow-amber-200/80">
+          <div style={{fontSize: '8rem'}}>👨‍🌾</div>
         </div>
-        
-        {/* Decorative Corner Elements */}
-        <div className="absolute top-0 left-0 w-32 h-32 bg-gradient-to-br from-blue-500/25 to-transparent rounded-full blur-3xl"></div>
-        <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-amber-500/25 to-transparent rounded-full blur-3xl"></div>
-        <div className="absolute bottom-0 left-0 w-32 h-32 bg-gradient-to-tr from-indigo-500/25 to-transparent rounded-full blur-3xl"></div>
-        <div className="absolute bottom-0 right-0 w-32 h-32 bg-gradient-to-tl from-slate-500/25 to-transparent rounded-full blur-3xl"></div>
-        
-        {/* Floating Royal Elements */}
-        <div className="absolute top-20 left-1/4 w-4 h-4 bg-amber-400/50 rounded-full animate-pulse"></div>
-        <div className="absolute top-32 right-1/3 w-3 h-3 bg-blue-400/50 rounded-full animate-pulse" style={{animationDelay: '1s'}}></div>
-        <div className="absolute bottom-32 left-1/3 w-5 h-5 bg-indigo-400/50 rounded-full animate-pulse" style={{animationDelay: '2s'}}></div>
-        <div className="absolute bottom-20 right-1/4 w-4 h-4 bg-amber-400/50 rounded-full animate-pulse" style={{animationDelay: '3s'}}></div>
-        {/* VILLAGERS - Icon-based */}
-        {/* Villagers - Top Left Area - Updated Position */}
-        <div className="absolute z-0" style={{top: '20px', left: '80px'}}>
-          <div className="relative">
-            <div className="w-80 h-80 bg-gradient-to-br from-amber-200/90 to-amber-400/90 rounded-full flex items-center justify-center shadow-2xl shadow-amber-200/80" style={{border: '8px solid rgba(245, 158, 11, 0.9)'}}>
-              <div className="relative">
-                {/* Villagers Icon - Male Villager */}
-                <div className="w-64 h-64 relative flex items-center justify-center">
-                  <div style={{fontSize: '8rem'}}>👨‍🌾</div>
-                </div>
-              </div>
-            </div>
-            <div className="absolute -inset-10 bg-gradient-to-r from-amber-200/70 to-amber-400/70 rounded-full blur-3xl"></div>
-            <div className="absolute top-84 left-1/2 transform -translate-x-1/2">
-              <span className="text-xl font-bold text-amber-100 bg-slate-800/95 px-6 py-3 rounded-full backdrop-blur-sm border-2 border-amber-200/60">
-                Villagers
-              </span>
-            </div>
-          </div>
+        <div className="absolute top-20 right-20 w-80 h-80 bg-gradient-to-br from-red-200/90 to-red-400/90 rounded-full flex items-center justify-center shadow-2xl shadow-red-200/80">
+          <div style={{fontSize: '8rem'}}>🐺</div>
         </div>
-
-        {/* WERWOLF - Icon-based */}
-        {/* Werwolf - Top Right Area - Updated Position */}
-        <div className="absolute z-0" style={{top: '20px', right: '80px'}}>
-          <div className="relative">
-            <div className="w-80 h-80 bg-gradient-to-br from-red-200/90 to-red-400/90 rounded-full flex items-center justify-center shadow-2xl shadow-red-200/80" style={{border: '8px solid rgba(239, 68, 68, 0.9)'}}>
-              <div className="relative">
-                {/* Werwolf Icon - Animated Wolf */}
-                <div className="w-64 h-64 relative flex items-center justify-center">
-                  <div style={{fontSize: '8rem'}}>🐺</div>
-                </div>
-              </div>
-            </div>
-            <div className="absolute -inset-12 bg-gradient-to-r from-red-200/70 to-red-400/70 rounded-full blur-3xl"></div>
-            <div className="absolute top-92 left-1/2 transform -translate-x-1/2">
-              <span className="text-xl font-bold text-red-100 bg-slate-800/95 px-6 py-3 rounded-full backdrop-blur-sm border-2 border-red-200/60">
-                Werwolves
-              </span>
-            </div>
-          </div>
+        <div className="absolute bottom-20 left-20 w-80 h-80 bg-gradient-to-br from-emerald-200/90 to-emerald-400/90 rounded-full flex items-center justify-center shadow-2xl shadow-emerald-200/80">
+          <div style={{fontSize: '8rem'}}>👨‍⚕️</div>
         </div>
-
-        {/* DOCTOR - Icon-based */}
-        {/* Doctor - Bottom Left Area - Hidden on mobile to avoid form overlap - Updated Position */}
-        <div className="absolute hidden md:block z-0" style={{bottom: '300px', left: '80px'}}>
-          <div className="relative">
-            <div className="w-80 h-80 bg-gradient-to-br from-emerald-200/90 to-emerald-400/90 rounded-full flex items-center justify-center shadow-2xl shadow-emerald-200/80" style={{border: '8px solid rgba(16, 185, 129, 0.9)'}}>
-              <div className="relative">
-                {/* Doctor Icon - Male Doctor */}
-                <div className="w-64 h-64 relative flex items-center justify-center">
-                  <div style={{fontSize: '8rem'}}>👨‍⚕️</div>
-                </div>
-              </div>
-            </div>
-            <div className="absolute -inset-10 bg-gradient-to-r from-emerald-200/70 to-emerald-400/70 rounded-full blur-3xl"></div>
-            <div className="absolute -top-12 left-1/2 transform -translate-x-1/2">
-              <span className="text-xl font-bold text-emerald-100 bg-slate-800/95 px-6 py-3 rounded-full backdrop-blur-sm border-2 border-emerald-200/60">
-                Doctor
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* POLICE - Icon-based */}
-        {/* Police - Bottom Right Area - Hidden on mobile to avoid form overlap - Updated Position */}
-        <div className="absolute hidden md:block z-0" style={{bottom: '300px', right: '80px'}}>
-          <div className="relative">
-            <div className="w-80 h-80 bg-gradient-to-br from-sky-200/90 to-sky-400/90 rounded-full flex items-center justify-center shadow-2xl shadow-sky-200/80" style={{border: '8px solid rgba(14, 165, 233, 0.9)'}}>
-              <div className="relative">
-                {/* Police Icon - Male Police Officer */}
-                <div className="w-64 h-64 relative flex items-center justify-center">
-                  <div style={{fontSize: '8rem'}}>👮‍♂️</div>
-                </div>
-              </div>
-            </div>
-            <div className="absolute -inset-10 bg-gradient-to-r from-sky-200/70 to-sky-400/70 rounded-full blur-3xl"></div>
-            <div className="absolute -top-12 left-1/2 transform -translate-x-1/2">
-              <span className="text-xl font-bold text-sky-100 bg-slate-800/95 px-6 py-3 rounded-full backdrop-blur-sm border-2 border-sky-200/60">
-                Police
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* Mobile Character Circles - Smaller and positioned to avoid form overlap */}
-        <div className="absolute md:hidden" style={{top: '10px', left: '10px', zIndex: 1}}>
-          <div className="relative">
-            <div className="w-20 h-20 bg-gradient-to-br from-emerald-200/90 to-emerald-400/90 rounded-full flex items-center justify-center shadow-lg shadow-emerald-200/80" style={{border: '4px solid rgba(16, 185, 129, 0.9)'}}>
-              <div className="relative">
-                <div className="w-16 h-16 relative flex items-center justify-center">
-                  <div style={{fontSize: '2rem'}}>👨‍⚕️</div>
-                </div>
-              </div>
-            </div>
-            <div className="absolute -inset-2 bg-gradient-to-r from-emerald-200/70 to-emerald-400/70 rounded-full blur-lg"></div>
-          </div>
-        </div>
-
-        <div className="absolute md:hidden" style={{top: '10px', right: '10px', zIndex: 1}}>
-          <div className="relative">
-            <div className="w-20 h-20 bg-gradient-to-br from-sky-200/90 to-sky-400/90 rounded-full flex items-center justify-center shadow-lg shadow-sky-200/80" style={{border: '4px solid rgba(14, 165, 233, 0.9)'}}>
-              <div className="relative">
-                <div className="w-16 h-16 relative flex items-center justify-center">
-                  <div style={{fontSize: '2rem'}}>👮‍♂️</div>
-                </div>
-              </div>
-            </div>
-            <div className="absolute -inset-2 bg-gradient-to-r from-sky-200/70 to-sky-400/70 rounded-full blur-lg"></div>
-          </div>
-        </div>
-
-        {/* Subtle background element */}
-        <div className="absolute" style={{top: '50%', left: '50%', transform: 'translate(-50%, -50%)', zIndex: -10}}>
-          <div className="w-16 h-16 bg-gradient-to-br from-gray-500/20 to-gray-700/20 rounded-full flex items-center justify-center shadow-lg shadow-gray-500/15 floating" style={{animationDelay: '3s'}}>
-            <div className="text-xl">🌙</div>
-          </div>
+        <div className="absolute bottom-20 right-20 w-80 h-80 bg-gradient-to-br from-sky-200/90 to-sky-400/90 rounded-full flex items-center justify-center shadow-2xl shadow-sky-200/80">
+          <div style={{fontSize: '8rem'}}>👮‍♂️</div>
         </div>
       </div>
 
@@ -230,28 +96,26 @@ export default function GameScreen({ onEndGame, onRemovePlayer, onChangeRole }: 
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-bold text-white">
-                🐺 Werwolf
+                Werwolf Game
               </h1>
-              <p className="text-sm text-slate-400">
-                Game Code: {game?.code} • Day {game?.day_count || 1}
+              <p className="text-slate-400">
+                Game Code: {game?.gameCode}
               </p>
             </div>
-            
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-6">
               <div className="flex items-center space-x-2">
-                {isNight ? (
+                {isNightPhase ? (
                   <Moon className="w-5 h-5 text-blue-300" />
                 ) : (
                   <Sun className="w-5 h-5 text-yellow-400" />
                 )}
-                <span className="text-sm font-medium text-gray-300">
+                <span className="text-white font-medium">
                   {getPhaseDisplayName(gamePhase)}
                 </span>
               </div>
-              
               <div className="flex items-center space-x-2">
                 <Users className="w-5 h-5 text-blue-400" />
-                <span className="text-sm font-medium text-gray-300">
+                <span className="text-white font-medium">
                   {alivePlayers.length} alive
                 </span>
               </div>
@@ -263,7 +127,7 @@ export default function GameScreen({ onEndGame, onRemovePlayer, onChangeRole }: 
       {/* Main Content */}
       <div className="relative z-20 max-w-7xl mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          {/* Sidebar - Show first on mobile */}
+          {/* Sidebar */}
           <div className="lg:col-span-1 lg:order-2">
             <div className="space-y-6">
               {/* Host Controls */}
@@ -271,122 +135,26 @@ export default function GameScreen({ onEndGame, onRemovePlayer, onChangeRole }: 
                 <HostControls onEndGame={onEndGame} />
               )}
 
-              {/* Host Round State Information */}
-              {isHost && (
-                <div className="bg-slate-800/80 backdrop-blur-sm rounded-lg p-6 border border-slate-600/30 shadow-lg">
-                  <h3 className="text-lg font-semibold text-white mb-4">
-                    Night Actions - Real-time Updates
-                  </h3>
-                  
-                  <div className="space-y-3">
-                    {roundState && (
-                      <>
-                        {roundState.wolf_target_player_id && (
-                          <div className="flex items-center justify-between p-3 bg-red-900/20 rounded-lg border border-red-500/30">
-                            <div className="flex items-center space-x-2">
-                              <Moon className="w-4 h-4 text-red-400" />
-                              <span className="text-sm text-red-300">Werewolf Target:</span>
-                            </div>
-                            <span className="text-sm font-medium text-red-200">
-                              {players.find(p => p.id === roundState.wolf_target_player_id)?.name || 'Unknown'}
-                            </span>
-                          </div>
-                        )}
-                        
-                        {roundState.doctor_save_player_id && (
-                          <div className="flex items-center justify-between p-3 bg-green-900/20 rounded-lg border border-green-500/30">
-                            <div className="flex items-center space-x-2">
-                              <Stethoscope className="w-4 h-4 text-green-400" />
-                              <span className="text-sm text-green-300">Doctor Save:</span>
-                            </div>
-                            <span className="text-sm font-medium text-green-200">
-                              {players.find(p => p.id === roundState.doctor_save_player_id)?.name || 'Unknown'}
-                            </span>
-                          </div>
-                        )}
-                        
-                        {roundState.police_inspect_player_id && (
-                          <div className="flex items-center justify-between p-3 bg-blue-900/20 rounded-lg border border-blue-500/30">
-                            <div className="flex items-center space-x-2">
-                              <Eye className="w-4 h-4 text-blue-400" />
-                              <span className="text-sm text-blue-300">Police Inspect:</span>
-                            </div>
-                            <span className="text-sm font-medium text-blue-200">
-                              {players.find(p => p.id === roundState.police_inspect_player_id)?.name || 'Unknown'}
-                            </span>
-                          </div>
-                        )}
-                        
-                        {roundState.police_inspect_result !== null && (
-                          <div className="flex items-center justify-between p-3 bg-purple-900/20 rounded-lg border border-purple-500/30">
-                            <div className="flex items-center space-x-2">
-                              <CheckCircle className="w-4 h-4 text-purple-400" />
-                              <span className="text-sm text-purple-300">Inspection Result:</span>
-                            </div>
-                            <span className={`text-sm font-medium ${
-                              roundState.police_inspect_result ? 'text-red-200' : 'text-green-200'
-                            }`}>
-                              {roundState.police_inspect_result ? 'WEREWOLF' : 'NOT WEREWOLF'}
-                            </span>
-                          </div>
-                        )}
-                      </>
-                    )}
-                    
-                    {(!roundState || (!roundState.wolf_target_player_id && !roundState.doctor_save_player_id && !roundState.police_inspect_player_id)) && (
-                      <div className="text-center py-4">
-                        <div className="w-8 h-8 mx-auto mb-2 text-gray-500">
-                          <svg className="animate-spin" fill="none" viewBox="0 0 24 24">
-                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                          </svg>
-                        </div>
-                        <p className="text-sm text-gray-400">Waiting for night actions...</p>
-                        <p className="text-xs text-gray-500 mt-1">Actions will appear here in real-time</p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-
               {/* Game Status */}
               <div className="bg-slate-800/80 backdrop-blur-sm rounded-lg p-6 border border-slate-600/30 shadow-lg">
                 <h3 className="text-lg font-semibold text-white mb-4">
                   Game Status
                 </h3>
-                
                 <div className="space-y-3">
                   <div className="flex justify-between">
-                    <span className="text-sm text-slate-400">
-                      Phase:
-                    </span>
+                    <span className="text-sm text-slate-400">Phase:</span>
                     <span className="text-sm font-medium text-white">
                       {getPhaseDisplayName(gamePhase)}
                     </span>
                   </div>
-                  
                   <div className="flex justify-between">
-                    <span className="text-sm text-slate-400">
-                      Day:
-                    </span>
-                    <span className="text-sm font-medium text-white">
-                      {roundState?.day_count || 1}
-                    </span>
-                  </div>
-                  
-                  <div className="flex justify-between">
-                    <span className="text-sm text-slate-400">
-                      Alive:
-                    </span>
+                    <span className="text-sm text-slate-400">Alive:</span>
                     <span className="text-sm font-medium text-green-400">
                       {alivePlayers.length}
                     </span>
                   </div>
-                  
                   <div className="flex justify-between">
-                    <span className="text-sm text-slate-400">
-                      Dead:
-                    </span>
+                    <span className="text-sm text-slate-400">Dead:</span>
                     <span className="text-sm font-medium text-red-400">
                       {deadPlayers.length}
                     </span>
@@ -400,50 +168,50 @@ export default function GameScreen({ onEndGame, onRemovePlayer, onChangeRole }: 
                   <h3 className="text-lg font-semibold text-white mb-4">
                     Player Management
                   </h3>
-                  
-                  <div className="space-y-3">
-                    {players.filter(p => !p.is_host).map((player) => (
-                      <div key={player.id} className="flex items-center justify-between p-3 bg-slate-700/50 rounded-lg">
-                        <div>
-                          <p className="text-white font-medium">{player.name}</p>
-                          <p className="text-sm text-gray-400">
-                            {player.role ? getRoleDisplayName(player.role) : 'No role assigned'}
-                          </p>
+                  {players.filter(p => !p.is_host).length > 0 ? (
+                    <div className="space-y-2">
+                      {players.filter(p => !p.is_host).map((player) => (
+                        <div key={player.id} className="bg-slate-800/50 rounded-lg p-3">
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="flex items-center space-x-2">
+                              <span className="text-white">{player.name}</span>
+                              {!player.alive && <span className="text-red-400 text-xs">(Dead)</span>}
+                            </div>
+                            <button
+                              onClick={() => onRemovePlayer(player.id)}
+                              className="px-3 py-1 bg-red-600 text-white rounded text-sm hover:bg-red-700 transition-colors"
+                            >
+                              Remove
+                            </button>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <span className="text-xs text-slate-400">Role:</span>
+                            <span className="text-xs text-white">
+                              {getRoleDisplayName(player.role)}
+                            </span>
+                          </div>
                         </div>
-                        <div className="flex space-x-2">
-                          <select
-                            value={player.role || ''}
-                            onChange={(e) => onChangeRole(player.id, e.target.value)}
-                            className="px-2 py-1 bg-slate-600 text-white rounded text-sm border border-slate-500"
-                          >
-                            <option value="">Select Role</option>
-                            <option value="villager">Villager</option>
-                            <option value="werewolf">Werewolf</option>
-                            <option value="doctor">Doctor</option>
-                            <option value="police">Police</option>
-                          </select>
-                          <button
-                            onClick={() => onRemovePlayer(player.id)}
-                            className="px-3 py-1 bg-red-600 text-white rounded text-sm hover:bg-red-700 transition-colors"
-                          >
-                            Remove
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-4">
+                      <p className="text-slate-400 text-sm">No other players to manage</p>
+                    </div>
+                  )}
+                  <p className="text-xs text-slate-400 mt-3 text-center">
+                    Host can remove any player from the game
+                  </p>
                 </div>
               )}
             </div>
           </div>
 
-          {/* Players Grid - Show second on mobile */}
+          {/* Players Grid */}
           <div className="lg:col-span-3 lg:order-1">
             <div className="bg-slate-800/80 backdrop-blur-sm rounded-lg p-6 border border-slate-600/30 shadow-lg">
               <h2 className="text-xl font-semibold mb-4 text-white">
                 Players
               </h2>
-              
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                 {players.map((player) => {
                   const voteCount = voteCounts[player.id] || 0
@@ -468,204 +236,48 @@ export default function GameScreen({ onEndGame, onRemovePlayer, onChangeRole }: 
                       )}
                       
                       {/* Vote Count Badge */}
-                      {voteCount > 0 && (
+                      {isDayPhase && voteCount > 0 && (
                         <div className="absolute -top-2 -left-2">
-                          <div className="bg-orange-500 text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center">
+                          <div className="bg-orange-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center">
                             {voteCount}
                           </div>
                         </div>
                       )}
-                      
+
                       <div className="text-center">
-                        <div className={`w-12 h-12 rounded-full mx-auto mb-2 flex items-center justify-center ${
-                          !player.alive 
-                            ? 'bg-red-800' 
-                            : player.is_host
-                            ? 'bg-yellow-800'
-                            : 'bg-gray-700'
-                        }`}>
-                          <span className={`text-lg font-semibold ${
-                            !player.alive 
-                              ? 'text-red-200' 
-                              : player.is_host
-                              ? 'text-yellow-200'
-                              : 'text-gray-300'
-                          }`}>
-                            {player.name.charAt(0).toUpperCase()}
-                          </span>
+                        {/* Player Name */}
+                        <div className="flex items-center justify-center space-x-2 mb-2">
+                          <h3 className="text-white font-medium">{player.name}</h3>
+                          {player.id === currentPlayer?.id && (
+                            <span className="text-xs bg-blue-600 text-white px-2 py-1 rounded">
+                              You
+                            </span>
+                          )}
                         </div>
-                        
-                        <p className={`font-medium truncate ${
-                          !player.alive 
-                            ? 'text-red-300' 
-                            : player.is_host
-                            ? 'text-yellow-200'
-                            : 'text-white'
-                        }`}>
-                          {player.name}
-                        </p>
-                        
-                        {/* "You" label for current player */}
-                        {currentPlayer && player.id === currentPlayer.id && (
-                          <p className="text-xs text-blue-400 font-medium mt-1">
-                            You
-                          </p>
+
+                        {/* Role Display */}
+                        {(isHost || player.id === currentPlayer?.id) && (
+                          <div className="flex items-center justify-center space-x-1 text-xs">
+                            {getPlayerIcon(player)}
+                            <span className="text-slate-300">
+                              {getRoleDisplayName(player.role)}
+                            </span>
+                          </div>
                         )}
-                        
-                        {/* Role display - only visible to player themselves and host */}
-                        {player.role && (isHost || (currentPlayer && player.id === currentPlayer.id)) && (
-                          <p className={`text-xs mt-1 font-medium ${
-                            player.role === 'werewolf' 
-                              ? 'text-red-400' 
-                              : player.role === 'doctor'
-                              ? 'text-green-400'
-                              : player.role === 'police'
-                              ? 'text-blue-400'
-                              : 'text-slate-400'
-                          }`}>
-                            {getRoleDisplayName(player.role)}
-                          </p>
-                        )}
-                        
-                        <div className="flex items-center justify-center space-x-1 mt-1">
-                          {getPlayerIcon(player)}
-                          <span className={`text-xs ${
-                            !player.alive 
-                              ? 'text-red-400' 
-                              : player.is_host
-                              ? 'text-yellow-400'
-                              : 'text-slate-400'
-                          }`}>
-                            {getPlayerStatus(player)}
-                          </span>
+
+                        {/* Status */}
+                        <div className="mt-2">
+                          {!player.alive ? (
+                            <span className="text-red-400 text-xs">Dead</span>
+                          ) : (
+                            <span className="text-green-400 text-xs">Alive</span>
+                          )}
                         </div>
                       </div>
                     </div>
                   )
                 })}
               </div>
-            </div>
-          </div>
-
-
-
-            {/* Host Controls */}
-            {isHost && (
-              <HostControls onEndGame={onEndGame} />
-            )}
-
-            {/* Host Round State Information */}
-            {isHost && (
-              <div className="bg-slate-800/80 backdrop-blur-sm rounded-lg p-6 border border-slate-600/30 shadow-lg">
-                <h3 className="text-lg font-semibold text-white mb-4">
-                  Night Actions - Real-time Updates
-                </h3>
-                
-                {roundState ? (
-                  <div className="space-y-3">
-                    
-                    {roundState.wolf_target_player_id && (
-                      <div className="flex justify-between items-center bg-red-900/20 p-3 rounded border border-red-500/30">
-                        <span className="text-sm text-gray-300">🐺 Werewolf Target:</span>
-                        <span className="text-sm font-medium text-red-400">
-                          {players.find(p => p.id === roundState.wolf_target_player_id)?.name || 'Unknown'}
-                        </span>
-                      </div>
-                    )}
-                    
-                    {roundState.police_inspect_player_id && (
-                      <div className="flex justify-between items-center bg-blue-900/20 p-3 rounded border border-blue-500/30">
-                        <span className="text-sm text-gray-300">👮 Police Inspected:</span>
-                        <span className="text-sm font-medium text-blue-400">
-                          {players.find(p => p.id === roundState.police_inspect_player_id)?.name || 'Unknown'}
-                          {roundState.police_inspect_result && (
-                            <span className={`ml-2 px-2 py-1 rounded text-xs ${
-                              roundState.police_inspect_result === 'werewolf' 
-                                ? 'bg-red-600 text-white' 
-                                : 'bg-green-600 text-white'
-                            }`}>
-                              {roundState.police_inspect_result === 'werewolf' ? 'WEREWOLF' : 'NOT WEREWOLF'}
-                            </span>
-                          )}
-                    </span>
-                  </div>
-                    )}
-                    
-                    {roundState.doctor_save_player_id && (
-                      <div className="flex justify-between items-center bg-green-900/20 p-3 rounded border border-green-500/30">
-                        <span className="text-sm text-gray-300">🩺 Doctor Saved:</span>
-                        <span className="text-sm font-medium text-green-400">
-                          {players.find(p => p.id === roundState.doctor_save_player_id)?.name || 'Unknown'}
-                        </span>
-                      </div>
-                    )}
-                    
-                    {!roundState.wolf_target_player_id && !roundState.police_inspect_player_id && !roundState.doctor_save_player_id && (
-                      <div className="text-center py-4 bg-slate-800/50 rounded border border-slate-600/30">
-                        <p className="text-slate-400 text-sm">⏳ Waiting for night actions...</p>
-                        <p className="text-xs text-slate-500 mt-1">Actions will appear here in real-time</p>
-                      </div>
-                  )}
-                </div>
-                ) : (
-                  <div className="text-center py-4 bg-yellow-900/20 rounded border border-yellow-500/30">
-                    <p className="text-yellow-400 text-sm">⚠️ No round state found</p>
-                    <p className="text-xs text-slate-500 mt-1">Round state should be created when game starts</p>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Host Player Management */}
-            {isHost && (
-              <div className="bg-slate-800/80 backdrop-blur-sm rounded-lg p-6 border border-slate-600/30 shadow-lg">
-                <h3 className="text-lg font-semibold text-white mb-4">
-                  Player Management
-                </h3>
-                
-                {players.filter(p => !p.is_host).length > 0 ? (
-                  <div className="space-y-2">
-                    {players.filter(p => !p.is_host).map((player) => (
-                      <div key={player.id} className="bg-slate-800/50 rounded-lg p-3">
-                        <div className="flex items-center justify-between mb-2">
-                          <div className="flex items-center space-x-2">
-                            <span className="text-white">{player.name}</span>
-                            {!player.alive && <span className="text-red-400 text-xs">(Dead)</span>}
-                          </div>
-                          <button
-                            onClick={() => onRemovePlayer(player.id)}
-                            className="px-3 py-1 bg-red-600 text-white rounded text-sm hover:bg-red-700 transition-colors"
-                          >
-                            Remove
-                          </button>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <span className="text-slate-400 text-xs">Role:</span>
-                          <select
-                            value={player.role || 'villager'}
-                            onChange={(e) => onChangeRole(player.id, e.target.value)}
-                            className="px-2 py-1 bg-slate-700 text-white rounded text-xs border border-slate-600"
-                          >
-                            <option value="villager">Villager</option>
-                            <option value="werewolf">Werewolf</option>
-                            <option value="doctor">Doctor</option>
-                            <option value="police">Police</option>
-                          </select>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-4">
-                    <p className="text-slate-400 text-sm">No other players to manage</p>
-                  </div>
-                )}
-                
-                <p className="text-xs text-slate-400 mt-3 text-center">
-                  Host can remove any player from the game
-                </p>
-              </div>
-            )}
             </div>
           </div>
         </div>
