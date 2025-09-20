@@ -100,27 +100,231 @@ Add these files to `public/sounds/`:
 4. **Vote**: Select players to eliminate during day phases
 5. **Win**: Help your team achieve victory!
 
-## Game Rules
+## 🎮 Complete Game Rules
 
-### Roles
+### 👥 Player Requirements
 
-- **Werewolves** (1-3): Eliminate villagers at night
-- **Doctor**: Save one player each night
-- **Police**: Inspect one player each night (learns if they're a werwolf)
-- **Villagers**: Vote to eliminate suspects during the day
+- **Minimum Players**: 6 players (1 host + 5 game players)
+- **Maximum Players**: 20 players (1 host + 19 game players)
+- **Host Role**: Always alive, manages game phases, excluded from win conditions
+- **Game Players**: Participate in gameplay, included in win conditions
 
-### Win Conditions
+### 🎭 Roles & Abilities
 
-- **Villagers Win**: Eliminate all werewolves
-- **Werewolves Win**: Equal or outnumber remaining villagers
+#### **Werewolves** (1-3 players)
+- **Night Action**: Select one player to eliminate each night
+- **Team**: Work together to eliminate villagers
+- **Win Condition**: Outnumber or equal remaining villagers
+- **Special**: Can see other werewolves' identities
 
-### Game Flow
+#### **Doctor** (1 player)
+- **Night Action**: Save one player each night (including themselves)
+- **Ability**: Prevents the selected player from being eliminated
+- **Strategy**: Can save themselves or protect villagers
+- **Win Condition**: Help villagers eliminate all werewolves
 
-1. **Lobby**: Players join, host assigns roles
-2. **Night**: Werewolves select victim, Doctor saves someone, Police inspects
-3. **Reveal**: Show who died (if not saved by Doctor)
-4. **Day**: All players vote to eliminate a suspect
-5. **Repeat**: Continue until win condition is met
+#### **Police** (1 player)
+- **Night Action**: Inspect one player each night
+- **Ability**: Learns if the inspected player is a werewolf (YES/NO)
+- **Strategy**: Gather information to help villagers vote correctly
+- **Win Condition**: Help villagers eliminate all werewolves
+
+#### **Villagers** (Remaining players)
+- **Day Action**: Vote to eliminate suspects during day phases
+- **Ability**: No special night actions
+- **Strategy**: Use information from Police and Doctor to identify werewolves
+- **Win Condition**: Eliminate all werewolves
+
+### 🏆 Win Conditions
+
+#### **Villagers Win When:**
+- All werewolves are eliminated
+- OR when only 2 non-host players remain and no werewolves are alive
+
+#### **Werewolves Win When:**
+- Werewolves equal or outnumber remaining villagers
+- OR when only 2 non-host players remain and at least one werewolf is alive
+
+#### **Important Notes:**
+- **Host is excluded** from all win condition calculations
+- **Game ends automatically** when only 2 non-host players remain
+- **Winner is declared** based on werewolf status, not player count
+
+### 🌙 Game Phases & Flow
+
+#### **1. Lobby Phase**
+- Players join using the 6-digit game code
+- Host waits for 6-20 players to join
+- Host assigns roles to all non-host players
+- Game begins when host clicks "Assign Roles & Start"
+
+#### **2. Night Phase Sequence**
+**Night Wolf Phase:**
+- Werewolves select one player to eliminate
+- Werewolves can see each other's selections
+- Host sees werewolf target in real-time
+
+**Night Doctor Phase:**
+- Doctor selects one player to save
+- Doctor can save themselves or any other player
+- Host sees doctor's save target in real-time
+
+**Night Police Phase:**
+- Police selects one player to inspect
+- Police receives YES/NO answer about werewolf status
+- Host sees police inspection results in real-time
+
+#### **3. Reveal Phase**
+- Host reveals who died (if not saved by Doctor)
+- Shows werewolf target, doctor save, and police results
+- Game advances to day phase
+
+#### **4. Day Phase**
+**Day Vote:**
+- All alive players vote to eliminate one suspect
+- Players can change their votes before final vote
+- Vote counts are shown in real-time
+
+**Day Final Vote:**
+- Host calls for final vote
+- Players cannot change votes after this
+- Player with most votes is eliminated
+
+#### **5. Repeat Cycle**
+- Game returns to night phase
+- Continue until win condition is met
+
+### 🎯 Special Rules & Mechanics
+
+#### **Role Assignment**
+- **Automatic**: Host clicks "Assign Roles" and system randomly assigns
+- **Manual Override**: Host can change any player's role before game starts
+- **Role Distribution**: 
+  - 1-3 Werewolves (based on player count)
+  - 1 Doctor
+  - 1 Police
+  - Remaining players are Villagers
+
+#### **Voting System**
+- **Real-time Updates**: Vote counts update immediately
+- **Vote Changes**: Players can change votes until final vote
+- **Tie Breaking**: If tied, no one is eliminated
+- **Host Exclusion**: Host cannot vote (they manage the game)
+
+#### **Night Actions**
+- **Werewolf Target**: Must select one player each night
+- **Doctor Save**: Can save any player (including themselves)
+- **Police Inspect**: Gets YES/NO answer about werewolf status
+- **Action Order**: Werewolf → Doctor → Police (fixed sequence)
+
+#### **Death & Elimination**
+- **Werewolf Attack**: Player dies unless saved by Doctor
+- **Voting**: Player with most votes is eliminated
+- **Elimination Effects**: Dead players cannot vote or perform actions
+- **Information**: Dead players' roles are revealed to all
+
+#### **Leave Request System**
+- **Player Request**: Players can request to leave the game
+- **Host Approval**: Host must approve or deny leave requests
+- **Game Reset**: If non-host players drop below 6, game resets to lobby
+- **Host Removal**: Host can remove any player directly
+
+#### **Real-time Synchronization**
+- **Instant Updates**: All game events update immediately across all players
+- **State Persistence**: Game state saved across browser refreshes
+- **Browser-specific**: Each browser is treated as a separate player
+- **Auto-refresh**: UI updates automatically on all game events
+
+### 🚫 Important Restrictions
+
+#### **Host Limitations**
+- **Cannot Vote**: Host manages game but doesn't participate in voting
+- **Cannot Leave**: Host can only end the game, not leave it
+- **Cannot Be Eliminated**: Host is always alive and manages the game
+- **Cannot Be Targeted**: Werewolves, Doctor, and Police cannot target host
+
+#### **Player Limitations**
+- **One Action Per Night**: Each role can only perform one action per night
+- **No Communication**: All discussion happens in video call, not in game
+- **No Role Revealing**: Players cannot reveal their roles in the game interface
+- **No Spectating**: Dead players cannot see ongoing game actions
+
+#### **Game Limitations**
+- **Minimum Players**: Cannot start with fewer than 6 players
+- **Maximum Players**: Cannot exceed 20 players
+- **Role Limits**: Cannot have more than 3 werewolves
+- **Action Timing**: Night actions must be completed before advancing phases
+
+### 🎨 Visual Indicators
+
+#### **Color Coding**
+- **Red**: Werewolf actions and eliminations
+- **Green**: Doctor saves and villager wins
+- **Blue**: Police inspections and information
+- **Amber**: Villager actions and voting
+
+#### **Real-time Updates**
+- **Vote Counts**: Update immediately when players vote
+- **Phase Changes**: Clear indicators of current game phase
+- **Action Results**: Immediate feedback on night actions
+- **Player Status**: Live updates on alive/dead status
+
+### 🔧 Host Controls
+
+#### **Game Management**
+- **Start Game**: Begin the game after role assignment
+- **Phase Control**: Advance through night and day phases
+- **Vote Management**: Start voting and call for final votes
+- **Player Management**: Remove players or approve leave requests
+
+#### **Information Display**
+- **Real-time Updates**: See all player actions as they happen
+- **Vote Tracking**: Monitor vote counts and changes
+- **Action Results**: View werewolf targets, doctor saves, police results
+- **Player Status**: Track alive/dead status of all players
+
+### 🎯 Strategy Tips
+
+#### **For Villagers**
+- **Listen Carefully**: Pay attention to voting patterns and player behavior
+- **Use Information**: Trust the Police's inspection results
+- **Protect Doctor**: Keep the Doctor alive as long as possible
+- **Vote Strategically**: Eliminate suspicious players based on evidence
+
+#### **For Werewolves**
+- **Work Together**: Coordinate with other werewolves
+- **Blend In**: Act like villagers during day phases
+- **Target Wisely**: Eliminate key players (Doctor, Police, vocal villagers)
+- **Create Confusion**: Spread misinformation during discussions
+
+#### **For Doctor**
+- **Save Strategically**: Protect key players or save yourself
+- **Stay Hidden**: Don't reveal your identity too early
+- **Track Patterns**: Notice who the werewolves are targeting
+- **Communicate Carefully**: Share information without revealing your role
+
+#### **For Police**
+- **Inspect Systematically**: Check players based on voting patterns
+- **Share Information**: Help villagers make informed decisions
+- **Stay Alive**: Avoid being targeted by werewolves
+- **Build Trust**: Establish credibility with other villagers
+
+### 🏁 End Game Scenarios
+
+#### **Automatic End Game**
+- **Two Players Left**: Game ends when only 2 non-host players remain
+- **Winner Declaration**: Based on werewolf status, not player count
+- **Host Exclusion**: Host is not counted in end game calculations
+
+#### **Manual End Game**
+- **Host Control**: Host can end the game at any time
+- **Winner Declaration**: Shows final results and survivors
+- **Closeable Results**: Host can close winner screen to end game
+
+#### **Game Reset**
+- **Player Count**: If non-host players drop below 6, game resets to lobby
+- **Same Code**: Game code remains the same for rejoining
+- **Role Reassignment**: Host can reassign roles for new game
 
 ## 🚀 Deployment
 
