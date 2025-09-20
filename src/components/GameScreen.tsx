@@ -263,8 +263,137 @@ export default function GameScreen({ onEndGame, onRemovePlayer, onChangeRole }: 
       {/* Main Content */}
       <div className="relative z-20 max-w-7xl mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          {/* Players Grid */}
-          <div className="lg:col-span-3">
+          {/* Sidebar - Show first on mobile */}
+          <div className="lg:col-span-1 lg:order-2">
+            <div className="space-y-6">
+              {/* Host Controls */}
+              {isHost && (
+                <HostControls onEndGame={onEndGame} />
+              )}
+
+              {/* Host Round State Information */}
+              {isHost && (
+                <div className="bg-slate-800/80 backdrop-blur-sm rounded-lg p-6 border border-slate-600/30 shadow-lg">
+                  <h3 className="text-lg font-semibold text-white mb-4">
+                    Night Actions - Real-time Updates
+                  </h3>
+                  
+                  <div className="space-y-3">
+                    {roundState && (
+                      <>
+                        {roundState.wolf_target_player_id && (
+                          <div className="flex items-center justify-between p-3 bg-red-900/20 rounded-lg border border-red-500/30">
+                            <div className="flex items-center space-x-2">
+                              <Moon className="w-4 h-4 text-red-400" />
+                              <span className="text-sm text-red-300">Werewolf Target:</span>
+                            </div>
+                            <span className="text-sm font-medium text-red-200">
+                              {players.find(p => p.id === roundState.wolf_target_player_id)?.name || 'Unknown'}
+                            </span>
+                          </div>
+                        )}
+                        
+                        {roundState.doctor_save_player_id && (
+                          <div className="flex items-center justify-between p-3 bg-green-900/20 rounded-lg border border-green-500/30">
+                            <div className="flex items-center space-x-2">
+                              <Stethoscope className="w-4 h-4 text-green-400" />
+                              <span className="text-sm text-green-300">Doctor Save:</span>
+                            </div>
+                            <span className="text-sm font-medium text-green-200">
+                              {players.find(p => p.id === roundState.doctor_save_player_id)?.name || 'Unknown'}
+                            </span>
+                          </div>
+                        )}
+                        
+                        {roundState.police_inspect_player_id && (
+                          <div className="flex items-center justify-between p-3 bg-blue-900/20 rounded-lg border border-blue-500/30">
+                            <div className="flex items-center space-x-2">
+                              <Eye className="w-4 h-4 text-blue-400" />
+                              <span className="text-sm text-blue-300">Police Inspect:</span>
+                            </div>
+                            <span className="text-sm font-medium text-blue-200">
+                              {players.find(p => p.id === roundState.police_inspect_player_id)?.name || 'Unknown'}
+                            </span>
+                          </div>
+                        )}
+                        
+                        {roundState.police_inspect_result !== null && (
+                          <div className="flex items-center justify-between p-3 bg-purple-900/20 rounded-lg border border-purple-500/30">
+                            <div className="flex items-center space-x-2">
+                              <CheckCircle className="w-4 h-4 text-purple-400" />
+                              <span className="text-sm text-purple-300">Inspection Result:</span>
+                            </div>
+                            <span className={`text-sm font-medium ${
+                              roundState.police_inspect_result ? 'text-red-200' : 'text-green-200'
+                            }`}>
+                              {roundState.police_inspect_result ? 'WEREWOLF' : 'NOT WEREWOLF'}
+                            </span>
+                          </div>
+                        )}
+                      </>
+                    )}
+                    
+                    {(!roundState || (!roundState.wolf_target_player_id && !roundState.doctor_save_player_id && !roundState.police_inspect_player_id)) && (
+                      <div className="text-center py-4">
+                        <div className="w-8 h-8 mx-auto mb-2 text-gray-500">
+                          <svg className="animate-spin" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                        </div>
+                        <p className="text-sm text-gray-400">Waiting for night actions...</p>
+                        <p className="text-xs text-gray-500 mt-1">Actions will appear here in real-time</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Host Player Management */}
+              {isHost && (
+                <div className="bg-slate-800/80 backdrop-blur-sm rounded-lg p-6 border border-slate-600/30 shadow-lg">
+                  <h3 className="text-lg font-semibold text-white mb-4">
+                    Player Management
+                  </h3>
+                  
+                  <div className="space-y-3">
+                    {players.filter(p => !p.is_host).map((player) => (
+                      <div key={player.id} className="flex items-center justify-between p-3 bg-slate-700/50 rounded-lg">
+                        <div>
+                          <p className="text-white font-medium">{player.name}</p>
+                          <p className="text-sm text-gray-400">
+                            {player.role ? getRoleDisplayName(player.role) : 'No role assigned'}
+                          </p>
+                        </div>
+                        <div className="flex space-x-2">
+                          <select
+                            value={player.role || ''}
+                            onChange={(e) => onChangeRole(player.id, e.target.value)}
+                            className="px-2 py-1 bg-slate-600 text-white rounded text-sm border border-slate-500"
+                          >
+                            <option value="">Select Role</option>
+                            <option value="villager">Villager</option>
+                            <option value="werewolf">Werewolf</option>
+                            <option value="doctor">Doctor</option>
+                            <option value="police">Police</option>
+                          </select>
+                          <button
+                            onClick={() => onRemovePlayer(player.id)}
+                            className="px-3 py-1 bg-red-600 text-white rounded text-sm hover:bg-red-700 transition-colors"
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Players Grid - Show second on mobile */}
+          <div className="lg:col-span-3 lg:order-1">
             <div className="bg-slate-800/80 backdrop-blur-sm rounded-lg p-6 border border-slate-600/30 shadow-lg">
               <h2 className="text-xl font-semibold mb-4 text-white">
                 Players
@@ -373,8 +502,6 @@ export default function GameScreen({ onEndGame, onRemovePlayer, onChangeRole }: 
             </div>
           </div>
 
-          {/* Sidebar */}
-          <div className="space-y-6">
 
 
             {/* Host Controls */}
@@ -495,15 +622,6 @@ export default function GameScreen({ onEndGame, onRemovePlayer, onChangeRole }: 
               </div>
             )}
 
-            {/* Night Overlay */}
-            {isNightPhase && currentPlayer && (
-              <NightOverlay />
-            )}
-
-            {/* Voting Interface */}
-            {isDayPhase && currentPlayer && (
-              <VotingInterface />
-            )}
 
             {/* Game Status */}
             <div className="bg-slate-800/80 backdrop-blur-sm rounded-lg p-6 border border-slate-600/30 shadow-lg">
@@ -543,6 +661,16 @@ export default function GameScreen({ onEndGame, onRemovePlayer, onChangeRole }: 
           </div>
         </div>
       </div>
+
+      {/* Night Overlay */}
+      {isNightPhase && currentPlayer && (
+        <NightOverlay />
+      )}
+
+      {/* Voting Interface */}
+      {isDayPhase && currentPlayer && (
+        <VotingInterface />
+      )}
 
       {/* Win Condition Display */}
       <WinConditionDisplay onClose={onEndGame} />

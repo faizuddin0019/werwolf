@@ -165,20 +165,20 @@ async function handleAssignRoles(gameId: string, game: Game) {
       .eq('id', player.id)
   }
   
-  // Create initial round state
+  // Create initial round state (but don't update game phase yet)
   await supabase
     .from('round_state')
     .insert({
       game_id: gameId,
-      phase: 'night_wolf',
+      phase: 'lobby',
       day_count: 1
     })
   
-  // Update game phase
-  await supabase
-    .from('games')
-    .update({ phase: 'night_wolf' })
-    .eq('id', gameId)
+  // Don't update game phase - let host control when to start night phase
+  // await supabase
+  //   .from('games')
+  //   .update({ phase: 'night_wolf' })
+  //   .eq('id', gameId)
   
   return NextResponse.json({ success: true })
 }
