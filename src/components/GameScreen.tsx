@@ -666,8 +666,7 @@ export default function GameScreen({ onEndGame, onRemovePlayer, onChangeRole }: 
                 </p>
               </div>
             )}
-
-
+            </div>
           </div>
         </div>
       </div>
