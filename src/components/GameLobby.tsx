@@ -232,8 +232,92 @@ export default function GameLobby({
       {/* Main Content */}
       <div className="relative z-10 max-w-6xl mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Players Grid */}
-          <div className="lg:col-span-2">
+          {/* Game Info & Controls - Show first on mobile */}
+          <div className="lg:col-span-1 lg:order-2">
+            {/* Game Status */}
+            <div className="bg-slate-800/80 backdrop-blur-sm rounded-lg p-6 border border-slate-600/30 shadow-lg">
+              <h3 className="text-lg font-semibold text-white mb-4">
+                Game Status
+              </h3>
+              
+              <div className="space-y-3">
+                <div className="flex justify-between">
+                  <span className="text-sm text-gray-400">Phase:</span>
+                  <span className="text-sm font-medium text-white">
+                    Lobby
+                  </span>
+                </div>
+                
+                <div className="flex justify-between">
+                  <span className="text-sm text-gray-400">Players:</span>
+                  <span className="text-sm font-medium text-white">
+                    {playerCount} / 20
+                  </span>
+                </div>
+                
+                <div className="flex justify-between">
+                  <span className="text-sm text-gray-400">Werwolves:</span>
+                  <span className="text-sm font-medium text-red-400">
+                    {playerCount <= 8 ? 1 : playerCount <= 12 ? 2 : 3}
+                  </span>
+                </div>
+                
+                <div className="flex justify-between">
+                  <span className="text-sm text-gray-400">Special Roles:</span>
+                  <span className="text-sm font-medium text-white">
+                    1 Doctor, 1 Police
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Host Controls */}
+            {isHost && (
+              <div className="bg-slate-800/80 backdrop-blur-sm rounded-lg p-6 border border-slate-600/30 shadow-lg mt-6">
+                <h3 className="text-lg font-semibold text-white mb-4">
+                  Host Controls
+                </h3>
+                
+                <button
+                  onClick={onAssignRoles}
+                  disabled={!canStartGame}
+                  className="w-full py-3 px-4 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:bg-gray-700 disabled:cursor-not-allowed transition-colors flex items-center justify-center space-x-2 font-medium mb-3"
+                >
+                  <Play className="w-5 h-5" />
+                  <span>Assign Roles & Start</span>
+                </button>
+                
+                <button
+                  onClick={onEndGame}
+                  className="w-full py-2 px-4 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors flex items-center justify-center space-x-2"
+                >
+                  <RotateCcw className="w-4 h-4" />
+                  <span>End Game</span>
+                </button>
+              </div>
+            )}
+
+            {/* Leave Request System */}
+            {!isHost && (
+              <div className="bg-slate-800/80 backdrop-blur-sm rounded-lg p-6 border border-slate-600/30 shadow-lg mt-6">
+                <h3 className="text-lg font-semibold text-white mb-4">
+                  Leave Request
+                </h3>
+                
+                <button
+                  onClick={onRequestLeave}
+                  disabled={isLoading}
+                  className="w-full py-2 px-4 bg-orange-600 text-white rounded-md hover:bg-orange-700 disabled:bg-gray-700 disabled:cursor-not-allowed transition-colors flex items-center justify-center space-x-2"
+                >
+                  <LogOut className="w-4 h-4" />
+                  <span>Request to Leave</span>
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Players Grid - Show second on mobile */}
+          <div className="lg:col-span-2 lg:order-1">
             <div className="bg-slate-800/80 backdrop-blur-sm rounded-lg p-6 border border-slate-600/30 shadow-lg">
               <h2 className="text-xl font-semibold text-white mb-4">
                 Players ({playerCount})
@@ -321,8 +405,8 @@ export default function GameLobby({
             </div>
           </div>
 
-          {/* Game Info & Controls */}
-          <div className="space-y-6">
+          {/* Additional sections for mobile */}
+          <div className="lg:col-span-1 lg:order-3 space-y-6">
             {/* Game Status */}
             <div className="bg-slate-800/80 backdrop-blur-sm rounded-lg p-6 border border-slate-600/30 shadow-lg">
               <h3 className="text-lg font-semibold text-white mb-4">

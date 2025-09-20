@@ -193,6 +193,7 @@ export default function HomePage() {
   // Update game state based on game phase
   useEffect(() => {
     if (game) {
+      console.log('🔧 Game phase changed:', game.phase, 'Current gameState:', gameState)
       if (game.phase === 'lobby') {
         setGameState('lobby')
         saveGameState('lobby')
@@ -651,7 +652,9 @@ export default function HomePage() {
       // Play howling sound effect
       playSoundEffect('howl')
       
-      setGameState('playing')
+      // Don't set game state to 'playing' immediately
+      // Let the real-time sync handle the state transition based on game phase
+      // setGameState('playing')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to assign roles')
     } finally {
