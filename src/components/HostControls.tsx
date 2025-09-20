@@ -119,15 +119,17 @@ export default function HostControls({ onEndGame }: HostControlsProps) {
       case 'next_phase':
         // Show specific phase-based labels for night actions
         if (gamePhase === 'night_wolf') {
-          return 'Wake Up Doctor'
-        } else if (gamePhase === 'night_doctor') {
           return 'Wake Up Police'
         } else if (gamePhase === 'night_police') {
+          return 'Wake Up Doctor'
+        } else if (gamePhase === 'night_doctor') {
           return 'Reveal the Dead'
         }
         return `Go to ${getNextPhase(gamePhase) === 'night_wolf' ? 'Sleep' : getPhaseDisplayName(getNextPhase(gamePhase))}`
       case 'reveal_dead':
         return 'Reveal the Dead'
+      case 'begin_voting':
+        return 'Begin Initial Voting'
       case 'final_vote':
         return 'Final Vote'
       case 'eliminate_player':
@@ -144,9 +146,11 @@ export default function HostControls({ onEndGame }: HostControlsProps) {
       case 'assign_roles':
         return gamePhase === 'lobby'
       case 'next_phase':
-        return isNightPhase && gamePhase !== 'night_police'
+        return isNightPhase && gamePhase !== 'night_doctor'
       case 'reveal_dead':
-        return gamePhase === 'night_police'
+        return gamePhase === 'night_doctor'
+      case 'begin_voting':
+        return gamePhase === 'reveal'
       case 'final_vote':
         return gamePhase === 'day_vote'
       case 'eliminate_player':
@@ -162,6 +166,7 @@ export default function HostControls({ onEndGame }: HostControlsProps) {
     { action: 'assign_roles', label: 'Start Game' },
     { action: 'next_phase', label: 'Next Phase' },
     { action: 'reveal_dead', label: 'Reveal' },
+    { action: 'begin_voting', label: 'Begin Voting' },
     { action: 'final_vote', label: 'Final Vote' },
     { action: 'eliminate_player', label: 'Eliminate' },
     { action: 'end_game', label: 'End Game' }

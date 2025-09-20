@@ -76,10 +76,10 @@ export function getNextPhase(currentPhase: GamePhase): GamePhase {
     case 'lobby':
       return 'night_wolf'
     case 'night_wolf':
+      return 'night_police' // Changed order: Wolf → Police → Doctor
+    case 'night_police':
       return 'night_doctor'
     case 'night_doctor':
-      return 'night_police'
-    case 'night_police':
       return 'reveal'
     case 'reveal':
       return 'day_vote'

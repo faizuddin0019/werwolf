@@ -100,6 +100,9 @@ export async function POST(
       case 'reveal_dead':
         return await handleRevealDead(gameId, game)
       
+      case 'begin_voting':
+        return await handleBeginVoting(gameId, game)
+      
       case 'vote':
         return await handleVote(gameId, currentPlayer, data?.targetId, game.day_count, game.phase)
       
@@ -323,6 +326,24 @@ async function handleRevealDead(gameId: string, game: Game) {
     console.error('Unexpected error in handleRevealDead:', error)
     return NextResponse.json({ error: `Unexpected error: ${error instanceof Error ? error.message : 'Unknown error'}` }, { status: 500 })
   }
+}
+
+async function handleBeginVoting(gameId: string, game: Game) {
+  console.log('🔧 handleBeginVoting called for game:', gameId)
+  
+  // Update game phase to day_vote
+  const { error: updateError } = await supabase
+    .from('games')
+    .update({ phase: 'day_vote' })
+    .eq('id', gameId)
+  
+  if (updateError) {
+    console.error('Error updating game phase to day_vote:', updateError)
+    return NextResponse.json({ error: 'Failed to begin voting' }, { status: 500 })
+  }
+  
+  console.log('🔧 Voting phase started successfully')
+  return NextResponse.json({ success: true })
 }
 
 async function handleVote(gameId: string, player: Player, targetId: string, round: number, phase: string) {
