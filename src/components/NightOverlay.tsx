@@ -120,13 +120,13 @@ export default function NightOverlay() {
 
   if (!canAct || !roleInfo) {
     return (
-      <div className="bg-white/90 backdrop-blur-sm rounded-lg p-6 border border-gray-200">
+      <div className="bg-white/90 backdrop-blur-sm rounded-lg p-4 border border-gray-200">
         <div className="text-center">
-          <Eye className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-gray-800 mb-2">
+          <Eye className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+          <h3 className="text-base font-semibold text-gray-800 mb-1">
             Night Phase
           </h3>
-          <p className="text-sm text-gray-600">
+          <p className="text-xs text-gray-600">
             {currentPlayer?.role === 'villager' 
               ? 'You are sleeping. Wait for your turn.'
               : 'Wait for the host to start your turn.'
@@ -138,58 +138,58 @@ export default function NightOverlay() {
   }
 
   return (
-    <div className="bg-white/90 backdrop-blur-sm rounded-lg p-6 border border-gray-200">
-      <div className="text-center mb-6">
+    <div className="bg-white/90 backdrop-blur-sm rounded-lg p-4 border border-gray-200">
+      <div className="text-center mb-4">
         {roleInfo.icon}
-        <h3 className="text-lg font-semibold text-gray-800 mt-2 mb-1">
+        <h3 className="text-base font-semibold text-gray-800 mt-2 mb-1">
           {roleInfo.title}
         </h3>
-        <p className="text-sm text-gray-600">
+        <p className="text-xs text-gray-600">
           {roleInfo.description}
         </p>
       </div>
 
       {/* Feedback */}
       {feedback && (
-        <div className={`mb-4 p-3 rounded-md flex items-center space-x-2 ${
+        <div className={`mb-3 p-2 rounded-md flex items-center space-x-2 ${
           feedback.type === 'success' 
             ? 'bg-green-100 text-green-800' 
             : 'bg-red-100 text-red-800'
         }`}>
           {feedback.type === 'success' ? (
-            <CheckCircle className="w-4 h-4" />
+            <CheckCircle className="w-3 h-3" />
           ) : (
-            <XCircle className="w-4 h-4" />
+            <XCircle className="w-3 h-3" />
           )}
-          <span className="text-sm">{feedback.message}</span>
+          <span className="text-xs">{feedback.message}</span>
         </div>
       )}
 
       {/* Player Selection */}
-      <div className="space-y-3">
-        <h4 className="text-sm font-medium text-gray-700">
+      <div className="space-y-2">
+        <h4 className="text-xs font-medium text-gray-700">
           Select a player:
         </h4>
         
-        <div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto">
+        <div className="grid grid-cols-2 gap-2 max-h-32 overflow-y-auto">
           {alivePlayers.map((player) => (
             <button
               key={player.id}
               onClick={() => setSelectedTarget(player.id)}
               disabled={isLoading}
-              className={`p-3 rounded-md border-2 transition-all text-left ${
+              className={`p-2 rounded-md border-2 transition-all text-left ${
                 selectedTarget === player.id
                   ? 'border-blue-500 bg-blue-50'
                   : 'border-gray-200 hover:border-gray-300'
               } disabled:opacity-50 disabled:cursor-not-allowed`}
             >
               <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
-                  <span className="text-sm font-semibold text-gray-600">
+                <div className="w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center">
+                  <span className="text-xs font-semibold text-gray-600">
                     {player.name.charAt(0).toUpperCase()}
                   </span>
                 </div>
-                <span className="text-sm font-medium text-gray-800 truncate">
+                <span className="text-xs font-medium text-gray-800 truncate">
                   {player.name}
                 </span>
               </div>
@@ -200,7 +200,7 @@ export default function NightOverlay() {
 
       {/* Action Button */}
       {selectedTarget && (
-        <div className="mt-6">
+        <div className="mt-4">
           <button
             onClick={() => {
               const action = currentPlayer.role === 'werewolf' ? 'wolf_select' :
@@ -212,15 +212,15 @@ export default function NightOverlay() {
               }
             }}
             disabled={isLoading}
-            className={`w-full py-2 px-4 text-white rounded-md transition-colors flex items-center justify-center space-x-2 disabled:bg-gray-300 disabled:cursor-not-allowed ${roleInfo.actionColor}`}
+            className={`w-full py-2 px-3 text-white rounded-md transition-colors flex items-center justify-center space-x-2 disabled:bg-gray-300 disabled:cursor-not-allowed text-sm ${roleInfo.actionColor}`}
           >
             {isLoading ? (
-              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+              <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white"></div>
             ) : (
               <>
-                {currentPlayer.role === 'werewolf' && <Moon className="w-4 h-4" />}
-                {currentPlayer.role === 'police' && <Shield className="w-4 h-4" />}
-                {currentPlayer.role === 'doctor' && <Stethoscope className="w-4 h-4" />}
+                {currentPlayer.role === 'werewolf' && <Moon className="w-3 h-3" />}
+                {currentPlayer.role === 'police' && <Shield className="w-3 h-3" />}
+                {currentPlayer.role === 'doctor' && <Stethoscope className="w-3 h-3" />}
                 <span>{roleInfo.actionText}</span>
               </>
             )}
@@ -229,7 +229,7 @@ export default function NightOverlay() {
       )}
 
       {/* Instructions */}
-      <div className="mt-4 pt-4 border-t border-gray-200">
+      <div className="mt-3 pt-2 border-t border-gray-200">
         <p className="text-xs text-gray-500 text-center">
           {currentPlayer.role === 'werewolf' && 'Choose your victim carefully...'}
           {currentPlayer.role === 'police' && 'Your investigation will reveal the truth...'}
