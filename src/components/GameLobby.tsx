@@ -236,8 +236,8 @@ export default function GameLobby({
       {/* Main Content */}
       <div className="relative z-10 max-w-6xl mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Game Info & Controls - Show first on mobile */}
-          <div className="lg:order-2">
+          {/* Game Info & Controls - Show second on mobile */}
+          <div className="lg:order-2 order-2">
             {/* Game Status */}
             <div className="bg-slate-800/80 backdrop-blur-sm rounded-lg p-6 border border-slate-600/30 shadow-lg">
               <h3 className="text-lg font-semibold text-white mb-4">
@@ -444,18 +444,18 @@ export default function GameLobby({
             </div>
           </div>
 
-          {/* Players Grid - Show second on mobile */}
-          <div className="lg:order-1">
+          {/* Players Grid - Show first on mobile */}
+          <div className="lg:order-1 order-1">
             <div className="bg-slate-800/80 backdrop-blur-sm rounded-lg p-6 border border-slate-600/30 shadow-lg">
               <h2 className="text-xl font-semibold text-white mb-4">
                 Players ({playerCount})
               </h2>
               
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {players.map((player) => (
                     <div
                       key={player.id}
-                      className={`relative p-4 rounded-lg border-2 transition-all ${
+                      className={`relative p-6 rounded-lg border-2 transition-all ${
                         player.is_host
                           ? 'border-yellow-400 bg-yellow-900/20'
                           : player.id === currentPlayer?.id
@@ -478,7 +478,7 @@ export default function GameLobby({
                       )}
                       
                       <div className="text-center">
-                        <div className={`w-12 h-12 rounded-full mx-auto mb-2 flex items-center justify-center ${
+                        <div className={`w-16 h-16 rounded-full mx-auto mb-3 flex items-center justify-center ${
                           player.is_host 
                             ? 'bg-yellow-800' 
                             : player.id === currentPlayer?.id
@@ -496,7 +496,7 @@ export default function GameLobby({
                           </span>
                         </div>
                         
-                        <p className={`font-medium truncate ${
+                        <p className={`font-medium text-lg truncate ${
                           player.is_host 
                             ? 'text-yellow-200' 
                             : player.id === currentPlayer?.id
@@ -507,13 +507,13 @@ export default function GameLobby({
                         </p>
                         
                         {player.is_host && (
-                          <p className="text-xs text-yellow-400 font-medium">
+                          <p className="text-sm text-yellow-400 font-medium">
                             Host
                           </p>
                         )}
                         
                         {player.id === currentPlayer?.id && !player.is_host && (
-                          <p className="text-xs text-green-400 font-medium">
+                          <p className="text-sm text-green-400 font-medium">
                             You
                           </p>
                         )}
