@@ -67,7 +67,7 @@ export function useRealtimeSync(gameId: string | null, onGameEnded?: () => void)
     const gameSubscription = supabase
       .channel(`game:${gameId}`)
       .on('postgres_changes', 
-        { event: 'UPDATE', schema: 'public', table: 'games', filter: `id=eq.${gameId}` },
+        { event: '*', schema: 'public', table: 'games', filter: `id=eq.${gameId}` },
         (payload) => {
           log('🔧 Game updated:', payload.new)
           const updatedGame = payload.new as Game

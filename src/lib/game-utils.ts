@@ -46,11 +46,13 @@ export function assignRoles(players: Player[]): Player[] {
 
 // Check win conditions
 export function checkWinCondition(game: Game, players: Player[]): 'villagers' | 'werewolves' | null {
-  const alivePlayers = players.filter(p => p.alive)
+  // Exclude host from win condition calculations
+  const nonHostPlayers = players.filter(p => !p.is_host)
+  const alivePlayers = nonHostPlayers.filter(p => p.alive)
   const aliveWerwolves = alivePlayers.filter(p => p.role === 'werewolf')
   const aliveVillagers = alivePlayers.filter(p => p.role !== 'werewolf')
   
-  // Game ends when there are only 2 players left
+  // Game ends when there are only 2 non-host players left
   if (alivePlayers.length <= 2) {
     // If any werewolves are still alive, they win
     if (aliveWerwolves.length > 0) {

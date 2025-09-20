@@ -1,28 +1,53 @@
 'use client'
 
+import { useState } from 'react'
 import { useAtom } from 'jotai'
 import { gameAtom, playersAtom, isHostAtom } from '@/lib/game-store'
-import { Trophy, Skull, Users } from 'lucide-react'
+import { Trophy, Skull, Users, X } from 'lucide-react'
 
-export default function WinConditionDisplay() {
+interface WinConditionDisplayProps {
+  onClose?: () => void
+}
+
+export default function WinConditionDisplay({ onClose }: WinConditionDisplayProps) {
   const [game] = useAtom(gameAtom)
   const [players] = useAtom(playersAtom)
   const [isHost] = useAtom(isHostAtom)
+  const [isClosed, setIsClosed] = useState(false)
 
-  if (!game || game.phase !== 'ended' || !game.win_state) {
+  if (!game || game.phase !== 'ended' || !game.win_state || isClosed) {
     return null
   }
 
-  const alivePlayers = players.filter(p => p.alive)
+  // Exclude host from survivors list
+  const alivePlayers = players.filter(p => p.alive && !p.is_host)
   const aliveWerewolves = alivePlayers.filter(p => p.role === 'werewolf')
   const aliveVillagers = alivePlayers.filter(p => p.role !== 'werewolf')
+
+  const handleClose = () => {
+    setIsClosed(true)
+    if (onClose) {
+      onClose()
+    }
+  }
 
   const isWerewolfWin = game.win_state === 'werewolves'
   const isVillagerWin = game.win_state === 'villagers'
 
   return (
     <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50">
-      <div className="bg-gray-900/95 backdrop-blur-sm rounded-2xl p-8 border border-gray-600/30 shadow-2xl max-w-md w-full mx-4">
+      <div className="bg-gray-900/95 backdrop-blur-sm rounded-2xl p-8 border border-gray-600/30 shadow-2xl max-w-md w-full mx-4 relative">
+        {/* Close Button - Only visible to host */}
+        {isHost && (
+          <button
+            onClick={handleClose}
+            className="absolute top-4 right-4 p-2 rounded-full bg-gray-700/50 hover:bg-gray-600/50 transition-colors"
+            title="Close and end game"
+          >
+            <X className="w-5 h-5 text-gray-300" />
+          </button>
+        )}
+        
         <div className="text-center">
           {/* Win Icon */}
           <div className="mb-6">

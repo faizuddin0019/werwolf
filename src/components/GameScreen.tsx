@@ -545,7 +545,7 @@ export default function GameScreen({ onEndGame, onRemovePlayer, onChangeRole }: 
       </div>
 
       {/* Win Condition Display */}
-      <WinConditionDisplay />
+      <WinConditionDisplay onClose={onEndGame} />
     </div>
   )
 }
