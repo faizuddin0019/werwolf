@@ -349,6 +349,51 @@ export default function GameScreen({ onEndGame, onRemovePlayer, onChangeRole }: 
                 </div>
               )}
 
+              {/* Game Status */}
+              <div className="bg-slate-800/80 backdrop-blur-sm rounded-lg p-6 border border-slate-600/30 shadow-lg">
+                <h3 className="text-lg font-semibold text-white mb-4">
+                  Game Status
+                </h3>
+                
+                <div className="space-y-3">
+                  <div className="flex justify-between">
+                    <span className="text-sm text-slate-400">
+                      Phase:
+                    </span>
+                    <span className="text-sm font-medium text-white">
+                      {getPhaseDisplayName(gamePhase)}
+                    </span>
+                  </div>
+                  
+                  <div className="flex justify-between">
+                    <span className="text-sm text-slate-400">
+                      Day:
+                    </span>
+                    <span className="text-sm font-medium text-white">
+                      {roundState?.day_count || 1}
+                    </span>
+                  </div>
+                  
+                  <div className="flex justify-between">
+                    <span className="text-sm text-slate-400">
+                      Alive:
+                    </span>
+                    <span className="text-sm font-medium text-green-400">
+                      {alivePlayers.length}
+                    </span>
+                  </div>
+                  
+                  <div className="flex justify-between">
+                    <span className="text-sm text-slate-400">
+                      Dead:
+                    </span>
+                    <span className="text-sm font-medium text-red-400">
+                      {deadPlayers.length}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
               {/* Host Player Management */}
               {isHost && (
                 <div className="bg-slate-800/80 backdrop-blur-sm rounded-lg p-6 border border-slate-600/30 shadow-lg">
@@ -623,41 +668,6 @@ export default function GameScreen({ onEndGame, onRemovePlayer, onChangeRole }: 
             )}
 
 
-            {/* Game Status */}
-            <div className="bg-slate-800/80 backdrop-blur-sm rounded-lg p-6 border border-slate-600/30 shadow-lg">
-              <h3 className="text-lg font-semibold mb-4 text-white">
-                Game Status
-              </h3>
-              
-              <div className="space-y-3">
-                <div className="flex justify-between">
-                  <span className="text-sm text-slate-400">
-                    Phase:
-                  </span>
-                  <span className="text-sm font-medium text-white">
-                    {getPhaseDisplayName(gamePhase)}
-                  </span>
-                </div>
-                
-                <div className="flex justify-between">
-                  <span className="text-sm text-slate-400">
-                    Alive:
-                  </span>
-                  <span className="text-sm font-medium text-green-400">
-                    {alivePlayers.length}
-                  </span>
-                </div>
-                
-                <div className="flex justify-between">
-                  <span className="text-sm text-slate-400">
-                    Dead:
-                  </span>
-                  <span className="text-sm font-medium text-red-400">
-                    {deadPlayers.length}
-                  </span>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       </div>
