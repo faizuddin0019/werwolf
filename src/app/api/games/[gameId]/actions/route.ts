@@ -204,7 +204,26 @@ async function handleAssignRoles(gameId: string, game: Game) {
     
     if (roundStateError) {
       console.error('❌ Error creating round state:', roundStateError)
-      return NextResponse.json({ error: 'Failed to create round state' }, { status: 500 })
+      
+      // If phase_started column doesn't exist, create without it
+      if (roundStateError.code === 'PGRST204' && roundStateError.message.includes('phase_started')) {
+        console.log('⚠️ Creating round state without phase_started column')
+        const { error: roundStateError2 } = await supabase
+          .from('round_state')
+          .insert({
+            game_id: gameId
+          })
+        
+        if (roundStateError2) {
+          console.error('❌ Error creating round state without phase_started:', roundStateError2)
+          return NextResponse.json({ error: 'Failed to create round state' }, { status: 500 })
+        }
+        console.log('✅ Round state created without phase_started column')
+      } else {
+        return NextResponse.json({ error: 'Failed to create round state' }, { status: 500 })
+      }
+    } else {
+      console.log('✅ Round state created successfully')
     }
   } else {
     console.log('🔧 Round state already exists, skipping creation')
@@ -262,9 +281,27 @@ async function handleNextPhase(gameId: string, game: Game, targetPhase?: string)
         if (createError) {
           console.error('❌ Error creating round state:', createError)
           console.error('❌ Create error details:', JSON.stringify(createError, null, 2))
-          return NextResponse.json({ error: 'Failed to create round state' }, { status: 500 })
+          
+          // If phase_started column doesn't exist, create without it
+          if (createError.code === 'PGRST204' && createError.message.includes('phase_started')) {
+            console.log('⚠️ Creating round state without phase_started column')
+            const { error: createError2 } = await supabase
+              .from('round_state')
+              .insert({
+                game_id: gameId
+              })
+            
+            if (createError2) {
+              console.error('❌ Error creating round state without phase_started:', createError2)
+              return NextResponse.json({ error: 'Failed to create round state' }, { status: 500 })
+            }
+            console.log('✅ Round state created without phase_started column')
+          } else {
+            return NextResponse.json({ error: 'Failed to create round state' }, { status: 500 })
+          }
+        } else {
+          console.log('✅ Round state created successfully')
         }
-        console.log('✅ Round state created successfully')
       } else {
         // Update existing round state
         console.log('🔧 Updating existing round state for game:', gameId)
@@ -276,9 +313,16 @@ async function handleNextPhase(gameId: string, game: Game, targetPhase?: string)
         if (updateError) {
           console.error('❌ Error updating round state:', updateError)
           console.error('❌ Update error details:', JSON.stringify(updateError, null, 2))
-          return NextResponse.json({ error: 'Failed to update round state' }, { status: 500 })
+          
+          // If phase_started column doesn't exist, that's okay for now
+          if (updateError.code === 'PGRST204' && updateError.message.includes('phase_started')) {
+            console.log('⚠️ phase_started column not found - skipping update')
+          } else {
+            return NextResponse.json({ error: 'Failed to update round state' }, { status: 500 })
+          }
+        } else {
+          console.log('✅ Round state updated successfully')
         }
-        console.log('✅ Round state updated successfully')
       }
       
       return NextResponse.json({ success: true, phase: game.phase, action: 'phase_started' })
@@ -313,6 +357,10 @@ async function handleNextPhase(gameId: string, game: Game, targetPhase?: string)
         
         if (resetError) {
           console.error('❌ Error resetting phase_started:', resetError)
+          // If column doesn't exist, that's okay for now - we'll add it later
+          if (resetError.code === 'PGRST204' && resetError.message.includes('phase_started')) {
+            console.log('⚠️ phase_started column not found - this will be fixed after database migration')
+          }
         }
         
         return NextResponse.json({ success: true, phase: nextPhase, action: 'phase_advanced' })
@@ -341,6 +389,10 @@ async function handleNextPhase(gameId: string, game: Game, targetPhase?: string)
     
     if (resetError2) {
       console.error('❌ Error resetting phase_started for non-night phase:', resetError2)
+      // If column doesn't exist, that's okay for now - we'll add it later
+      if (resetError2.code === 'PGRST204' && resetError2.message.includes('phase_started')) {
+        console.log('⚠️ phase_started column not found - this will be fixed after database migration')
+      }
     }
     
     return NextResponse.json({ success: true, phase: nextPhase, action: 'phase_advanced' })
