@@ -525,12 +525,20 @@ export default function GameLobby({
                           </p>
                         )}
                         
-                        {!player.is_host && player.role && (
+                        {/* Role Display - Only show to host and the player themselves */}
+                        {!player.is_host && player.role && (isHost || player.id === currentPlayer?.id) && (
                           <p className="text-sm text-blue-400 font-semibold">
                             {player.role === 'werewolf' ? '🐺 Werewolf' :
                              player.role === 'doctor' ? '🩺 Doctor' :
                              player.role === 'police' ? '🛡️ Police' :
                              '👥 Villager'}
+                          </p>
+                        )}
+                        
+                        {/* For other players, show "Villager" or nothing */}
+                        {!player.is_host && player.role && !isHost && player.id !== currentPlayer?.id && (
+                          <p className="text-sm text-gray-400 font-semibold">
+                            👥 Villager
                           </p>
                         )}
                       </div>
