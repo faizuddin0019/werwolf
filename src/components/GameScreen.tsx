@@ -370,12 +370,50 @@ export default function GameScreen({ onEndGame, onRemovePlayer }: GameScreenProp
                       {deadPlayers.length}
                     </span>
                   </div>
+                  {/* Debug info */}
+                  {process.env.NODE_ENV === 'development' && (
+                    <>
+                      <div className="flex justify-between">
+                        <span className="text-sm text-slate-400">Phase Started:</span>
+                        <span className="text-sm font-medium text-yellow-400">
+                          {roundState?.phase_started ? 'true' : 'false'}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-sm text-slate-400">Can Act:</span>
+                        <span className="text-sm font-medium text-yellow-400">
+                          {currentPlayer ? canPlayerAct(currentPlayer, gamePhase, currentPlayer.is_host, roundState || undefined) ? 'true' : 'false' : 'no player'}
+                        </span>
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
 
               {/* Night Overlay - Only show when it's the player's turn and they can act */}
               {isNightPhase && currentPlayer && canPlayerAct(currentPlayer, gamePhase, currentPlayer.is_host, roundState || undefined) && (
                 <NightOverlay />
+              )}
+              
+              {/* Debug: Manual refresh button for werewolf players */}
+              {isNightPhase && currentPlayer && currentPlayer.role === 'werewolf' && !canPlayerAct(currentPlayer, gamePhase, currentPlayer.is_host, roundState || undefined) && (
+                <div className="bg-slate-800/80 backdrop-blur-sm rounded-lg p-6 border border-slate-600/30 shadow-lg">
+                  <h3 className="text-lg font-semibold text-white mb-4">
+                    🐺 Werewolf Turn
+                  </h3>
+                  <p className="text-slate-300 mb-4">
+                    Waiting for host to start your turn...
+                  </p>
+                  <button
+                    onClick={() => window.location.reload()}
+                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded transition-colors"
+                  >
+                    🔄 Refresh to Check
+                  </button>
+                  <p className="text-xs text-slate-400 mt-2 text-center">
+                    Debug: phase_started = {roundState?.phase_started ? 'true' : 'false'}
+                  </p>
+                </div>
               )}
 
               {/* Voting Interface - Only show when it's day phase */}
