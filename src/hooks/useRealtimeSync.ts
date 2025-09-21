@@ -132,7 +132,7 @@ export function useRealtimeSync(gameId: string | null, onGameEnded?: () => void)
         .order('id')
           
       if (updatedPlayers) {
-        log('🔧 Updated players list:', updatedPlayers.map(p => ({ id: p.id, name: p.name, is_host: p.is_host })))
+        log('🔧 Updated players list:', updatedPlayers.map(p => ({ id: p.id, name: p.name, role: p.role, is_host: p.is_host })))
         
         // Check if players actually changed to prevent infinite loops
         const currentPlayers = playersRef.current
@@ -157,7 +157,7 @@ export function useRealtimeSync(gameId: string | null, onGameEnded?: () => void)
           log('🔧 useRealtimeSync - Players changed, updating state:', {
             game: gameRef.current?.id,
             playersCount: updatedPlayers.length,
-            players: updatedPlayers.map(p => ({ id: p.id, name: p.name, role: p.role, alive: p.alive }))
+            players: updatedPlayers.map(p => ({ id: p.id, name: p.name, role: p.role, alive: p.alive, is_host: p.is_host }))
           })
           
           // Find the current player in the updated players list
