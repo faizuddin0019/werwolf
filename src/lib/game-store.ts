@@ -206,6 +206,15 @@ export const setGameDataAtom = atom(null, (get, set, data: {
       console.log('🔧 Players unchanged, skipping update')
       console.log('🔧 Current players:', currentPlayers?.map(p => ({ id: p.id, name: p.name, role: p.role, is_host: p.is_host })))
       console.log('🔧 New players:', data.players.map(p => ({ id: p.id, name: p.name, role: p.role, is_host: p.is_host })))
+      
+      // Force update if roles are missing from current players but present in new data
+      const hasRolesInNewData = data.players.some(p => p.role)
+      const hasRolesInCurrentData = currentPlayers?.some(p => p.role)
+      
+      if (hasRolesInNewData && !hasRolesInCurrentData) {
+        console.log('🔧 FORCE UPDATE: Roles present in new data but missing from current data')
+        set(playersAtom, data.players)
+      }
     }
   }
   

@@ -130,6 +130,7 @@ export function useRealtimeSync(gameId: string | null, onGameEnded?: () => void)
         .select('*')
         .eq('game_id', gameId)
         .order('id')
+        .abortSignal(AbortSignal.timeout(5000)) // Add timeout to prevent hanging
           
       if (updatedPlayers) {
         log('🔧 Updated players list:', updatedPlayers.map(p => ({ id: p.id, name: p.name, role: p.role, is_host: p.is_host })))
