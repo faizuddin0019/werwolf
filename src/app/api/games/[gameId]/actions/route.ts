@@ -185,17 +185,28 @@ async function handleAssignRoles(gameId: string, game: Game) {
     }
   }
   
-  // Create initial round state (but don't update game phase yet)
-  console.log('🔧 Creating initial round state...')
-  const { error: roundStateError } = await supabase
+  // Check if round state already exists, if not create it
+  console.log('🔧 Checking if round state exists...')
+  const { data: existingRoundState } = await supabase
     .from('round_state')
-    .insert({
-      game_id: gameId
-    })
+    .select('game_id')
+    .eq('game_id', gameId)
+    .single()
   
-  if (roundStateError) {
-    console.error('❌ Error creating round state:', roundStateError)
-    return NextResponse.json({ error: 'Failed to create round state' }, { status: 500 })
+  if (!existingRoundState) {
+    console.log('🔧 Creating initial round state...')
+    const { error: roundStateError } = await supabase
+      .from('round_state')
+      .insert({
+        game_id: gameId
+      })
+    
+    if (roundStateError) {
+      console.error('❌ Error creating round state:', roundStateError)
+      return NextResponse.json({ error: 'Failed to create round state' }, { status: 500 })
+    }
+  } else {
+    console.log('🔧 Round state already exists, skipping creation')
   }
   
   console.log('✅ Role assignment completed successfully!')
