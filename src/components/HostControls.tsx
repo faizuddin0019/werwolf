@@ -8,7 +8,8 @@ import {
   gamePhaseAtom,
   isNightPhaseAtom,
   isDayPhaseAtom,
-  highestVotedPlayerAtom
+  highestVotedPlayerAtom,
+  roundStateAtom
 } from '@/lib/game-store'
 import { getNextPhase, getPhaseDisplayName } from '@/lib/game-utils'
 import { 
@@ -33,6 +34,7 @@ export default function HostControls({ onEndGame }: HostControlsProps) {
   const [isNightPhase] = useAtom(isNightPhaseAtom)
   const [isDayPhase] = useAtom(isDayPhaseAtom)
   const [highestVotedPlayer] = useAtom(highestVotedPlayerAtom)
+  const [roundState] = useAtom(roundStateAtom)
   
   const [isLoading, setIsLoading] = useState(false)
 
@@ -119,11 +121,26 @@ export default function HostControls({ onEndGame }: HostControlsProps) {
       case 'next_phase':
         // Show specific phase-based labels for night actions
         if (gamePhase === 'night_wolf') {
-          return 'Wake Up Werewolf'
+          // Check if werewolf has selected a target
+          if (roundState?.wolf_target_player_id) {
+            return 'Wake Up Doctor'
+          } else {
+            return 'Wake Up Werewolf (Waiting for selection)'
+          }
         } else if (gamePhase === 'night_police') {
-          return 'Wake Up Doctor'
+          // Check if police has inspected someone
+          if (roundState?.police_inspect_player_id) {
+            return 'Wake Up Doctor'
+          } else {
+            return 'Wake Up Police (Waiting for inspection)'
+          }
         } else if (gamePhase === 'night_doctor') {
-          return 'Reveal the Dead'
+          // Check if doctor has saved someone
+          if (roundState?.doctor_save_player_id) {
+            return 'Reveal the Dead'
+          } else {
+            return 'Wake Up Doctor (Waiting for save)'
+          }
         }
         return `Go to ${getNextPhase(gamePhase) === 'night_wolf' ? 'Sleep' : getPhaseDisplayName(getNextPhase(gamePhase))}`
       case 'reveal_dead':
@@ -146,9 +163,22 @@ export default function HostControls({ onEndGame }: HostControlsProps) {
       case 'assign_roles':
         return gamePhase === 'lobby'
       case 'next_phase':
-        return isNightPhase && gamePhase !== 'night_doctor'
+        if (!isNightPhase) return false
+        
+        // Check if current phase action has been completed
+        if (gamePhase === 'night_wolf') {
+          // Can only advance if werewolf has selected a target
+          return roundState?.wolf_target_player_id !== null
+        } else if (gamePhase === 'night_police') {
+          // Can only advance if police has inspected someone
+          return roundState?.police_inspect_player_id !== null
+        } else if (gamePhase === 'night_doctor') {
+          // Can only advance if doctor has saved someone
+          return roundState?.doctor_save_player_id !== null
+        }
+        return false
       case 'reveal_dead':
-        return gamePhase === 'night_doctor'
+        return gamePhase === 'night_doctor' && roundState?.doctor_save_player_id !== null
       case 'begin_voting':
         return gamePhase === 'reveal'
       case 'final_vote':
