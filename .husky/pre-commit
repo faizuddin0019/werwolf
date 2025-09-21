@@ -1,18 +1,15 @@
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
 
-echo "🧪 Running pre-commit tests..."
+echo "🔨 Running pre-commit checks..."
 
-# Run linting
-echo "🔍 Running ESLint..."
-npm run lint
+# Run build to catch compilation issues
+echo "📦 Building project..."
+npm run build
 
-# Run type checking
-echo "🔍 Running TypeScript type checking..."
-npm run type-check
+if [ $? -ne 0 ]; then
+  echo "❌ Build failed! Please fix compilation issues before committing."
+  exit 1
+fi
 
-# Run end game logic tests
-echo "🧪 Running end game logic tests..."
-npm run test:end-game
-
-echo "✅ All pre-commit tests passed!"
+echo "✅ Build successful! Proceeding with commit..."

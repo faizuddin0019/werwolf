@@ -37,9 +37,10 @@ import WinConditionDisplay from './WinConditionDisplay'
 interface GameScreenProps {
   onEndGame: () => void
   onRemovePlayer: (playerId: string) => void
+  onChangeRole: (playerId: string, newRole: string) => void
 }
 
-export default function GameScreen({ onEndGame, onRemovePlayer }: GameScreenProps) {
+export default function GameScreen({ onEndGame, onRemovePlayer, onChangeRole }: GameScreenProps) {
   const [game] = useAtom(gameAtom)
   const [players] = useAtom(playersAtom)
   const [currentPlayer] = useAtom(currentPlayerAtom)
