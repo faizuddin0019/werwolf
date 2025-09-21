@@ -15,7 +15,7 @@ CREATE TYPE game_phase AS ENUM (
 
 CREATE TYPE player_role AS ENUM (
   'villager',
-  'werewolf', 
+  'werwolf', 
   'doctor',
   'police'
 );
