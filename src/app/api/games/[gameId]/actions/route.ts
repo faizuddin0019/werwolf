@@ -261,10 +261,13 @@ async function handleNextPhase(gameId: string, game: Game, targetPhase?: string)
         
         if (createError) {
           console.error('❌ Error creating round state:', createError)
+          console.error('❌ Create error details:', JSON.stringify(createError, null, 2))
           return NextResponse.json({ error: 'Failed to create round state' }, { status: 500 })
         }
+        console.log('✅ Round state created successfully')
       } else {
         // Update existing round state
+        console.log('🔧 Updating existing round state for game:', gameId)
         const { error: updateError } = await supabase
           .from('round_state')
           .update({ phase_started: true })
@@ -272,8 +275,10 @@ async function handleNextPhase(gameId: string, game: Game, targetPhase?: string)
         
         if (updateError) {
           console.error('❌ Error updating round state:', updateError)
+          console.error('❌ Update error details:', JSON.stringify(updateError, null, 2))
           return NextResponse.json({ error: 'Failed to update round state' }, { status: 500 })
         }
+        console.log('✅ Round state updated successfully')
       }
       
       return NextResponse.json({ success: true, phase: game.phase, action: 'phase_started' })
