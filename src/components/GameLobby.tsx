@@ -524,6 +524,15 @@ export default function GameLobby({
                             You
                           </p>
                         )}
+                        
+                        {!player.is_host && player.role && (
+                          <p className="text-sm text-blue-400 font-semibold">
+                            {player.role === 'werewolf' ? '🐺 Werewolf' :
+                             player.role === 'doctor' ? '🩺 Doctor' :
+                             player.role === 'police' ? '🛡️ Police' :
+                             '👥 Villager'}
+                          </p>
+                        )}
                       </div>
                     </div>
                   ))}

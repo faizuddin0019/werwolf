@@ -658,13 +658,6 @@ export default function HomePage() {
             // Play howling sound effect
             playSoundEffect('howl')
             
-            // Force a data refresh to ensure UI updates
-            console.log('🔧 Forcing data refresh after role assignment...')
-            setTimeout(() => {
-              // Trigger a manual refresh of game data
-              window.location.reload()
-            }, 1000)
-            
             // Don't set game state to 'playing' immediately
             // Let the real-time sync handle the state transition based on game phase
             // setGameState('playing')
