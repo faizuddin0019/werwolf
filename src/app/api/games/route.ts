@@ -4,17 +4,28 @@ import { generateGameCode } from '@/lib/game-utils'
 
 export async function POST(request: NextRequest) {
   try {
+    console.log('🔧 API: Game creation request received')
+    
     if (!isSupabaseConfigured()) {
+      console.error('❌ API: Supabase not configured')
       return NextResponse.json({ 
         error: 'Supabase not configured. Please set up your environment variables.' 
       }, { status: 503 })
     }
+    
+    console.log('✅ API: Supabase is configured')
 
-    const { hostName, clientId } = await request.json()
+    const body = await request.json()
+    console.log('🔧 API: Request body:', body)
+    
+    const { hostName, clientId } = body
     
     if (!hostName || !clientId) {
+      console.error('❌ API: Missing required fields:', { hostName, clientId })
       return NextResponse.json({ error: 'Host name and client ID are required' }, { status: 400 })
     }
+    
+    console.log('✅ API: Request validation passed')
     
     // Generate unique game code
     let gameCode: string

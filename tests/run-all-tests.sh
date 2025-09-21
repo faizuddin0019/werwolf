@@ -153,6 +153,7 @@ main() {
                 echo -e "\n${BLUE}🎯 Running Core Game Logic Tests${NC}"
                 run_test "Core Game Logic Tests" "tests/core/game-logic.test.js" "$TEST_URL"
                 run_test "Player Ordering Tests" "tests/core/test-player-ordering.js" "$TEST_URL"
+                run_test "Role Assignment Tests" "tests/core/test-role-assignment.js" "$TEST_URL"
                 ;;
             "security")
                 echo -e "\n${BLUE}🔒 Running Security Tests${NC}"
