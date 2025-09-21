@@ -575,7 +575,7 @@ async function handleChangeRole(gameId: string, hostPlayer: Player, playerId: st
   }
   
   // Validate role
-  const validRoles = ['villager', 'werwolf', 'doctor', 'police']
+  const validRoles = ['villager', 'werwolf', 'werewolf', 'doctor', 'police']
   if (!validRoles.includes(newRole)) {
     return NextResponse.json({ error: 'Invalid role' }, { status: 400 })
   }

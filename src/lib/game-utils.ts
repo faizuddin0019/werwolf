@@ -29,7 +29,7 @@ export function assignRoles(players: Player[]): Player[] {
     let role: PlayerRole = 'villager'
     
     if (index < werwolfCount) {
-      role = 'werwolf'
+      role = 'werewolf' // Temporarily use 'werewolf' until database is migrated
     } else if (index === werwolfCount) {
       role = 'doctor'
     } else if (index === werwolfCount + 1) {
@@ -127,6 +127,7 @@ export function canPlayerAct(
 // Get role display name
 export function getRoleDisplayName(role: PlayerRole): string {
   switch (role) {
+    case 'werewolf':
     case 'werwolf':
       return 'Werwolf'
     case 'doctor':
@@ -155,7 +156,7 @@ export function sortPlayers(players: Player[], currentPlayerId?: string): Player
     // If current player is the host, use host-specific ordering
     if (isCurrentPlayerHost) {
       // Host sees: Host -> Werwolf -> Police -> Doctor -> Other alive players -> Dead players
-      const roleOrder = { werwolf: 1, police: 2, doctor: 3, villager: 4 }
+      const roleOrder = { werewolf: 1, werwolf: 1, police: 2, doctor: 3, villager: 4 }
       
       // Get role priority (lower number = higher priority)
       const aRolePriority = roleOrder[a.role as keyof typeof roleOrder] || 4
