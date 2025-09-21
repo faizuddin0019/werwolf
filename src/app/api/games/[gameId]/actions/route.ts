@@ -230,23 +230,85 @@ async function handleAssignRoles(gameId: string, game: Game) {
 }
 
 async function handleNextPhase(gameId: string, game: Game, targetPhase?: string) {
-  const nextPhase = targetPhase || getNextPhase(game.phase)
+  console.log('🔧 handleNextPhase called for game:', gameId, 'current phase:', game.phase)
   
-  // Update game phase
-  await supabase
-    .from('games')
-    .update({ phase: nextPhase })
-    .eq('id', gameId)
+  // Check if we're in a night phase and need to start it first
+  const isNightPhase = ['night_wolf', 'night_police', 'night_doctor'].includes(game.phase)
   
-  // For night phases, set phase_started to true
-  // For other phases, reset phase_started to false
-  const isNightPhase = ['night_wolf', 'night_police', 'night_doctor'].includes(nextPhase)
-  await supabase
-    .from('round_state')
-    .update({ phase_started: isNightPhase })
-    .eq('game_id', gameId)
-  
-  return NextResponse.json({ success: true, phase: nextPhase })
+  if (isNightPhase) {
+    // Get current round state to check if phase has been started
+    const { data: roundState } = await supabase
+      .from('round_state')
+      .select('*')
+      .eq('game_id', gameId)
+      .single()
+    
+    console.log('🔧 Current round state:', roundState)
+    
+    if (!roundState?.phase_started) {
+      // Start the current night phase
+      console.log('🔧 Starting night phase:', game.phase)
+      await supabase
+        .from('round_state')
+        .update({ phase_started: true })
+        .eq('game_id', gameId)
+      
+      return NextResponse.json({ success: true, phase: game.phase, action: 'phase_started' })
+    } else {
+      // Phase already started, check if action is completed
+      let actionCompleted = false
+      
+      if (game.phase === 'night_wolf' && roundState.wolf_target_player_id) {
+        actionCompleted = true
+      } else if (game.phase === 'night_police' && roundState.police_inspect_player_id) {
+        actionCompleted = true
+      } else if (game.phase === 'night_doctor' && roundState.doctor_save_player_id) {
+        actionCompleted = true
+      }
+      
+      if (actionCompleted) {
+        // Action completed, advance to next phase
+        const nextPhase = targetPhase || getNextPhase(game.phase)
+        console.log('🔧 Action completed, advancing to next phase:', nextPhase)
+        
+        await supabase
+          .from('games')
+          .update({ phase: nextPhase })
+          .eq('id', gameId)
+        
+        // Reset phase_started for next phase
+        const isNextNightPhase = ['night_wolf', 'night_police', 'night_doctor'].includes(nextPhase)
+        await supabase
+          .from('round_state')
+          .update({ phase_started: isNextNightPhase })
+          .eq('game_id', gameId)
+        
+        return NextResponse.json({ success: true, phase: nextPhase, action: 'phase_advanced' })
+      } else {
+        // Action not completed yet
+        console.log('🔧 Action not completed yet for phase:', game.phase)
+        return NextResponse.json({ success: true, phase: game.phase, action: 'waiting_for_action' })
+      }
+    }
+  } else {
+    // Not a night phase, advance normally
+    const nextPhase = targetPhase || getNextPhase(game.phase)
+    console.log('🔧 Advancing to next phase:', nextPhase)
+    
+    await supabase
+      .from('games')
+      .update({ phase: nextPhase })
+      .eq('id', gameId)
+    
+    // Reset phase_started for next phase
+    const isNextNightPhase = ['night_wolf', 'night_police', 'night_doctor'].includes(nextPhase)
+    await supabase
+      .from('round_state')
+      .update({ phase_started: isNextNightPhase })
+      .eq('game_id', gameId)
+    
+    return NextResponse.json({ success: true, phase: nextPhase, action: 'phase_advanced' })
+  }
 }
 
 async function handleWolfSelect(gameId: string, player: Player, targetId: string) {
