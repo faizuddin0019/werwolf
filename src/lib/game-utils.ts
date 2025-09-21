@@ -140,6 +140,31 @@ export function getRoleDisplayName(role: PlayerRole): string {
   }
 }
 
+// Sort players with proper ordering: Host first, current player second, alive players, then dead players
+export function sortPlayers(players: Player[], currentPlayerId?: string): Player[] {
+  return [...players].sort((a, b) => {
+    // Host always first
+    if (a.is_host && !b.is_host) return -1
+    if (!a.is_host && b.is_host) return 1
+    
+    // If both are hosts (shouldn't happen), maintain original order
+    if (a.is_host && b.is_host) return 0
+    
+    // Current player second (only if not host)
+    if (currentPlayerId) {
+      if (a.id === currentPlayerId && b.id !== currentPlayerId && !a.is_host) return -1
+      if (a.id !== currentPlayerId && b.id === currentPlayerId && !b.is_host) return 1
+    }
+    
+    // Alive players before dead players
+    if (a.alive && !b.alive) return -1
+    if (!a.alive && b.alive) return 1
+    
+    // If both have same status, maintain original order
+    return 0
+  })
+}
+
 // Get phase display name
 export function getPhaseDisplayName(phase: GamePhase): string {
   switch (phase) {

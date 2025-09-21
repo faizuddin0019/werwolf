@@ -13,7 +13,7 @@ import {
   highestVotedPlayerAtom,
   roundStateAtom
 } from '@/lib/game-store'
-import { getPhaseDisplayName, getRoleDisplayName, canPlayerAct } from '@/lib/game-utils'
+import { getPhaseDisplayName, getRoleDisplayName, canPlayerAct, sortPlayers } from '@/lib/game-utils'
 import { Player } from '@/lib/supabase'
 import { 
   Crown, 
@@ -49,8 +49,10 @@ export default function GameScreen({ onEndGame, onRemovePlayer }: GameScreenProp
   const [highestVotedPlayer] = useAtom(highestVotedPlayerAtom)
   const [roundState] = useAtom(roundStateAtom)
 
-  const alivePlayers = players.filter(p => p.alive)
-  const deadPlayers = players.filter(p => !p.alive)
+  // Sort players with proper ordering: Host first, current player second, alive players, then dead players
+  const sortedPlayers = sortPlayers(players, currentPlayer?.id)
+  const alivePlayers = sortedPlayers.filter(p => p.alive)
+  const deadPlayers = sortedPlayers.filter(p => !p.alive)
   
   // Check if current player has an active action screen
   const hasActiveActionScreen = currentPlayer && (
@@ -140,7 +142,7 @@ export default function GameScreen({ onEndGame, onRemovePlayer }: GameScreenProp
                 Players
               </h2>
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {players.map((player) => {
+                {sortedPlayers.map((player) => {
                   const voteCount = voteCounts[player.id] || 0
                   const isHighestVoted = highestVotedPlayer?.id === player.id
                   

@@ -14,6 +14,7 @@ import {
   hasPendingLeaveRequestAtom
 } from '@/lib/game-store'
 import { Crown, Users, Play, Moon, Sun, RotateCcw, LogOut } from 'lucide-react'
+import { sortPlayers } from '@/lib/game-utils'
 
 interface GameLobbyProps {
   onAssignRoles: () => void
@@ -63,10 +64,13 @@ export default function GameLobby({
     timestamp: new Date().toISOString()
   })
 
+  // Sort players with proper ordering: Host first, current player second, alive players, then dead players
+  const sortedPlayers = sortPlayers(players, currentPlayer?.id)
+  
   // In lobby phase, show all players (they're all alive)
-  const alivePlayers = players.filter(p => p.alive)
-  const playerCount = players.length
-  const nonHostPlayerCount = players.filter(p => !p.is_host).length
+  const alivePlayers = sortedPlayers.filter(p => p.alive)
+  const playerCount = sortedPlayers.length
+  const nonHostPlayerCount = sortedPlayers.filter(p => !p.is_host).length
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800 relative overflow-hidden">
@@ -459,7 +463,7 @@ export default function GameLobby({
               </h2>
               
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {players.map((player) => (
+                {sortedPlayers.map((player) => (
                     <div
                       key={player.id}
                       className={`relative p-6 rounded-lg border-2 transition-all ${
