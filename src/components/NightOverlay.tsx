@@ -99,6 +99,7 @@ export default function NightOverlay() {
     
     switch (currentPlayer.role) {
       case 'werwolf':
+      case 'werewolf':
         return {
           icon: <Moon className="w-6 h-6 text-red-600" />,
           title: 'Werwolf Turn',
