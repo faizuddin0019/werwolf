@@ -88,6 +88,20 @@ export default function GameScreen({ onEndGame, onRemovePlayer }: GameScreenProp
       })
     }
   }, [isLoaded, currentPlayer, gamePhase, isNightPhase, isDayPhase, roundState, hasActiveActionScreen])
+  
+  // Debug logging for roundState changes
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'development') {
+      console.log('🔧 GameScreen Debug - RoundState Changed:', {
+        roundState: roundState ? {
+          phase_started: roundState.phase_started,
+          wolf_target: roundState.wolf_target_player_id,
+          police_inspect: roundState.police_inspect_player_id,
+          doctor_save: roundState.doctor_save_player_id
+        } : null
+      })
+    }
+  }, [roundState])
 
   const getPlayerIcon = (player: Player) => {
     if (!player.alive) return <XCircle className="w-4 h-4 text-red-500" />
@@ -325,8 +339,8 @@ export default function GameScreen({ onEndGame, onRemovePlayer }: GameScreenProp
                 </div>
               </div>
 
-              {/* Night Overlay - Only show when it's the player's turn */}
-              {isNightPhase && currentPlayer && (
+              {/* Night Overlay - Only show when it's the player's turn and they can act */}
+              {isNightPhase && currentPlayer && canPlayerAct(currentPlayer, gamePhase, currentPlayer.is_host, roundState || undefined) && (
                 <NightOverlay />
               )}
 
