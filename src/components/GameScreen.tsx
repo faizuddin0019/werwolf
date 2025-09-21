@@ -445,9 +445,16 @@ export default function GameScreen({ onEndGame, onRemovePlayer }: GameScreenProp
                           </div>
                           <div className="flex items-center space-x-2">
                             <span className="text-xs text-slate-400">Role:</span>
-                            <span className="text-xs text-white">
-                              {getRoleDisplayName(player.role)}
-                            </span>
+                            <select
+                              value={player.role || 'villager'}
+                              onChange={(e) => onChangeRole(player.id, e.target.value)}
+                              className="px-2 py-1 bg-slate-700 text-white rounded text-xs border border-slate-600"
+                            >
+                              <option value="villager">Villager</option>
+                              <option value="werwolf">Werwolf</option>
+                              <option value="doctor">Doctor</option>
+                              <option value="police">Police</option>
+                            </select>
                           </div>
                         </div>
                       ))}
@@ -458,7 +465,7 @@ export default function GameScreen({ onEndGame, onRemovePlayer }: GameScreenProp
                     </div>
                   )}
                   <p className="text-xs text-slate-400 mt-3 text-center">
-                    Host can remove any player from the game
+                    Host can remove any player from the game and change roles
                   </p>
                 </div>
               )}
