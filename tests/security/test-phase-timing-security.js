@@ -85,11 +85,16 @@ async function testPhaseTimingSecurity() {
     console.log('📝 Test 3: Verifying werewolf cannot act before host starts phase...')
     
     const werewolfGameData = await fetch(`${BASE_URL}/api/games?code=${gameCode}`, {
-      headers: { 'Cookie': `clientId=player1-client-456` }
+      headers: { 'Cookie': `clientId=host-client-123` }
     }).then(r => r.json())
     
-    const werewolfPlayer = werewolfGameData.players.find(p => p.client_id === 'player1-client-456')
+    // Find the actual werwolf player
+    const werewolfPlayer = werewolfGameData.players.find(p => p.role === 'werewolf' || p.role === 'werwolf')
     const werewolfRoundState = werewolfGameData.roundState
+    
+    if (!werewolfPlayer) {
+      throw new Error('❌ No werwolf player found in the game')
+    }
     
     // Try to perform werewolf action (should fail)
     const wolfActionResponse = await fetch(`${BASE_URL}/api/games/${hostData.game.id}/actions`, {
@@ -97,8 +102,8 @@ async function testPhaseTimingSecurity() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         action: 'wolf_select',
-        clientId: 'player1-client-456',
-        data: { targetId: werewolfGameData.players.find(p => !p.is_host && p.client_id !== 'player1-client-456').id }
+        clientId: werewolfPlayer.client_id,
+        data: { targetId: werewolfGameData.players.find(p => !p.is_host && p.role !== 'werewolf' && p.role !== 'werwolf').id }
       })
     })
     
@@ -143,11 +148,29 @@ async function testPhaseTimingSecurity() {
     console.log('📝 Test 6: Verifying werewolf can now act...')
     
     const updatedWerewolfGameData = await fetch(`${BASE_URL}/api/games?code=${gameCode}`, {
-      headers: { 'Cookie': `clientId=player1-client-456` }
+      headers: { 'Cookie': `clientId=host-client-123` }
     }).then(r => r.json())
     
-    const updatedWerewolfPlayer = updatedWerewolfGameData.players.find(p => p.client_id === 'player1-client-456')
-    const targetPlayer = updatedWerewolfGameData.players.find(p => !p.is_host && p.client_id !== 'player1-client-456')
+    // Debug: Check what roles were assigned
+    console.log('🔧 Debug: All players and their roles:')
+    updatedWerewolfGameData.players.forEach(p => {
+      console.log(`  - ${p.name} (${p.client_id}): ${p.role || 'no role'} ${p.is_host ? '(HOST)' : ''}`)
+    })
+    
+    // Find the actual werwolf player (not hardcoded)
+    const updatedWerewolfPlayer = updatedWerewolfGameData.players.find(p => p.role === 'werewolf' || p.role === 'werwolf')
+    const targetPlayer = updatedWerewolfGameData.players.find(p => !p.is_host && p.role !== 'werewolf' && p.role !== 'werwolf')
+    
+    console.log('🔧 Debug: Werewolf player:', updatedWerewolfPlayer ? { name: updatedWerewolfPlayer.name, role: updatedWerewolfPlayer.role, clientId: updatedWerewolfPlayer.client_id } : 'NOT FOUND')
+    console.log('🔧 Debug: Target player:', targetPlayer ? { name: targetPlayer.name, role: targetPlayer.role, clientId: targetPlayer.client_id } : 'NOT FOUND')
+    
+    if (!updatedWerewolfPlayer) {
+      throw new Error('❌ No werwolf player found in the game')
+    }
+    
+    if (!targetPlayer) {
+      throw new Error('❌ No target player found for werwolf action')
+    }
     
     // Try to perform werewolf action (should succeed)
     const wolfActionResponse2 = await fetch(`${BASE_URL}/api/games/${hostData.game.id}/actions`, {
@@ -155,13 +178,14 @@ async function testPhaseTimingSecurity() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         action: 'wolf_select',
-        clientId: 'player1-client-456',
+        clientId: updatedWerewolfPlayer.client_id,
         data: { targetId: targetPlayer.id }
       })
     })
     
     if (!wolfActionResponse2.ok) {
-      throw new Error('❌ Werewolf should be able to act after host starts phase')
+      const errorText = await wolfActionResponse2.text()
+      throw new Error(`❌ Werewolf should be able to act after host starts phase. Error: ${wolfActionResponse2.status} - ${errorText}`)
     }
     console.log('✅ Werewolf can act after host starts phase')
     

@@ -145,6 +145,31 @@ export async function GET(request: NextRequest) {
       console.error('Error fetching players:', playersError)
       return NextResponse.json({ error: 'Failed to fetch players' }, { status: 500 })
     }
+
+    // Get current player from cookie to implement role visibility security
+    const clientId = request.cookies.get('clientId')?.value
+    const currentPlayer = players?.find(p => p.client_id === clientId)
+    const isHost = currentPlayer?.is_host || false
+
+    // Filter roles based on security rules:
+    // - Host can see all roles
+    // - Players can only see their own role
+    // - Other players' roles are hidden (set to null)
+    const filteredPlayers = players?.map(player => {
+      if (isHost) {
+        // Host can see all roles
+        return player
+      } else if (player.client_id === clientId) {
+        // Player can see their own role
+        return player
+      } else {
+        // Hide other players' roles
+        return {
+          ...player,
+          role: undefined
+        }
+      }
+    }) || []
     
     // Get round state
     const { data: roundState, error: roundStateError } = await supabase
@@ -184,7 +209,7 @@ export async function GET(request: NextRequest) {
     
     return NextResponse.json({
       game,
-      players: players || [],
+      players: filteredPlayers,
       roundState,
       votes: votes || [],
       leaveRequests: leaveRequests || []

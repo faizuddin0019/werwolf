@@ -403,18 +403,26 @@ async function handleNextPhase(gameId: string, game: Game, targetPhase?: string)
 }
 
 async function handleWolfSelect(gameId: string, player: Player, targetId: string) {
+  console.log('🔧 handleWolfSelect: Player role check:', { playerId: player.id, playerName: player.name, role: player.role, isWerwolf: player.role === 'werwolf' || player.role === 'werewolf' })
+  
   if (player.role !== 'werwolf' && player.role !== 'werewolf') {
     return NextResponse.json({ error: 'Only werewolves can select targets' }, { status: 403 })
   }
   
-  // Check if werwolf has already selected a target
+  // Check if werwolf has already selected a target and if phase has been started
   const { data: roundState } = await supabase
     .from('round_state')
-    .select('wolf_target_player_id')
+    .select('wolf_target_player_id, phase_started')
     .eq('game_id', gameId)
     .single()
   
-  console.log('🔧 Werwolf select check:', { gameId, roundState, wolfTargetPlayerId: roundState?.wolf_target_player_id })
+  console.log('🔧 Werwolf select check:', { gameId, roundState, wolfTargetPlayerId: roundState?.wolf_target_player_id, phaseStarted: roundState?.phase_started })
+  
+  // Check if phase has been started by host
+  if (!roundState || roundState.phase_started !== true) {
+    console.log('🔧 Phase not started yet, rejecting werwolf action')
+    return NextResponse.json({ error: 'Phase has not been started by the host yet' }, { status: 400 })
+  }
   
   if (roundState?.wolf_target_player_id) {
     console.log('🔧 Werwolf already selected, rejecting second action')
@@ -442,14 +450,20 @@ async function handlePoliceInspect(gameId: string, player: Player, targetId: str
     return NextResponse.json({ error: 'Only police can inspect players' }, { status: 403 })
   }
   
-  // Check if police has already inspected someone
+  // Check if police has already inspected someone and if phase has been started
   const { data: roundState } = await supabase
     .from('round_state')
-    .select('police_inspect_player_id')
+    .select('police_inspect_player_id, phase_started')
     .eq('game_id', gameId)
     .single()
   
-  console.log('🔧 Police inspect check:', { gameId, roundState, policeInspectPlayerId: roundState?.police_inspect_player_id })
+  console.log('🔧 Police inspect check:', { gameId, roundState, policeInspectPlayerId: roundState?.police_inspect_player_id, phaseStarted: roundState?.phase_started })
+  
+  // Check if phase has been started by host
+  if (!roundState || roundState.phase_started !== true) {
+    console.log('🔧 Phase not started yet, rejecting police action')
+    return NextResponse.json({ error: 'Phase has not been started by the host yet' }, { status: 400 })
+  }
   
   if (roundState?.police_inspect_player_id) {
     console.log('🔧 Police already inspected, rejecting second action')
@@ -489,14 +503,20 @@ async function handleDoctorSave(gameId: string, player: Player, targetId: string
     return NextResponse.json({ error: 'Only doctors can save players' }, { status: 403 })
   }
   
-  // Check if doctor has already saved someone
+  // Check if doctor has already saved someone and if phase has been started
   const { data: roundState } = await supabase
     .from('round_state')
-    .select('doctor_save_player_id')
+    .select('doctor_save_player_id, phase_started')
     .eq('game_id', gameId)
     .single()
   
-  console.log('🔧 Doctor save check:', { gameId, roundState, doctorSavePlayerId: roundState?.doctor_save_player_id })
+  console.log('🔧 Doctor save check:', { gameId, roundState, doctorSavePlayerId: roundState?.doctor_save_player_id, phaseStarted: roundState?.phase_started })
+  
+  // Check if phase has been started by host
+  if (!roundState || roundState.phase_started !== true) {
+    console.log('🔧 Phase not started yet, rejecting doctor action')
+    return NextResponse.json({ error: 'Phase has not been started by the host yet' }, { status: 400 })
+  }
   
   if (roundState?.doctor_save_player_id) {
     console.log('🔧 Doctor already saved, rejecting second action')

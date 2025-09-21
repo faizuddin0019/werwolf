@@ -67,8 +67,10 @@ class MultipleActionsPreventionTest {
     })
     console.log('✅ Roles assigned')
 
-    // Fetch game state to find the players with roles
-    const gameState = await this.makeRequest(`${BASE_URL}/api/games?code=${this.gameCode}`)
+    // Fetch game state to find the players with roles (using host cookie to see all roles)
+    const gameState = await fetch(`${BASE_URL}/api/games?code=${this.gameCode}`, {
+      headers: { 'Cookie': `clientId=${this.hostClientId}` }
+    }).then(r => r.json())
     const werwolfPlayer = gameState.players.find(p => p.role === 'werwolf' || p.role === 'werewolf')
     const doctorPlayer = gameState.players.find(p => p.role === 'doctor')
     const policePlayer = gameState.players.find(p => p.role === 'police')
@@ -99,7 +101,9 @@ class MultipleActionsPreventionTest {
     console.log('✅ Host started werwolf phase')
 
     // Get game state to find targets
-    const gameState = await this.makeRequest(`${BASE_URL}/api/games?code=${this.gameCode}`)
+    const gameState = await fetch(`${BASE_URL}/api/games?code=${this.gameCode}`, {
+      headers: { 'Cookie': `clientId=${this.hostClientId}` }
+    }).then(r => r.json())
     const targets = gameState.players.filter(p => p.id !== this.werwolfPlayerId && !p.is_host && p.alive)
     
     if (targets.length < 2) {
@@ -162,7 +166,9 @@ class MultipleActionsPreventionTest {
     console.log('✅ Host started doctor phase')
 
     // Get game state to find targets
-    const gameState = await this.makeRequest(`${BASE_URL}/api/games?code=${this.gameCode}`)
+    const gameState = await fetch(`${BASE_URL}/api/games?code=${this.gameCode}`, {
+      headers: { 'Cookie': `clientId=${this.hostClientId}` }
+    }).then(r => r.json())
     const targets = gameState.players.filter(p => p.id !== this.doctorPlayerId && !p.is_host && p.alive)
     
     if (targets.length < 2) {
@@ -225,7 +231,9 @@ class MultipleActionsPreventionTest {
     console.log('✅ Host started police phase')
 
     // Get game state to find targets
-    const gameState = await this.makeRequest(`${BASE_URL}/api/games?code=${this.gameCode}`)
+    const gameState = await fetch(`${BASE_URL}/api/games?code=${this.gameCode}`, {
+      headers: { 'Cookie': `clientId=${this.hostClientId}` }
+    }).then(r => r.json())
     const targets = gameState.players.filter(p => p.id !== this.policePlayerId && !p.is_host && p.alive)
     
     if (targets.length < 2) {
