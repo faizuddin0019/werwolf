@@ -629,6 +629,8 @@ export default function HomePage() {
     const isHost = currentPlayer.client_id === game.host_client_id
     if (!isHost) return
     
+    console.log('🔧 Frontend: handleAssignRoles called', { gameId: game.id, hostClientId: game.host_client_id, currentPlayerClientId: currentPlayer.client_id })
+    
     setIsLoading(true)
     setError(null)
     
@@ -646,8 +648,18 @@ export default function HomePage() {
       
       if (!response.ok) {
         const error = await response.json()
+        console.error('❌ Frontend: Assign roles failed:', error)
         throw new Error(error.error || 'Failed to assign roles')
       }
+      
+      const result = await response.json()
+      console.log('✅ Frontend: Assign roles successful:', result)
+      
+      // Force a manual refresh of the game data since WebSocket might be failing
+      console.log('🔧 Frontend: Forcing manual refresh of game data...')
+      setTimeout(() => {
+        window.location.reload()
+      }, 1000)
       
       // Play howling sound effect
       playSoundEffect('howl')
@@ -656,6 +668,7 @@ export default function HomePage() {
       // Let the real-time sync handle the state transition based on game phase
       // setGameState('playing')
     } catch (err) {
+      console.error('❌ Frontend: Assign roles error:', err)
       setError(err instanceof Error ? err.message : 'Failed to assign roles')
     } finally {
       setIsLoading(false)
