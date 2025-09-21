@@ -61,7 +61,12 @@ export function useRealtimeSync(gameId: string | null, onGameEnded?: () => void)
   currentPlayerRef.current = currentPlayer
 
   useEffect(() => {
-    if (!gameId || !isSupabaseConfigured() || !supabase) return
+    if (!gameId || !isSupabaseConfigured() || !supabase) {
+      log('🔧 useRealtimeSync: Skipping setup - gameId:', gameId, 'isSupabaseConfigured:', isSupabaseConfigured(), 'supabase:', !!supabase)
+      return
+    }
+    
+    log('🔧 useRealtimeSync: Setting up real-time sync for gameId:', gameId)
 
     // Subscribe to game changes
     const gameSubscription = supabase

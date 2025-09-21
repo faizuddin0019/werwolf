@@ -3,17 +3,27 @@ import { createClient } from '@supabase/supabase-js'
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
+// Clean up the API key by removing any whitespace/newlines
+const cleanSupabaseUrl = supabaseUrl?.trim()
+const cleanSupabaseAnonKey = supabaseAnonKey?.trim().replace(/[\r\n]/g, '')
+
 // Only create client if we have valid environment variables
-export const supabase = (supabaseUrl && supabaseAnonKey && 
-  supabaseUrl.startsWith('https://') && 
-  !supabaseUrl.includes('placeholder')) 
-  ? createClient(supabaseUrl, supabaseAnonKey)
+export const supabase = (cleanSupabaseUrl && cleanSupabaseAnonKey && 
+  cleanSupabaseUrl.startsWith('https://') && 
+  !cleanSupabaseUrl.includes('placeholder')) 
+  ? createClient(cleanSupabaseUrl, cleanSupabaseAnonKey, {
+      realtime: {
+        params: {
+          eventsPerSecond: 10
+        }
+      }
+    })
   : null
 
 // Helper function to check if Supabase is configured
 export const isSupabaseConfigured = () => {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim()
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim().replace(/[\r\n]/g, '')
   
   return !!(url && key && 
            url.startsWith('https://') && 
