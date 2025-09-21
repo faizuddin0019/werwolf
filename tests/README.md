@@ -7,7 +7,14 @@ This directory contains all test files organized by category and functionality.
 ```
 tests/
 ├── core/                           # Core game logic tests
-│   └── game-logic.test.js         # Basic game mechanics
+│   ├── game-logic.test.js         # Basic game mechanics
+│   └── test-player-ordering.js    # Player ordering logic
+├── security/                       # Security tests
+│   ├── test-role-visibility.js    # Role visibility security
+│   └── test-phase-timing-security.js # Phase timing security
+├── ui/                            # UI and layout tests
+│   ├── test-game-screen-layout.js # Game screen layout and styling
+│   └── test-mobile-layout-ordering.js # Mobile layout ordering
 ├── integration/                    # Integration tests
 │   └── real-time-sync.test.js     # Real-time synchronization
 ├── performance/                    # Performance tests
@@ -21,7 +28,7 @@ tests/
 │   └── test-game-flow-demo.js     # Game flow demo
 ├── config/                        # Test configuration
 │   └── test-config.js             # Shared test configuration
-├── run-all-tests.js               # Main test runner
+├── run-all-tests.sh               # Main test runner with category support
 ├── run-comprehensive-tests.sh     # Comprehensive test suite
 ├── run-tests.sh                   # Legacy test runner
 └── README.md                      # This file
@@ -31,31 +38,40 @@ tests/
 
 ### 1. Core Tests (`core/`)
 - **Purpose**: Test fundamental game mechanics
-- **Files**: `game-logic.test.js`
-- **Coverage**: Basic game rules, player actions, win conditions, sound effects
+- **Files**: `game-logic.test.js`, `test-player-ordering.js`
+- **Coverage**: Basic game rules, player actions, win conditions, sound effects, player ordering logic
 
-### 2. Integration Tests (`integration/`)
+### 2. Security Tests (`security/`)
+- **Purpose**: Test security features and access control
+- **Files**: `test-role-visibility.js`, `test-phase-timing-security.js`
+- **Coverage**: Role visibility security, phase timing security, access control
+
+### 3. UI Tests (`ui/`)
+- **Purpose**: Test user interface and layout
+- **Files**: `test-game-screen-layout.js`, `test-mobile-layout-ordering.js`
+- **Coverage**: Game screen layout, mobile layout ordering, responsive design
+
+### 4. Integration Tests (`integration/`)
 - **Purpose**: Test system integration and real-time features
 - **Files**: `real-time-sync.test.js`
-- **Coverage**: Real-time updates, state synchronization, multiplayer, mobile UI layout
+- **Coverage**: Real-time updates, state synchronization, multiplayer
 
-### 3. Performance Tests (`performance/`)
+### 5. Performance Tests (`performance/`)
 - **Purpose**: Test performance and battery optimization
 - **Files**: `battery-optimization.test.js`
 - **Coverage**: Battery usage, animation performance, memory usage
 
-### 4. End Game Tests (`end-game/`)
+### 6. End Game Tests (`end-game/`)
 - **Purpose**: Test end game logic and winner declaration
 - **Files**: `test-end-game-logic.js`
 - **Coverage**: Win conditions, host exclusion, winner display
 
-### 5. Game Flow Tests (`game-flow/`)
+### 7. Game Flow Tests (`game-flow/`)
 - **Purpose**: Test game flow and host controls
 - **Files**: `test-game-flow-improvements.js`
 - **Coverage**: Phase transitions, host controls, manual voting, werewolf screen timing, host control over night phase
 
-
-### 7. Demo Tests (`demo/`)
+### 8. Demo Tests (`demo/`)
 - **Purpose**: Demo and example tests
 - **Files**: `test-demo.js`, `test-game-flow-demo.js`
 - **Coverage**: Test framework demonstration, example scenarios
@@ -64,10 +80,16 @@ tests/
 
 ### Individual Test Categories
 ```bash
-# Core tests
+# Core tests (game logic + player ordering)
 npm run test:core
 
-# Integration tests
+# Security tests (role visibility + phase timing)
+npm run test:security
+
+# UI tests (layout + mobile ordering)
+npm run test:ui
+
+# Integration tests (real-time sync)
 npm run test:integration
 
 # Performance tests
@@ -78,9 +100,6 @@ npm run test:end-game
 
 # Game flow tests
 npm run test:game-flow
-
-# Core tests (includes sound effects)
-npm run test:core
 
 # Demo tests
 npm run test:demo

@@ -95,11 +95,17 @@ wait_for_server() {
 
 # Main test execution
 main() {
+    # Check for category filter
+    CATEGORY_FILTER="$1"
+    
     echo -e "${BLUE}📋 Test Configuration:${NC}"
     echo "Base URL: $BASE_URL"
     echo "Vercel URL: $VERCEL_URL"
     echo "Node Version: $(node --version)"
     echo "NPM Version: $(npm --version)"
+    if [ -n "$CATEGORY_FILTER" ]; then
+        echo "Category Filter: $CATEGORY_FILTER"
+    fi
     
     # Check if we're running in CI/CD
     if [ "$CI" = "true" ]; then
@@ -138,13 +144,61 @@ main() {
     echo -e "\n${BLUE}🧪 Starting Test Execution...${NC}"
     echo "=================================================="
     
-    # Run all test suites
-    run_test "End Game Logic Tests" "test-end-game-logic.js" "$TEST_URL"
-    run_test "Game Flow Improvement Tests" "test-game-flow-improvements.js" "$TEST_URL"
+    # Function to run tests by category
+    run_category_tests() {
+        local category="$1"
+        
+        case "$category" in
+            "core")
+                echo -e "\n${BLUE}🎯 Running Core Game Logic Tests${NC}"
+                run_test "Core Game Logic Tests" "tests/core/game-logic.test.js" "$TEST_URL"
+                run_test "Player Ordering Tests" "tests/core/test-player-ordering.js" "$TEST_URL"
+                ;;
+            "security")
+                echo -e "\n${BLUE}🔒 Running Security Tests${NC}"
+                run_test "Role Visibility Security Tests" "tests/security/test-role-visibility.js" "$TEST_URL"
+                run_test "Phase Timing Security Tests" "tests/security/test-phase-timing-security.js" "$TEST_URL"
+                ;;
+            "ui")
+                echo -e "\n${BLUE}🎨 Running UI Tests${NC}"
+                run_test "Game Screen Layout Tests" "tests/ui/test-game-screen-layout.js" "$TEST_URL"
+                run_test "Mobile Layout Ordering Tests" "tests/ui/test-mobile-layout-ordering.js" "$TEST_URL"
+                ;;
+            "integration")
+                echo -e "\n${BLUE}🔗 Running Integration Tests${NC}"
+                run_test "Real-time Sync Tests" "tests/integration/real-time-sync.test.js" "$TEST_URL"
+                ;;
+            *)
+                # Run all test suites organized by functionality
+                echo -e "\n${BLUE}🎯 Running Core Game Logic Tests${NC}"
+                run_test "Core Game Logic Tests" "tests/core/game-logic.test.js" "$TEST_URL"
+                run_test "Player Ordering Tests" "tests/core/test-player-ordering.js" "$TEST_URL"
+                
+                echo -e "\n${BLUE}🔒 Running Security Tests${NC}"
+                run_test "Role Visibility Security Tests" "tests/security/test-role-visibility.js" "$TEST_URL"
+                run_test "Phase Timing Security Tests" "tests/security/test-phase-timing-security.js" "$TEST_URL"
+                
+                echo -e "\n${BLUE}🎨 Running UI Tests${NC}"
+                run_test "Game Screen Layout Tests" "tests/ui/test-game-screen-layout.js" "$TEST_URL"
+                run_test "Mobile Layout Ordering Tests" "tests/ui/test-mobile-layout-ordering.js" "$TEST_URL"
+                
+                echo -e "\n${BLUE}🔗 Running Integration Tests${NC}"
+                run_test "Real-time Sync Tests" "tests/integration/real-time-sync.test.js" "$TEST_URL"
+                
+                echo -e "\n${BLUE}🏁 Running End Game Tests${NC}"
+                run_test "End Game Logic Tests" "tests/end-game/test-end-game-logic.js" "$TEST_URL"
+                
+                echo -e "\n${BLUE}🎮 Running Game Flow Tests${NC}"
+                run_test "Game Flow Improvement Tests" "tests/game-flow/test-game-flow-improvements.js" "$TEST_URL"
+                
+                echo -e "\n${BLUE}⚡ Running Performance Tests${NC}"
+                run_test "Battery Optimization Tests" "tests/performance/battery-optimization.test.js" "$TEST_URL"
+                ;;
+        esac
+    }
     
-    # Add more test suites as they are created
-    # run_test "Real-time Sync Tests" "test-realtime-sync.js" "$TEST_URL"
-    # run_test "Mobile UI Tests" "test-mobile-ui.js" "$TEST_URL"
+    # Run tests based on category filter
+    run_category_tests "$CATEGORY_FILTER"
     
     echo -e "\n${BLUE}📊 Test Results Summary${NC}"
     echo "=================================================="
