@@ -211,11 +211,19 @@ async function handleAssignRoles(gameId: string, game: Game) {
   
   console.log('✅ Role assignment completed successfully!')
   
-  // Don't update game phase - let host control when to start night phase
-  // await supabase
-  //   .from('games')
-  //   .update({ phase: 'night_wolf' })
-  //   .eq('id', gameId)
+  // Update game phase to night_wolf so host can start the game
+  console.log('🔧 Updating game phase to night_wolf...')
+  const { error: phaseError } = await supabase
+    .from('games')
+    .update({ phase: 'night_wolf' })
+    .eq('id', gameId)
+  
+  if (phaseError) {
+    console.error('❌ Error updating game phase:', phaseError)
+    return NextResponse.json({ error: 'Failed to update game phase' }, { status: 500 })
+  }
+  
+  console.log('✅ Game phase updated to night_wolf!')
   
   return NextResponse.json({ success: true })
 }
