@@ -71,6 +71,12 @@ export default function GameScreen({ onEndGame, onRemovePlayer, onChangeRole }: 
     
     const pollInterval = setInterval(async () => {
       try {
+        // Safety check: ensure game.code exists and is valid
+        if (!game.code || game.code === '1' || game.code.length < 6) {
+          console.warn('🔧 GameScreen: Invalid game code, skipping poll:', game.code)
+          return
+        }
+        
         const response = await fetch(`/api/games?code=${game.code}`, {
           headers: { 'Cookie': `clientId=${currentPlayer.client_id}` }
         })

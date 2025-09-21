@@ -93,6 +93,13 @@ export default function HomePage() {
   // Restore game from saved state
   const restoreGame = async (code: string, clientId: string) => {
     try {
+      // Safety check: ensure code is valid
+      if (!code || code === '1' || code.length < 6) {
+        console.warn('🔧 restoreGame: Invalid game code, skipping restore:', code)
+        setGameState('welcome')
+        return
+      }
+      
       setIsLoading(true)
       const response = await fetch(`/api/games?code=${code}`)
       
@@ -233,6 +240,9 @@ export default function HomePage() {
       const data = await response.json()
       
       // Fetch all players in the game to get complete list
+      if (!data.gameCode || data.gameCode === '1' || data.gameCode.length < 6) {
+        throw new Error('Invalid game code received from server')
+      }
       const gameResponse = await fetch(`/api/games?code=${data.gameCode}`)
       if (gameResponse.ok) {
         const gameData = await gameResponse.json()
