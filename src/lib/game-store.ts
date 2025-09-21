@@ -198,11 +198,14 @@ export const setGameDataAtom = atom(null, (get, set, data: {
     if (process.env.NODE_ENV === 'development') {
       console.log('🔧 Players changed, updating playersAtom')
       console.log('🔧 Players data:', data.players.map(p => ({ id: p.id, name: p.name, role: p.role, is_host: p.is_host })))
+      console.log('🔧 Current players before update:', currentPlayers?.map(p => ({ id: p.id, name: p.name, role: p.role, is_host: p.is_host })))
     }
     set(playersAtom, data.players)
   } else {
     if (process.env.NODE_ENV === 'development') {
       console.log('🔧 Players unchanged, skipping update')
+      console.log('🔧 Current players:', currentPlayers?.map(p => ({ id: p.id, name: p.name, role: p.role, is_host: p.is_host })))
+      console.log('🔧 New players:', data.players.map(p => ({ id: p.id, name: p.name, role: p.role, is_host: p.is_host })))
     }
   }
   
