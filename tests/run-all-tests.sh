@@ -159,11 +159,14 @@ main() {
                 echo -e "\n${BLUE}🔒 Running Security Tests${NC}"
                 run_test "Role Visibility Security Tests" "tests/security/test-role-visibility.js" "$TEST_URL"
                 run_test "Phase Timing Security Tests" "tests/security/test-phase-timing-security.js" "$TEST_URL"
+                run_test "Multiple Actions Prevention Tests" "tests/security/test-multiple-actions-prevention.js" "$TEST_URL"
                 ;;
             "ui")
                 echo -e "\n${BLUE}🎨 Running UI Tests${NC}"
                 run_test "Game Screen Layout Tests" "tests/ui/test-game-screen-layout.js" "$TEST_URL"
                 run_test "Mobile Layout Ordering Tests" "tests/ui/test-mobile-layout-ordering.js" "$TEST_URL"
+                run_test "Reveal Dead Button Tests" "tests/ui/test-reveal-dead-button.js" "$TEST_URL"
+                run_test "Action Visibility Tests" "tests/ui/test-action-visibility.js" "$TEST_URL"
                 ;;
             "integration")
                 echo -e "\n${BLUE}🔗 Running Integration Tests${NC}"
@@ -178,10 +181,13 @@ main() {
                 echo -e "\n${BLUE}🔒 Running Security Tests${NC}"
                 run_test "Role Visibility Security Tests" "tests/security/test-role-visibility.js" "$TEST_URL"
                 run_test "Phase Timing Security Tests" "tests/security/test-phase-timing-security.js" "$TEST_URL"
+                run_test "Multiple Actions Prevention Tests" "tests/security/test-multiple-actions-prevention.js" "$TEST_URL"
                 
                 echo -e "\n${BLUE}🎨 Running UI Tests${NC}"
                 run_test "Game Screen Layout Tests" "tests/ui/test-game-screen-layout.js" "$TEST_URL"
                 run_test "Mobile Layout Ordering Tests" "tests/ui/test-mobile-layout-ordering.js" "$TEST_URL"
+                run_test "Reveal Dead Button Tests" "tests/ui/test-reveal-dead-button.js" "$TEST_URL"
+                run_test "Action Visibility Tests" "tests/ui/test-action-visibility.js" "$TEST_URL"
                 
                 echo -e "\n${BLUE}🔗 Running Integration Tests${NC}"
                 run_test "Real-time Sync Tests" "tests/integration/real-time-sync.test.js" "$TEST_URL"

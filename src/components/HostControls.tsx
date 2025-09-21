@@ -254,8 +254,35 @@ export default function HostControls({ onEndGame }: HostControlsProps) {
         </div>
       )}
       
-      {/* Current Phase Info */}
+      {/* Action Status */}
       <div className="mt-6 pt-4 border-t border-gray-200">
+        <div className="text-sm text-gray-600">
+          <p className="font-medium mb-2">Action Status:</p>
+          <div className="space-y-1">
+            <div className="flex justify-between">
+              <span>Werwolf:</span>
+              <span className={roundState?.wolf_target_player_id ? 'text-green-600' : 'text-gray-400'}>
+                {roundState?.wolf_target_player_id ? 'Target Selected' : 'Waiting'}
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span>Doctor:</span>
+              <span className={roundState?.doctor_save_player_id ? 'text-green-600' : 'text-gray-400'}>
+                {roundState?.doctor_save_player_id ? 'Player Saved' : 'Waiting'}
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span>Police:</span>
+              <span className={roundState?.police_inspect_player_id ? 'text-green-600' : 'text-gray-400'}>
+                {roundState?.police_inspect_player_id ? 'Inspection Done' : 'Waiting'}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Current Phase Info */}
+      <div className="mt-4 pt-4 border-t border-gray-200">
         <div className="text-sm text-gray-600">
           <p className="font-medium">Current Phase:</p>
           <p className="text-gray-800">{getPhaseDisplayName(gamePhase)}</p>

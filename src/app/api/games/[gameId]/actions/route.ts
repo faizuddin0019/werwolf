@@ -407,10 +407,31 @@ async function handleWolfSelect(gameId: string, player: Player, targetId: string
     return NextResponse.json({ error: 'Only werewolves can select targets' }, { status: 403 })
   }
   
-  await supabase
+  // Check if werwolf has already selected a target
+  const { data: roundState } = await supabase
+    .from('round_state')
+    .select('wolf_target_player_id')
+    .eq('game_id', gameId)
+    .single()
+  
+  console.log('🔧 Werwolf select check:', { gameId, roundState, wolfTargetPlayerId: roundState?.wolf_target_player_id })
+  
+  if (roundState?.wolf_target_player_id) {
+    console.log('🔧 Werwolf already selected, rejecting second action')
+    return NextResponse.json({ error: 'Werwolf has already selected a target for this phase' }, { status: 400 })
+  }
+  
+  const { error: updateError } = await supabase
     .from('round_state')
     .update({ wolf_target_player_id: targetId })
     .eq('game_id', gameId)
+  
+  if (updateError) {
+    console.error('🔧 Werwolf select update error:', updateError)
+    return NextResponse.json({ error: 'Failed to update werwolf selection' }, { status: 500 })
+  }
+  
+  console.log('🔧 Werwolf select update successful:', { targetId })
   
   // Don't automatically advance phase - let host control it
   return NextResponse.json({ success: true })
@@ -419,6 +440,20 @@ async function handleWolfSelect(gameId: string, player: Player, targetId: string
 async function handlePoliceInspect(gameId: string, player: Player, targetId: string) {
   if (player.role !== 'police') {
     return NextResponse.json({ error: 'Only police can inspect players' }, { status: 403 })
+  }
+  
+  // Check if police has already inspected someone
+  const { data: roundState } = await supabase
+    .from('round_state')
+    .select('police_inspect_player_id')
+    .eq('game_id', gameId)
+    .single()
+  
+  console.log('🔧 Police inspect check:', { gameId, roundState, policeInspectPlayerId: roundState?.police_inspect_player_id })
+  
+  if (roundState?.police_inspect_player_id) {
+    console.log('🔧 Police already inspected, rejecting second action')
+    return NextResponse.json({ error: 'Police has already inspected a player for this phase' }, { status: 400 })
   }
   
   // Get target player
@@ -430,13 +465,20 @@ async function handlePoliceInspect(gameId: string, player: Player, targetId: str
   
   const result = (targetPlayer?.role === 'werwolf' || targetPlayer?.role === 'werewolf') ? 'werwolf' : 'not_werwolf'
   
-  await supabase
+  const { error: updateError } = await supabase
     .from('round_state')
     .update({ 
       police_inspect_player_id: targetId,
       police_inspect_result: result
     })
     .eq('game_id', gameId)
+  
+  if (updateError) {
+    console.error('🔧 Police inspect update error:', updateError)
+    return NextResponse.json({ error: 'Failed to update police inspection' }, { status: 500 })
+  }
+  
+  console.log('🔧 Police inspect update successful:', { targetId, result })
   
   // Don't automatically advance phase - let host control it
   return NextResponse.json({ success: true, result })
@@ -447,10 +489,31 @@ async function handleDoctorSave(gameId: string, player: Player, targetId: string
     return NextResponse.json({ error: 'Only doctors can save players' }, { status: 403 })
   }
   
-  await supabase
+  // Check if doctor has already saved someone
+  const { data: roundState } = await supabase
+    .from('round_state')
+    .select('doctor_save_player_id')
+    .eq('game_id', gameId)
+    .single()
+  
+  console.log('🔧 Doctor save check:', { gameId, roundState, doctorSavePlayerId: roundState?.doctor_save_player_id })
+  
+  if (roundState?.doctor_save_player_id) {
+    console.log('🔧 Doctor already saved, rejecting second action')
+    return NextResponse.json({ error: 'Doctor has already saved a player for this phase' }, { status: 400 })
+  }
+  
+  const { error: updateError } = await supabase
     .from('round_state')
     .update({ doctor_save_player_id: targetId })
     .eq('game_id', gameId)
+  
+  if (updateError) {
+    console.error('🔧 Doctor save update error:', updateError)
+    return NextResponse.json({ error: 'Failed to update doctor save' }, { status: 500 })
+  }
+  
+  console.log('🔧 Doctor save update successful:', { targetId })
   
   // Don't automatically advance phase - let host control it
   return NextResponse.json({ success: true })
