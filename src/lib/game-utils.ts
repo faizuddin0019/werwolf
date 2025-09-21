@@ -29,7 +29,7 @@ export function assignRoles(players: Player[]): Player[] {
     let role: PlayerRole = 'villager'
     
     if (index < werwolfCount) {
-      role = 'werewolf'
+      role = 'werwolf'
     } else if (index === werwolfCount) {
       role = 'doctor'
     } else if (index === werwolfCount + 1) {
@@ -49,8 +49,8 @@ export function checkWinCondition(game: Game, players: Player[]): 'villagers' | 
   // Exclude host from win condition calculations
   const nonHostPlayers = players.filter(p => !p.is_host)
   const alivePlayers = nonHostPlayers.filter(p => p.alive)
-  const aliveWerwolves = alivePlayers.filter(p => p.role === 'werewolf')
-  const aliveVillagers = alivePlayers.filter(p => p.role !== 'werewolf')
+  const aliveWerwolves = alivePlayers.filter(p => p.role === 'werwolf')
+  const aliveVillagers = alivePlayers.filter(p => p.role !== 'werwolf')
   
   // Game ends when there are only 2 non-host players left
   if (alivePlayers.length <= 2) {
@@ -111,7 +111,7 @@ export function canPlayerAct(
   
   switch (phase) {
     case 'night_wolf':
-      return player.role === 'werewolf' || isHost
+      return player.role === 'werwolf' || isHost
     case 'night_police':
       return player.role === 'police' || isHost
     case 'night_doctor':
@@ -127,7 +127,7 @@ export function canPlayerAct(
 // Get role display name
 export function getRoleDisplayName(role: PlayerRole): string {
   switch (role) {
-    case 'werewolf':
+    case 'werwolf':
       return 'Werwolf'
     case 'doctor':
       return 'Doctor'
@@ -154,8 +154,8 @@ export function sortPlayers(players: Player[], currentPlayerId?: string): Player
     
     // If current player is the host, use host-specific ordering
     if (isCurrentPlayerHost) {
-      // Host sees: Host -> Werewolf -> Police -> Doctor -> Other alive players -> Dead players
-      const roleOrder = { werewolf: 1, police: 2, doctor: 3, villager: 4 }
+      // Host sees: Host -> Werwolf -> Police -> Doctor -> Other alive players -> Dead players
+      const roleOrder = { werwolf: 1, police: 2, doctor: 3, villager: 4 }
       
       // Get role priority (lower number = higher priority)
       const aRolePriority = roleOrder[a.role as keyof typeof roleOrder] || 4

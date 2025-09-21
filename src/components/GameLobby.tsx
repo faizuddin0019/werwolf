@@ -358,7 +358,7 @@ export default function GameLobby({
                             className="px-2 py-1 bg-gray-700 text-white rounded text-xs border border-gray-600"
                           >
                             <option value="villager">Villager</option>
-                            <option value="werewolf">Werewolf</option>
+                            <option value="werwolf">Werwolf</option>
                             <option value="doctor">Doctor</option>
                             <option value="police">Police</option>
                           </select>
@@ -532,7 +532,7 @@ export default function GameLobby({
                         {/* Role Display - Only show to host and the player themselves */}
                         {!player.is_host && player.role && (isHost || player.id === currentPlayer?.id) && (
                           <p className="text-sm text-blue-400 font-semibold">
-                            {player.role === 'werewolf' ? '🐺 Werewolf' :
+                            {player.role === 'werwolf' ? '🐺 Werwolf' :
                              player.role === 'doctor' ? '🩺 Doctor' :
                              player.role === 'police' ? '🛡️ Police' :
                              '👥 Villager'}

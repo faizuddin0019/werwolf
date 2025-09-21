@@ -23,11 +23,11 @@ export const deadPlayersAtom = atom((get) =>
 )
 
 export const werewolvesAtom = atom((get) => 
-  get(playersAtom).filter(player => player.role === 'werewolf' && player.alive)
+  get(playersAtom).filter(player => player.role === 'werwolf' && player.alive)
 )
 
 export const villagersAtom = atom((get) => 
-  get(playersAtom).filter(player => player.role !== 'werewolf' && player.alive)
+  get(playersAtom).filter(player => player.role !== 'werwolf' && player.alive)
 )
 
 export const canStartGameAtom = atom((get) => {

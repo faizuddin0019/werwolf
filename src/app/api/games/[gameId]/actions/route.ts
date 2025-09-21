@@ -250,7 +250,7 @@ async function handleNextPhase(gameId: string, game: Game, targetPhase?: string)
 }
 
 async function handleWolfSelect(gameId: string, player: Player, targetId: string) {
-  if (player.role !== 'werewolf') {
+  if (player.role !== 'werwolf') {
     return NextResponse.json({ error: 'Only werewolves can select targets' }, { status: 403 })
   }
   
@@ -275,7 +275,7 @@ async function handlePoliceInspect(gameId: string, player: Player, targetId: str
     .eq('id', targetId)
     .single()
   
-  const result = targetPlayer?.role === 'werewolf' ? 'werewolf' : 'not_werewolf'
+  const result = targetPlayer?.role === 'werwolf' ? 'werwolf' : 'not_werwolf'
   
   await supabase
     .from('round_state')
@@ -527,7 +527,7 @@ async function handleEliminatePlayer(gameId: string, game: Game) {
   return NextResponse.json({ 
     success: true, 
     eliminatedPlayerId,
-    wasWerewolf: eliminatedPlayer?.role === 'werewolf',
+    wasWerwolf: eliminatedPlayer?.role === 'werwolf',
     winState
   })
 }
@@ -575,7 +575,7 @@ async function handleChangeRole(gameId: string, hostPlayer: Player, playerId: st
   }
   
   // Validate role
-  const validRoles = ['villager', 'werewolf', 'doctor', 'police']
+  const validRoles = ['villager', 'werwolf', 'doctor', 'police']
   if (!validRoles.includes(newRole)) {
     return NextResponse.json({ error: 'Invalid role' }, { status: 400 })
   }

@@ -140,7 +140,7 @@ export default function GameScreen({ onEndGame, onRemovePlayer }: GameScreenProp
   const getPlayerIcon = (player: Player) => {
     if (!player.alive) return <XCircle className="w-4 h-4 text-red-500" />
     if (isHost || player.id === currentPlayer?.id) {
-      if (player.role === 'werewolf') return <Moon className="w-4 h-4 text-red-600" />
+      if (player.role === 'werwolf') return <Moon className="w-4 h-4 text-red-600" />
       if (player.role === 'doctor') return <Stethoscope className="w-4 h-4 text-green-600" />
       if (player.role === 'police') return <Shield className="w-4 h-4 text-blue-600" />
     }
@@ -308,7 +308,7 @@ export default function GameScreen({ onEndGame, onRemovePlayer }: GameScreenProp
                         {/* Role Display - Only show to host and the player themselves */}
                         {!player.is_host && player.role && (isHost || player.id === currentPlayer?.id) && (
                           <p className="text-sm text-blue-400 font-semibold">
-                            {player.role === 'werewolf' ? '🐺 Werewolf' :
+                            {player.role === 'werwolf' ? '🐺 Werwolf' :
                              player.role === 'doctor' ? '🩺 Doctor' :
                              player.role === 'police' ? '🛡️ Police' :
                              '👥 Villager'}
@@ -395,11 +395,11 @@ export default function GameScreen({ onEndGame, onRemovePlayer }: GameScreenProp
                 <NightOverlay />
               )}
               
-              {/* Debug: Manual refresh button for werewolf players */}
-              {isNightPhase && currentPlayer && currentPlayer.role === 'werewolf' && !canPlayerAct(currentPlayer, gamePhase, currentPlayer.is_host, roundState || undefined) && (
+              {/* Debug: Manual refresh button for werwolf players */}
+              {isNightPhase && currentPlayer && currentPlayer.role === 'werwolf' && !canPlayerAct(currentPlayer, gamePhase, currentPlayer.is_host, roundState || undefined) && (
                 <div className="bg-slate-800/80 backdrop-blur-sm rounded-lg p-6 border border-slate-600/30 shadow-lg">
                   <h3 className="text-lg font-semibold text-white mb-4">
-                    🐺 Werewolf Turn
+                    🐺 Werwolf Turn
                   </h3>
                   <p className="text-slate-300 mb-4">
                     Waiting for host to start your turn...

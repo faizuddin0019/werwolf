@@ -42,9 +42,9 @@ export type GamePhase =
   | 'day_final_vote' 
   | 'ended'
 
-export type PlayerRole = 'villager' | 'werewolf' | 'doctor' | 'police' | null
+export type PlayerRole = 'villager' | 'werwolf' | 'doctor' | 'police' | null
 export type WinState = 'villagers' | 'werewolves' | null
-export type PoliceResult = 'werewolf' | 'not_werewolf' | null
+export type PoliceResult = 'werwolf' | 'not_werwolf' | null
 export type VotePhase = 'day_vote' | 'day_final_vote'
 export type LeaveRequestStatus = 'pending' | 'approved' | 'denied'
 

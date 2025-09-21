@@ -21,8 +21,8 @@ export default function WinConditionDisplay({ onClose }: WinConditionDisplayProp
 
   // Exclude host from survivors list
   const alivePlayers = players.filter(p => p.alive && !p.is_host)
-  const aliveWerewolves = alivePlayers.filter(p => p.role === 'werewolf')
-  const aliveVillagers = alivePlayers.filter(p => p.role !== 'werewolf')
+  const aliveWerewolves = alivePlayers.filter(p => p.role === 'werwolf')
+  const aliveVillagers = alivePlayers.filter(p => p.role !== 'werwolf')
 
   const handleClose = () => {
     setIsClosed(true)
@@ -31,7 +31,7 @@ export default function WinConditionDisplay({ onClose }: WinConditionDisplayProp
     }
   }
 
-  const isWerewolfWin = game.win_state === 'werewolves'
+  const isWerwolfWin = game.win_state === 'werewolves'
   const isVillagerWin = game.win_state === 'villagers'
 
   return (
@@ -51,7 +51,7 @@ export default function WinConditionDisplay({ onClose }: WinConditionDisplayProp
         <div className="text-center">
           {/* Win Icon */}
           <div className="mb-6">
-            {isWerewolfWin ? (
+            {isWerwolfWin ? (
               <div className="mx-auto w-20 h-20 bg-red-600/20 rounded-full flex items-center justify-center border-2 border-red-500/50">
                 <Skull className="w-10 h-10 text-red-400" />
               </div>
@@ -64,14 +64,14 @@ export default function WinConditionDisplay({ onClose }: WinConditionDisplayProp
 
           {/* Win Message */}
           <h2 className={`text-3xl font-bold mb-4 ${
-            isWerewolfWin ? 'text-red-400' : 'text-green-400'
+            isWerwolfWin ? 'text-red-400' : 'text-green-400'
           }`}>
-            {isWerewolfWin ? 'WEREWOLVES WIN!' : 'VILLAGERS WIN!'}
+            {isWerwolfWin ? 'WEREWOLVES WIN!' : 'VILLAGERS WIN!'}
           </h2>
 
           {/* Win Description */}
           <p className="text-gray-300 mb-6 text-lg">
-            {isWerewolfWin 
+            {isWerwolfWin 
               ? 'The werewolves have taken over the village!'
               : 'The villagers have successfully eliminated all werewolves!'
             }
@@ -113,11 +113,11 @@ export default function WinConditionDisplay({ onClose }: WinConditionDisplayProp
                     <span className="text-gray-300">{player.name}</span>
                     {isHost ? (
                       <span className={`px-2 py-1 rounded text-xs ${
-                        player.role === 'werewolf' 
+                        player.role === 'werwolf' 
                           ? 'bg-red-600/20 text-red-400 border border-red-500/30' 
                           : 'bg-green-600/20 text-green-400 border border-green-500/30'
                       }`}>
-                        {player.role === 'werewolf' ? 'Werewolf' : 'Villager'}
+                        {player.role === 'werwolf' ? 'Werwolf' : 'Villager'}
                       </span>
                     ) : (
                       <span className="px-2 py-1 rounded text-xs bg-gray-600/20 text-gray-400 border border-gray-500/30">

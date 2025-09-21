@@ -121,22 +121,25 @@ export default function HostControls({ onEndGame }: HostControlsProps) {
       case 'next_phase':
         // Show specific phase-based labels for night actions
         if (gamePhase === 'night_wolf') {
-          // Check if werewolf has selected a target
-          if (roundState?.wolf_target_player_id) {
+          if (!roundState?.phase_started) {
+            return 'Wake Up Werwolf'
+          } else if (roundState?.wolf_target_player_id) {
             return 'Wake Up Doctor'
           } else {
-            return 'Wake Up Werewolf (Waiting for selection)'
+            return 'Wake Up Werwolf (Waiting for selection)'
           }
         } else if (gamePhase === 'night_police') {
-          // Check if police has inspected someone
-          if (roundState?.police_inspect_player_id) {
+          if (!roundState?.phase_started) {
+            return 'Wake Up Police'
+          } else if (roundState?.police_inspect_player_id) {
             return 'Wake Up Doctor'
           } else {
             return 'Wake Up Police (Waiting for inspection)'
           }
         } else if (gamePhase === 'night_doctor') {
-          // Check if doctor has saved someone
-          if (roundState?.doctor_save_player_id) {
+          if (!roundState?.phase_started) {
+            return 'Wake Up Doctor'
+          } else if (roundState?.doctor_save_player_id) {
             return 'Reveal the Dead'
           } else {
             return 'Wake Up Doctor (Waiting for save)'
@@ -165,16 +168,16 @@ export default function HostControls({ onEndGame }: HostControlsProps) {
       case 'next_phase':
         if (!isNightPhase) return false
         
-        // Check if current phase action has been completed
+        // For night phases, check if phase has been started and action completed
         if (gamePhase === 'night_wolf') {
-          // Can only advance if werewolf has selected a target
-          return roundState?.wolf_target_player_id !== null
+          // Can start phase if not started yet, or advance if werwolf has selected
+          return !roundState?.phase_started || roundState?.wolf_target_player_id !== null
         } else if (gamePhase === 'night_police') {
-          // Can only advance if police has inspected someone
-          return roundState?.police_inspect_player_id !== null
+          // Can start phase if not started yet, or advance if police has inspected
+          return !roundState?.phase_started || roundState?.police_inspect_player_id !== null
         } else if (gamePhase === 'night_doctor') {
-          // Can only advance if doctor has saved someone
-          return roundState?.doctor_save_player_id !== null
+          // Can start phase if not started yet, or advance if doctor has saved
+          return !roundState?.phase_started || roundState?.doctor_save_player_id !== null
         }
         return false
       case 'reveal_dead':
