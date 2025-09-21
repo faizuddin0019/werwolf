@@ -215,7 +215,7 @@ export default function NightOverlay() {
         <div className="mt-4">
           <button
             onClick={() => {
-              const action = currentPlayer.role === 'werwolf' ? 'wolf_select' :
+              const action = (currentPlayer.role === 'werwolf' || currentPlayer.role === 'werewolf') ? 'wolf_select' :
                            currentPlayer.role === 'police' ? 'police_inspect' :
                            currentPlayer.role === 'doctor' ? 'doctor_save' : null
               
@@ -230,7 +230,7 @@ export default function NightOverlay() {
               <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white"></div>
             ) : (
               <>
-                {currentPlayer.role === 'werwolf' && <Moon className="w-3 h-3" />}
+                {(currentPlayer.role === 'werwolf' || currentPlayer.role === 'werewolf') && <Moon className="w-3 h-3" />}
                 {currentPlayer.role === 'police' && <Shield className="w-3 h-3" />}
                 {currentPlayer.role === 'doctor' && <Stethoscope className="w-3 h-3" />}
                 <span>{roleInfo.actionText}</span>
@@ -243,7 +243,7 @@ export default function NightOverlay() {
       {/* Instructions */}
       <div className="mt-3 pt-2 border-t border-gray-200">
         <p className="text-xs text-gray-500 text-center">
-          {currentPlayer.role === 'werwolf' && 'Choose your victim carefully...'}
+          {(currentPlayer.role === 'werwolf' || currentPlayer.role === 'werewolf') && 'Choose your victim carefully...'}
           {currentPlayer.role === 'police' && 'Your investigation will reveal the truth...'}
           {currentPlayer.role === 'doctor' && 'Save the innocent from harm...'}
         </p>
