@@ -127,97 +127,8 @@ export default function GameScreen({ onEndGame, onRemovePlayer }: GameScreenProp
       {/* Main Content */}
       <div className="relative z-20 max-w-7xl mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          {/* Sidebar */}
-          <div className={`lg:col-span-1 ${(isNightPhase || isDayPhase) ? 'order-1' : 'lg:order-2'}`}>
-            <div className="space-y-6">
-              {/* Host Controls */}
-              {isHost && (
-                <HostControls onEndGame={onEndGame} />
-              )}
-
-              {/* Game Status */}
-              <div className="bg-slate-800/80 backdrop-blur-sm rounded-lg p-6 border border-slate-600/30 shadow-lg">
-                <h3 className="text-lg font-semibold text-white mb-4">
-                  Game Status
-                </h3>
-                <div className="space-y-3">
-                  <div className="flex justify-between">
-                    <span className="text-sm text-slate-400">Phase:</span>
-                    <span className="text-sm font-medium text-white">
-                      {getPhaseDisplayName(gamePhase)}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-sm text-slate-400">Alive:</span>
-                    <span className="text-sm font-medium text-green-400">
-                      {alivePlayers.length}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-sm text-slate-400">Dead:</span>
-                    <span className="text-sm font-medium text-red-400">
-                      {deadPlayers.length}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Night Overlay - Only show when it's the player's turn */}
-              {isNightPhase && currentPlayer && (
-                <NightOverlay />
-              )}
-
-              {/* Voting Interface - Only show when it's day phase */}
-              {isDayPhase && currentPlayer && (
-                <VotingInterface />
-              )}
-
-              {/* Host Player Management */}
-              {isHost && (
-                <div className="bg-slate-800/80 backdrop-blur-sm rounded-lg p-6 border border-slate-600/30 shadow-lg">
-                  <h3 className="text-lg font-semibold text-white mb-4">
-                    Player Management
-                  </h3>
-                  {players.filter(p => !p.is_host).length > 0 ? (
-                    <div className="space-y-2">
-                      {players.filter(p => !p.is_host).map((player) => (
-                        <div key={player.id} className="bg-slate-800/50 rounded-lg p-3">
-                          <div className="flex items-center justify-between mb-2">
-                            <div className="flex items-center space-x-2">
-                              <span className="text-white">{player.name}</span>
-                              {!player.alive && <span className="text-red-400 text-xs">(Dead)</span>}
-                            </div>
-                            <button
-                              onClick={() => onRemovePlayer(player.id)}
-                              className="px-3 py-1 bg-red-600 text-white rounded text-sm hover:bg-red-700 transition-colors"
-                            >
-                              Remove
-                            </button>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <span className="text-xs text-slate-400">Role:</span>
-                            <span className="text-xs text-white">
-                              {getRoleDisplayName(player.role)}
-                            </span>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="text-center py-4">
-                      <p className="text-slate-400 text-sm">No other players to manage</p>
-                    </div>
-                  )}
-                  <p className="text-xs text-slate-400 mt-3 text-center">
-                    Host can remove any player from the game
-                  </p>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Players Grid */}
-          <div className={`lg:col-span-3 ${(isNightPhase || isDayPhase) ? 'order-2' : 'lg:order-1'}`}>
+          {/* Players Grid - Always on LEFT for desktop, conditional order for mobile */}
+          <div className={`lg:col-span-3 lg:order-1 ${(isNightPhase || isDayPhase) ? 'order-2' : 'order-1'}`}>
             <div className="bg-slate-800/80 backdrop-blur-sm rounded-lg p-6 border border-slate-600/30 shadow-lg">
               <h2 className="text-xl font-semibold mb-4 text-white">
                 Players
@@ -339,6 +250,95 @@ export default function GameScreen({ onEndGame, onRemovePlayer }: GameScreenProp
                   )
                 })}
               </div>
+            </div>
+          </div>
+
+          {/* Sidebar - Always on RIGHT for desktop, conditional order for mobile */}
+          <div className={`lg:col-span-1 lg:order-2 ${(isNightPhase || isDayPhase) ? 'order-1' : 'order-2'}`}>
+            <div className="space-y-6">
+              {/* Host Controls */}
+              {isHost && (
+                <HostControls onEndGame={onEndGame} />
+              )}
+
+              {/* Game Status */}
+              <div className="bg-slate-800/80 backdrop-blur-sm rounded-lg p-6 border border-slate-600/30 shadow-lg">
+                <h3 className="text-lg font-semibold text-white mb-4">
+                  Game Status
+                </h3>
+                <div className="space-y-3">
+                  <div className="flex justify-between">
+                    <span className="text-sm text-slate-400">Phase:</span>
+                    <span className="text-sm font-medium text-white">
+                      {getPhaseDisplayName(gamePhase)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm text-slate-400">Alive:</span>
+                    <span className="text-sm font-medium text-green-400">
+                      {alivePlayers.length}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm text-slate-400">Dead:</span>
+                    <span className="text-sm font-medium text-red-400">
+                      {deadPlayers.length}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Night Overlay - Only show when it's the player's turn */}
+              {isNightPhase && currentPlayer && (
+                <NightOverlay />
+              )}
+
+              {/* Voting Interface - Only show when it's day phase */}
+              {isDayPhase && currentPlayer && (
+                <VotingInterface />
+              )}
+
+              {/* Host Player Management */}
+              {isHost && (
+                <div className="bg-slate-800/80 backdrop-blur-sm rounded-lg p-6 border border-slate-600/30 shadow-lg">
+                  <h3 className="text-lg font-semibold text-white mb-4">
+                    Player Management
+                  </h3>
+                  {players.filter(p => !p.is_host).length > 0 ? (
+                    <div className="space-y-2">
+                      {players.filter(p => !p.is_host).map((player) => (
+                        <div key={player.id} className="bg-slate-800/50 rounded-lg p-3">
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="flex items-center space-x-2">
+                              <span className="text-white">{player.name}</span>
+                              {!player.alive && <span className="text-red-400 text-xs">(Dead)</span>}
+                            </div>
+                            <button
+                              onClick={() => onRemovePlayer(player.id)}
+                              className="px-3 py-1 bg-red-600 text-white rounded text-sm hover:bg-red-700 transition-colors"
+                            >
+                              Remove
+                            </button>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <span className="text-xs text-slate-400">Role:</span>
+                            <span className="text-xs text-white">
+                              {getRoleDisplayName(player.role)}
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-4">
+                      <p className="text-slate-400 text-sm">No other players to manage</p>
+                    </div>
+                  )}
+                  <p className="text-xs text-slate-400 mt-3 text-center">
+                    Host can remove any player from the game
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         </div>
