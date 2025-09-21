@@ -105,7 +105,7 @@ export function canPlayerAct(
   
   // For night phases, check if the phase has been started by the host
   const isNightPhase = ['night_wolf', 'night_police', 'night_doctor'].includes(phase)
-  if (isNightPhase && roundState && roundState.phase_started === false) {
+  if (isNightPhase && (!roundState || roundState.phase_started === false)) {
     console.log('🔧 canPlayerAct: Phase not started yet', { player: player.name, phase, roundState })
     return false // Phase not started yet
   }
