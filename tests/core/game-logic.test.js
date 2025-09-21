@@ -60,6 +60,7 @@ class GameLogicTests {
     })
     
     this.gameCode = hostResponse.gameCode
+    this.gameId = hostResponse.game.id
     this.hostClientId = hostResponse.player.client_id
     
     console.log(`✅ Game created with code: ${this.gameCode}`)
@@ -146,7 +147,7 @@ class GameLogicTests {
     console.log('\n🎭 Testing role assignment...')
     
     // Start the game
-    const startResponse = await this.makeRequest(`${BASE_URL}/api/games/${this.gameCode}/actions`, {
+    const startResponse = await this.makeRequest(`${BASE_URL}/api/games/${this.gameId}/actions`, {
       method: 'POST',
       body: JSON.stringify({
         action: 'assign_roles',
@@ -208,7 +209,7 @@ class GameLogicTests {
     
     for (let i = 0; i < targetEliminations; i++) {
       // Advance to final vote phase
-      await this.makeRequest(`${BASE_URL}/api/games/${this.gameCode}/actions`, {
+      await this.makeRequest(`${BASE_URL}/api/games/${this.gameId}/actions`, {
         method: 'POST',
         body: JSON.stringify({
           action: 'next_phase',
@@ -227,7 +228,7 @@ class GameLogicTests {
       // Have all players vote for the first alive player
       for (const player of currentAlivePlayers) {
         try {
-          await this.makeRequest(`${BASE_URL}/api/games/${this.gameCode}/actions`, {
+          await this.makeRequest(`${BASE_URL}/api/games/${this.gameId}/actions`, {
             method: 'POST',
             body: JSON.stringify({
               action: 'vote',
@@ -241,7 +242,7 @@ class GameLogicTests {
       }
       
       // Eliminate the voted player
-      const eliminateResponse = await this.makeRequest(`${BASE_URL}/api/games/${this.gameCode}/actions`, {
+      const eliminateResponse = await this.makeRequest(`${BASE_URL}/api/games/${this.gameId}/actions`, {
         method: 'POST',
         body: JSON.stringify({
           action: 'eliminate_player',
@@ -288,7 +289,7 @@ class GameLogicTests {
     console.log('🔊 Testing sound effect implementation...')
     
     // Assign roles (this should trigger sound effect)
-    const response = await this.makeRequest(`${BASE_URL}/api/games/${this.gameCode}/actions`, {
+    const response = await this.makeRequest(`${BASE_URL}/api/games/${this.gameId}/actions`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -297,16 +298,15 @@ class GameLogicTests {
       })
     })
     
-    if (!response.ok) {
-      throw new Error(`Failed to assign roles: ${response.status}`)
+    if (!response.success) {
+      throw new Error('Sound effect implementation failed')
     }
     
     // Verify game state
-    const gameState = await this.makeRequest(`${BASE_URL}/api/games/${this.gameCode}`)
-    const data = await gameState.json()
+    const gameState = await this.makeRequest(`${BASE_URL}/api/games?code=${this.gameCode}`)
     
-    if (data.game.phase !== 'lobby') {
-      throw new Error(`Expected lobby phase after role assignment, got: ${data.game.phase}`)
+    if (gameState.game.phase !== 'night_wolf') {
+      throw new Error(`Expected night_wolf phase after role assignment, got: ${gameState.game.phase}`)
     }
     
     // Note: Sound effect testing is limited in automated tests
