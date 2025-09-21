@@ -13,7 +13,7 @@ import {
   highestVotedPlayerAtom,
   roundStateAtom
 } from '@/lib/game-store'
-import { getPhaseDisplayName, getRoleDisplayName } from '@/lib/game-utils'
+import { getPhaseDisplayName, getRoleDisplayName, canPlayerAct } from '@/lib/game-utils'
 import { Player } from '@/lib/supabase'
 import { 
   Crown, 
@@ -51,6 +51,12 @@ export default function GameScreen({ onEndGame, onRemovePlayer }: GameScreenProp
 
   const alivePlayers = players.filter(p => p.alive)
   const deadPlayers = players.filter(p => !p.alive)
+  
+  // Check if current player has an active action screen
+  const hasActiveActionScreen = currentPlayer && (
+    (isNightPhase && canPlayerAct(currentPlayer, gamePhase, currentPlayer.is_host, roundState)) ||
+    (isDayPhase && currentPlayer.alive)
+  )
 
   const getPlayerIcon = (player: Player) => {
     if (!player.alive) return <XCircle className="w-4 h-4 text-red-500" />
@@ -128,7 +134,7 @@ export default function GameScreen({ onEndGame, onRemovePlayer }: GameScreenProp
       <div className="relative z-20 max-w-7xl mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Players Grid - Always on LEFT for desktop, conditional order for mobile */}
-          <div className={`lg:col-span-3 lg:order-1 ${(isNightPhase || isDayPhase) ? 'order-2' : 'order-1'}`}>
+          <div className={`lg:col-span-3 lg:order-1 ${hasActiveActionScreen ? 'order-2' : 'order-1'}`}>
             <div className="bg-slate-800/80 backdrop-blur-sm rounded-lg p-6 border border-slate-600/30 shadow-lg">
               <h2 className="text-xl font-semibold mb-4 text-white">
                 Players
@@ -254,7 +260,7 @@ export default function GameScreen({ onEndGame, onRemovePlayer }: GameScreenProp
           </div>
 
           {/* Sidebar - Always on RIGHT for desktop, conditional order for mobile */}
-          <div className={`lg:col-span-1 lg:order-2 ${(isNightPhase || isDayPhase) ? 'order-1' : 'order-2'}`}>
+          <div className={`lg:col-span-1 lg:order-2 ${hasActiveActionScreen ? 'order-1' : 'order-2'}`}>
             <div className="space-y-6">
               {/* Host Controls */}
               {isHost && (
