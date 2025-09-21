@@ -1,6 +1,7 @@
 'use client'
 
 import { useAtom } from 'jotai'
+import { useState, useEffect } from 'react'
 import { 
   gameAtom, 
   playersAtom, 
@@ -48,14 +49,26 @@ export default function GameScreen({ onEndGame, onRemovePlayer }: GameScreenProp
   const [voteCounts] = useAtom(voteCountsAtom)
   const [highestVotedPlayer] = useAtom(highestVotedPlayerAtom)
   const [roundState] = useAtom(roundStateAtom)
+  
+  // Loading state to prevent action screens from showing during initial load
+  const [isLoaded, setIsLoaded] = useState(false)
+  
+  useEffect(() => {
+    // Set loaded to true after a short delay to ensure all data is loaded
+    const timer = setTimeout(() => {
+      setIsLoaded(true)
+    }, 500) // 500ms delay to ensure data is loaded
+    
+    return () => clearTimeout(timer)
+  }, [game, players, currentPlayer, roundState])
 
   // Sort players with proper ordering: Host first, current player second, alive players, then dead players
   const sortedPlayers = sortPlayers(players, currentPlayer?.id)
   const alivePlayers = sortedPlayers.filter(p => p.alive)
   const deadPlayers = sortedPlayers.filter(p => !p.alive)
   
-  // Check if current player has an active action screen
-  const hasActiveActionScreen = currentPlayer && (
+  // Check if current player has an active action screen (only after component is loaded)
+  const hasActiveActionScreen = isLoaded && currentPlayer && (
     (isNightPhase && canPlayerAct(currentPlayer, gamePhase, currentPlayer.is_host, roundState || undefined)) ||
     (isDayPhase && currentPlayer.alive)
   )
@@ -245,13 +258,13 @@ export default function GameScreen({ onEndGame, onRemovePlayer }: GameScreenProp
                           </p>
                         )}
 
-                        {/* Status */}
+                        {/* Status - Don't show "Alive" for host since they're always alive */}
                         <div className="mt-2">
                           {!player.alive ? (
                             <span className="text-red-400 text-xs">Dead</span>
-                          ) : (
+                          ) : !player.is_host ? (
                             <span className="text-green-400 text-xs">Alive</span>
-                          )}
+                          ) : null}
                         </div>
                       </div>
                     </div>
