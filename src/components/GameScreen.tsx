@@ -72,6 +72,22 @@ export default function GameScreen({ onEndGame, onRemovePlayer }: GameScreenProp
     (isNightPhase && canPlayerAct(currentPlayer, gamePhase, currentPlayer.is_host, roundState || undefined)) ||
     (isDayPhase && currentPlayer.alive)
   )
+  
+  // Debug logging for action screen logic
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'development') {
+      console.log('🔧 GameScreen Debug - Action Screen Logic:', {
+        isLoaded,
+        currentPlayer: currentPlayer ? { id: currentPlayer.id, name: currentPlayer.name, role: currentPlayer.role, is_host: currentPlayer.is_host } : null,
+        gamePhase,
+        isNightPhase,
+        isDayPhase,
+        roundState: roundState ? { phase_started: roundState.phase_started } : null,
+        canAct: currentPlayer ? canPlayerAct(currentPlayer, gamePhase, currentPlayer.is_host, roundState || undefined) : false,
+        hasActiveActionScreen
+      })
+    }
+  }, [isLoaded, currentPlayer, gamePhase, isNightPhase, isDayPhase, roundState, hasActiveActionScreen])
 
   const getPlayerIcon = (player: Player) => {
     if (!player.alive) return <XCircle className="w-4 h-4 text-red-500" />

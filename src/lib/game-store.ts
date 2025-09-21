@@ -172,8 +172,12 @@ export const setGameDataAtom = atom(null, (get, set, data: {
   
   const roundStateChanged = !currentRoundState !== !data.roundState ||
     (currentRoundState && data.roundState && 
-     (currentRoundState.phase !== data.roundState.phase || 
-      currentRoundState.day_count !== data.roundState.day_count))
+     (currentRoundState.phase_started !== data.roundState.phase_started ||
+      currentRoundState.wolf_target_player_id !== data.roundState.wolf_target_player_id ||
+      currentRoundState.police_inspect_player_id !== data.roundState.police_inspect_player_id ||
+      currentRoundState.police_inspect_result !== data.roundState.police_inspect_result ||
+      currentRoundState.doctor_save_player_id !== data.roundState.doctor_save_player_id ||
+      currentRoundState.resolved_death_player_id !== data.roundState.resolved_death_player_id))
   const votesChanged = !currentVotes || currentVotes.length !== (data.votes?.length || 0) ||
     (currentVotes && data.votes && currentVotes.some((currentVote, index) => {
       const newVote = data.votes![index]

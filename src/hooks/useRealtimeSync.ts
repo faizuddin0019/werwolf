@@ -202,7 +202,7 @@ export function useRealtimeSync(gameId: string | null, onGameEnded?: () => void)
           const updatedRoundState = payload.new as RoundState
           log('🔧 Round state update details:', {
             gameId: updatedRoundState.game_id,
-            phase: updatedRoundState.phase,
+            phase_started: updatedRoundState.phase_started,
             wolfTarget: updatedRoundState.wolf_target_player_id,
             policeInspect: updatedRoundState.police_inspect_player_id,
             doctorSave: updatedRoundState.doctor_save_player_id
