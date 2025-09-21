@@ -326,6 +326,9 @@ export function useRealtimeSync(gameId: string | null, onGameEnded?: () => void)
               
           if (updatedLeaveRequests) {
             log('🔧 Immediate leave requests update:', updatedLeaveRequests.length, 'requests')
+            if (updatedLeaveRequests.length > 0) {
+              log('🔧 Leave requests details:', updatedLeaveRequests.map(r => `${r.player_id} - ${r.status}`))
+            }
             setGameData({
               game: gameRef.current || {} as Game,
               players: playersRef.current || [],
@@ -412,6 +415,11 @@ export function useRealtimeSync(gameId: string | null, onGameEnded?: () => void)
           .from('leave_requests')
           .select('*')
           .eq('game_id', gameId)
+          
+        log('🔧 Fetched leave requests:', leaveRequestsData?.length || 0, 'requests')
+        if (leaveRequestsData && leaveRequestsData.length > 0) {
+          log('🔧 Leave requests details:', leaveRequestsData.map(r => `${r.player_id} - ${r.status}`))
+        }
 
         // Update state using setGameDataAtom to maintain consistency
         log('useRealtimeSync - Initial data fetch:', {

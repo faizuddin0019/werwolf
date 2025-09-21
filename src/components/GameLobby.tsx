@@ -56,6 +56,10 @@ export default function GameLobby({
     isHost,
     nonHostPlayers: players.filter(p => !p.is_host),
     shouldShowPlayerManagement: isHost && players.filter(p => !p.is_host).length > 0,
+    leaveRequestsCount: leaveRequests.length,
+    pendingLeaveRequestsCount: pendingLeaveRequests.length,
+    leaveRequests: leaveRequests.map(r => ({ id: r.id, player_id: r.player_id, status: r.status })),
+    pendingLeaveRequests: pendingLeaveRequests.map(r => ({ id: r.id, player_id: r.player_id, status: r.status })),
     timestamp: new Date().toISOString()
   })
 
@@ -209,7 +213,7 @@ export default function GameLobby({
 
       {/* Header */}
       <div className="relative z-10 bg-slate-800/80 backdrop-blur-sm border-b border-slate-600/30">
-        <div className="max-w-6xl mx-auto px-4 py-4">
+        <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-bold text-white">🐺 Werwolf</h1>
@@ -234,8 +238,8 @@ export default function GameLobby({
       </div>
 
       {/* Main Content */}
-      <div className="relative z-10 max-w-6xl mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="relative z-10 max-w-7xl mx-auto px-4 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Game Info & Controls - Show second on mobile */}
           <div className="lg:order-2 order-2">
             {/* Game Status */}
@@ -445,7 +449,7 @@ export default function GameLobby({
           </div>
 
           {/* Players Grid - Show first on mobile */}
-          <div className="lg:order-1 order-1">
+          <div className="lg:col-span-3 lg:order-1 order-1">
             <div className="bg-slate-800/80 backdrop-blur-sm rounded-lg p-6 border border-slate-600/30 shadow-lg">
               <h2 className="text-xl font-semibold text-white mb-4">
                 Players ({playerCount})
@@ -478,14 +482,14 @@ export default function GameLobby({
                       )}
                       
                       <div className="text-center">
-                        <div className={`w-16 h-16 rounded-full mx-auto mb-3 flex items-center justify-center ${
+                        <div className={`w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center ${
                           player.is_host 
                             ? 'bg-yellow-800' 
                             : player.id === currentPlayer?.id
                             ? 'bg-green-800'
                             : 'bg-gray-700'
                         }`}>
-                          <span className={`text-lg font-semibold ${
+                          <span className={`text-lg font-bold ${
                             player.is_host 
                               ? 'text-yellow-200' 
                               : player.id === currentPlayer?.id
@@ -496,7 +500,7 @@ export default function GameLobby({
                           </span>
                         </div>
                         
-                        <p className={`font-medium text-lg truncate ${
+                        <p className={`font-semibold text-lg break-words ${
                           player.is_host 
                             ? 'text-yellow-200' 
                             : player.id === currentPlayer?.id
@@ -507,13 +511,13 @@ export default function GameLobby({
                         </p>
                         
                         {player.is_host && (
-                          <p className="text-sm text-yellow-400 font-medium">
+                          <p className="text-sm text-yellow-400 font-semibold">
                             Host
                           </p>
                         )}
                         
                         {player.id === currentPlayer?.id && !player.is_host && (
-                          <p className="text-sm text-green-400 font-medium">
+                          <p className="text-sm text-green-400 font-semibold">
                             You
                           </p>
                         )}
