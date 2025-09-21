@@ -76,10 +76,10 @@ export function getNextPhase(currentPhase: GamePhase): GamePhase {
     case 'lobby':
       return 'night_wolf'
     case 'night_wolf':
-      return 'night_police' // Changed order: Wolf → Police → Doctor
-    case 'night_police':
-      return 'night_doctor'
+      return 'night_doctor' // Correct order: Wolf → Doctor → Police
     case 'night_doctor':
+      return 'night_police'
+    case 'night_police':
       return 'reveal'
     case 'reveal':
       return 'day_vote'
@@ -123,10 +123,10 @@ export function canPlayerAct(
   switch (phase) {
     case 'night_wolf':
       return (player.role === 'werwolf' || player.role === 'werewolf') || isHost
-    case 'night_police':
-      return player.role === 'police' || isHost
     case 'night_doctor':
       return player.role === 'doctor' || isHost
+    case 'night_police':
+      return player.role === 'police' || isHost
     case 'day_vote':
     case 'day_final_vote':
       return true // All alive players can vote

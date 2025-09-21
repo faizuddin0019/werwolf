@@ -128,21 +128,21 @@ export default function HostControls({ onEndGame }: HostControlsProps) {
           } else {
             return 'Wake Up Werwolf (Waiting for selection)'
           }
-        } else if (gamePhase === 'night_police') {
-          if (!roundState?.phase_started) {
-            return 'Wake Up Police'
-          } else if (roundState?.police_inspect_player_id) {
-            return 'Wake Up Doctor'
-          } else {
-            return 'Wake Up Police (Waiting for inspection)'
-          }
         } else if (gamePhase === 'night_doctor') {
           if (!roundState?.phase_started) {
             return 'Wake Up Doctor'
           } else if (roundState?.doctor_save_player_id) {
-            return 'Reveal the Dead'
+            return 'Wake Up Police'
           } else {
             return 'Wake Up Doctor (Waiting for save)'
+          }
+        } else if (gamePhase === 'night_police') {
+          if (!roundState?.phase_started) {
+            return 'Wake Up Police'
+          } else if (roundState?.police_inspect_player_id) {
+            return 'Reveal the Dead'
+          } else {
+            return 'Wake Up Police (Waiting for inspection)'
           }
         }
         return `Go to ${getNextPhase(gamePhase) === 'night_wolf' ? 'Sleep' : getPhaseDisplayName(getNextPhase(gamePhase))}`
@@ -172,16 +172,16 @@ export default function HostControls({ onEndGame }: HostControlsProps) {
         if (gamePhase === 'night_wolf') {
           // Can start phase if not started yet, or advance if werwolf has selected
           return !roundState?.phase_started || roundState?.wolf_target_player_id !== null
-        } else if (gamePhase === 'night_police') {
-          // Can start phase if not started yet, or advance if police has inspected
-          return !roundState?.phase_started || roundState?.police_inspect_player_id !== null
         } else if (gamePhase === 'night_doctor') {
           // Can start phase if not started yet, or advance if doctor has saved
           return !roundState?.phase_started || roundState?.doctor_save_player_id !== null
+        } else if (gamePhase === 'night_police') {
+          // Can start phase if not started yet, or advance if police has inspected
+          return !roundState?.phase_started || roundState?.police_inspect_player_id !== null
         }
         return false
       case 'reveal_dead':
-        return gamePhase === 'night_doctor' && roundState?.doctor_save_player_id !== null
+        return gamePhase === 'night_police' && roundState?.police_inspect_player_id !== null
       case 'begin_voting':
         return gamePhase === 'reveal'
       case 'final_vote':
