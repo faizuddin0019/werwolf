@@ -264,7 +264,10 @@ async function handleNextPhase(gameId: string, game: Game, targetPhase?: string)
     
     console.log('🔧 Current round state:', roundState)
     
-    if (!roundState?.phase_started) {
+    // Check if phase_started column exists by trying to read it
+    const phaseStarted = roundState?.phase_started
+    
+    if (phaseStarted === undefined || phaseStarted === false) {
       // Start the current night phase
       console.log('🔧 Starting night phase:', game.phase)
       
@@ -303,8 +306,8 @@ async function handleNextPhase(gameId: string, game: Game, targetPhase?: string)
           console.log('✅ Round state created successfully')
         }
       } else {
-        // Update existing round state
-        console.log('🔧 Updating existing round state for game:', gameId)
+        // Update existing round state to start the phase
+        console.log('🔧 Updating existing round state to start phase for game:', gameId)
         const { error: updateError } = await supabase
           .from('round_state')
           .update({ phase_started: true })
@@ -321,7 +324,7 @@ async function handleNextPhase(gameId: string, game: Game, targetPhase?: string)
             return NextResponse.json({ error: 'Failed to update round state' }, { status: 500 })
           }
         } else {
-          console.log('✅ Round state updated successfully')
+          console.log('✅ Round state updated successfully - phase started!')
         }
       }
       
@@ -400,7 +403,7 @@ async function handleNextPhase(gameId: string, game: Game, targetPhase?: string)
 }
 
 async function handleWolfSelect(gameId: string, player: Player, targetId: string) {
-  if (player.role !== 'werwolf') {
+  if (player.role !== 'werwolf' && player.role !== 'werewolf') {
     return NextResponse.json({ error: 'Only werewolves can select targets' }, { status: 403 })
   }
   
@@ -425,7 +428,7 @@ async function handlePoliceInspect(gameId: string, player: Player, targetId: str
     .eq('id', targetId)
     .single()
   
-  const result = targetPlayer?.role === 'werwolf' ? 'werwolf' : 'not_werwolf'
+  const result = (targetPlayer?.role === 'werwolf' || targetPlayer?.role === 'werewolf') ? 'werwolf' : 'not_werwolf'
   
   await supabase
     .from('round_state')
@@ -677,7 +680,7 @@ async function handleEliminatePlayer(gameId: string, game: Game) {
   return NextResponse.json({ 
     success: true, 
     eliminatedPlayerId,
-    wasWerwolf: eliminatedPlayer?.role === 'werwolf',
+    wasWerwolf: eliminatedPlayer?.role === 'werwolf' || eliminatedPlayer?.role === 'werewolf',
     winState
   })
 }

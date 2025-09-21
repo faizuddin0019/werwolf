@@ -49,8 +49,8 @@ export function checkWinCondition(game: Game, players: Player[]): 'villagers' | 
   // Exclude host from win condition calculations
   const nonHostPlayers = players.filter(p => !p.is_host)
   const alivePlayers = nonHostPlayers.filter(p => p.alive)
-  const aliveWerwolves = alivePlayers.filter(p => p.role === 'werwolf')
-  const aliveVillagers = alivePlayers.filter(p => p.role !== 'werwolf')
+  const aliveWerwolves = alivePlayers.filter(p => p.role === 'werwolf' || p.role === 'werewolf')
+  const aliveVillagers = alivePlayers.filter(p => p.role !== 'werwolf' && p.role !== 'werewolf')
   
   // Game ends when there are only 2 non-host players left
   if (alivePlayers.length <= 2) {
@@ -96,7 +96,7 @@ export function getNextPhase(currentPhase: GamePhase): GamePhase {
 
 // Validate player can perform action
 export function canPlayerAct(
-  player: Player, 
+  player: Player,
   phase: GamePhase, 
   isHost: boolean,
   roundState?: { phase_started: boolean }
@@ -105,13 +105,24 @@ export function canPlayerAct(
   
   // For night phases, check if the phase has been started by the host
   const isNightPhase = ['night_wolf', 'night_police', 'night_doctor'].includes(phase)
-  if (isNightPhase && roundState && !roundState.phase_started) {
+  if (isNightPhase && roundState && roundState.phase_started === false) {
+    console.log('🔧 canPlayerAct: Phase not started yet', { player: player.name, phase, roundState })
     return false // Phase not started yet
   }
   
+  console.log('🔧 canPlayerAct Debug:', {
+    player: player.name,
+    role: player.role,
+    phase,
+    isHost,
+    roundState,
+    isNightPhase,
+    phaseStarted: roundState?.phase_started
+  })
+  
   switch (phase) {
     case 'night_wolf':
-      return player.role === 'werwolf' || isHost
+      return (player.role === 'werwolf' || player.role === 'werewolf') || isHost
     case 'night_police':
       return player.role === 'police' || isHost
     case 'night_doctor':

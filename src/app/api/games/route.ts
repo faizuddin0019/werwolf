@@ -6,7 +6,7 @@ export async function POST(request: NextRequest) {
   try {
     console.log('🔧 API: Game creation request received')
     
-    if (!isSupabaseConfigured()) {
+    if (!isSupabaseConfigured() || !supabase) {
       console.error('❌ API: Supabase not configured')
       return NextResponse.json({ 
         error: 'Supabase not configured. Please set up your environment variables.' 
@@ -110,7 +110,7 @@ export async function POST(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   try {
-    if (!isSupabaseConfigured()) {
+    if (!isSupabaseConfigured() || !supabase) {
       return NextResponse.json({ 
         error: 'Supabase not configured. Please set up your environment variables.' 
       }, { status: 503 })

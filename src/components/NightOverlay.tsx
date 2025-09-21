@@ -32,6 +32,15 @@ export default function NightOverlay() {
 
   const alivePlayers = players.filter(p => p.alive && p.id !== currentPlayer?.id && !p.is_host)
   const canAct = currentPlayer && canPlayerAct(currentPlayer, gamePhase, currentPlayer.is_host, roundState)
+  
+  // Debug logging
+  console.log('🔧 NightOverlay Debug:', {
+    currentPlayer: currentPlayer ? { name: currentPlayer.name, role: currentPlayer.role, alive: currentPlayer.alive } : null,
+    gamePhase,
+    roundState,
+    canAct,
+    isHost: currentPlayer?.is_host
+  })
 
   useEffect(() => {
     if (feedback) {
