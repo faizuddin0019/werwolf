@@ -72,7 +72,7 @@ export default function NightOverlay() {
         
         // Handle specific responses for different actions
         if (action === 'police_inspect' && result.result) {
-          const isWerwolf = result.result === 'werwolf'
+          const isWerwolf = result.result === 'werewolf'
           setFeedback({ 
             type: 'success', 
             message: `Inspection result: ${isWerwolf ? 'YES - This player is a werwolf!' : 'NO - This player is not a werwolf.'}` 

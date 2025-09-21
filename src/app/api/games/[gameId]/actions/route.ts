@@ -463,7 +463,7 @@ async function handlePoliceInspect(gameId: string, player: Player, targetId: str
     .eq('id', targetId)
     .single()
   
-  const result = (targetPlayer?.role === 'werwolf' || targetPlayer?.role === 'werewolf') ? 'werwolf' : 'not_werwolf'
+  const result = (targetPlayer?.role === 'werwolf' || targetPlayer?.role === 'werewolf') ? 'werewolf' : 'not_werewolf'
   
   const { error: updateError } = await supabase
     .from('round_state')
