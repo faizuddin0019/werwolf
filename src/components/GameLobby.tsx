@@ -532,7 +532,7 @@ export default function GameLobby({
                         {/* Role Display - Only show to host and the player themselves */}
                         {!player.is_host && player.role && (isHost || player.id === currentPlayer?.id) && (
                           <p className="text-sm text-blue-400 font-semibold">
-                            {player.role === 'werwolf' ? '🐺 Werwolf' :
+                            {(player.role === 'werwolf' || player.role === 'werewolf') ? '🐺 Werwolf' :
                              player.role === 'doctor' ? '🩺 Doctor' :
                              player.role === 'police' ? '🛡️ Police' :
                              '👥 Villager'}
