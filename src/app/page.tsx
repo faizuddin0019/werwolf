@@ -655,12 +655,6 @@ export default function HomePage() {
       const result = await response.json()
       console.log('✅ Frontend: Assign roles successful:', result)
       
-      // Force a manual refresh of the game data since WebSocket might be failing
-      console.log('🔧 Frontend: Forcing manual refresh of game data...')
-      setTimeout(() => {
-        window.location.reload()
-      }, 1000)
-      
       // Play howling sound effect
       playSoundEffect('howl')
       

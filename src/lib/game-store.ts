@@ -169,6 +169,7 @@ export const setGameDataAtom = atom(null, (get, set, data: {
       const currentPlayer = currentPlayers.find(p => p.id === newPlayer.id)
       return !currentPlayer // New player was added
     })
+  
   const roundStateChanged = !currentRoundState !== !data.roundState ||
     (currentRoundState && data.roundState && 
      (currentRoundState.phase !== data.roundState.phase || 
@@ -194,8 +195,15 @@ export const setGameDataAtom = atom(null, (get, set, data: {
   }
   
   if (playersChanged) {
-    if (process.env.NODE_ENV === 'development') console.log('🔧 Players changed, updating playersAtom')
+    if (process.env.NODE_ENV === 'development') {
+      console.log('🔧 Players changed, updating playersAtom')
+      console.log('🔧 Players data:', data.players.map(p => ({ id: p.id, name: p.name, role: p.role, is_host: p.is_host })))
+    }
     set(playersAtom, data.players)
+  } else {
+    if (process.env.NODE_ENV === 'development') {
+      console.log('🔧 Players unchanged, skipping update')
+    }
   }
   
   if (roundStateChanged && data.roundState) {
