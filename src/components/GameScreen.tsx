@@ -56,6 +56,19 @@ export default function GameScreen({ onEndGame, onRemovePlayer, onChangeRole }: 
   // Loading state to prevent action screens from showing during initial load
   const [isLoaded, setIsLoaded] = useState(false)
   
+  // Debug logging for phase display issue
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'development') {
+      console.log('🔧 GameScreen Phase Debug:', {
+        gamePhase,
+        gamePhaseFromAtom: gamePhase,
+        gameFromAtom: game?.phase,
+        phaseDisplayName: getPhaseDisplayName(gamePhase),
+        timestamp: new Date().toISOString()
+      })
+    }
+  }, [gamePhase, game?.phase])
+  
   useEffect(() => {
     // Set loaded to true after a short delay to ensure all data is loaded
     const timer = setTimeout(() => {
