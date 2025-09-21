@@ -140,28 +140,51 @@ export function getRoleDisplayName(role: PlayerRole): string {
   }
 }
 
-// Sort players with proper ordering: Host first, current player second, alive players, then dead players
+// Sort players with proper ordering based on current player type
 export function sortPlayers(players: Player[], currentPlayerId?: string): Player[] {
   return [...players].sort((a, b) => {
+    // Find current player to determine if they are host
+    const currentPlayer = players.find(p => p.id === currentPlayerId)
+    const isCurrentPlayerHost = currentPlayer?.is_host || false
+    
     // Host always first
     if (a.is_host && !b.is_host) return -1
     if (!a.is_host && b.is_host) return 1
-    
-    // If both are hosts (shouldn't happen), maintain original order
     if (a.is_host && b.is_host) return 0
     
-    // Current player second (only if not host)
-    if (currentPlayerId) {
-      if (a.id === currentPlayerId && b.id !== currentPlayerId && !a.is_host) return -1
-      if (a.id !== currentPlayerId && b.id === currentPlayerId && !b.is_host) return 1
+    // If current player is the host, use host-specific ordering
+    if (isCurrentPlayerHost) {
+      // Host sees: Host -> Werewolf -> Police -> Doctor -> Other alive players -> Dead players
+      const roleOrder = { werewolf: 1, police: 2, doctor: 3, villager: 4 }
+      
+      // Get role priority (lower number = higher priority)
+      const aRolePriority = roleOrder[a.role as keyof typeof roleOrder] || 4
+      const bRolePriority = roleOrder[b.role as keyof typeof roleOrder] || 4
+      
+      // Sort by role priority first
+      if (aRolePriority !== bRolePriority) {
+        return aRolePriority - bRolePriority
+      }
+      
+      // If same role, alive players before dead players
+      if (a.alive && !b.alive) return -1
+      if (!a.alive && b.alive) return 1
+      
+      return 0
+    } else {
+      // For regular players: Host -> Current player -> Other alive players -> Dead players
+      if (currentPlayerId) {
+        // Current player second (only if not host)
+        if (a.id === currentPlayerId && b.id !== currentPlayerId) return -1
+        if (a.id !== currentPlayerId && b.id === currentPlayerId) return 1
+      }
+      
+      // Alive players before dead players
+      if (a.alive && !b.alive) return -1
+      if (!a.alive && b.alive) return 1
+      
+      return 0
     }
-    
-    // Alive players before dead players
-    if (a.alive && !b.alive) return -1
-    if (!a.alive && b.alive) return 1
-    
-    // If both have same status, maintain original order
-    return 0
   })
 }
 
