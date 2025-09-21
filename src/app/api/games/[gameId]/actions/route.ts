@@ -248,10 +248,33 @@ async function handleNextPhase(gameId: string, game: Game, targetPhase?: string)
     if (!roundState?.phase_started) {
       // Start the current night phase
       console.log('🔧 Starting night phase:', game.phase)
-      await supabase
-        .from('round_state')
-        .update({ phase_started: true })
-        .eq('game_id', gameId)
+      
+      if (!roundState) {
+        // Create round state if it doesn't exist
+        console.log('🔧 Creating round state for game:', gameId)
+        const { error: createError } = await supabase
+          .from('round_state')
+          .insert({
+            game_id: gameId,
+            phase_started: true
+          })
+        
+        if (createError) {
+          console.error('❌ Error creating round state:', createError)
+          return NextResponse.json({ error: 'Failed to create round state' }, { status: 500 })
+        }
+      } else {
+        // Update existing round state
+        const { error: updateError } = await supabase
+          .from('round_state')
+          .update({ phase_started: true })
+          .eq('game_id', gameId)
+        
+        if (updateError) {
+          console.error('❌ Error updating round state:', updateError)
+          return NextResponse.json({ error: 'Failed to update round state' }, { status: 500 })
+        }
+      }
       
       return NextResponse.json({ success: true, phase: game.phase, action: 'phase_started' })
     } else {
@@ -278,10 +301,14 @@ async function handleNextPhase(gameId: string, game: Game, targetPhase?: string)
         
         // Reset phase_started for next phase
         const isNextNightPhase = ['night_wolf', 'night_police', 'night_doctor'].includes(nextPhase)
-        await supabase
+        const { error: resetError } = await supabase
           .from('round_state')
           .update({ phase_started: isNextNightPhase })
           .eq('game_id', gameId)
+        
+        if (resetError) {
+          console.error('❌ Error resetting phase_started:', resetError)
+        }
         
         return NextResponse.json({ success: true, phase: nextPhase, action: 'phase_advanced' })
       } else {
@@ -302,10 +329,14 @@ async function handleNextPhase(gameId: string, game: Game, targetPhase?: string)
     
     // Reset phase_started for next phase
     const isNextNightPhase = ['night_wolf', 'night_police', 'night_doctor'].includes(nextPhase)
-    await supabase
+    const { error: resetError2 } = await supabase
       .from('round_state')
       .update({ phase_started: isNextNightPhase })
       .eq('game_id', gameId)
+    
+    if (resetError2) {
+      console.error('❌ Error resetting phase_started for non-night phase:', resetError2)
+    }
     
     return NextResponse.json({ success: true, phase: nextPhase, action: 'phase_advanced' })
   }
