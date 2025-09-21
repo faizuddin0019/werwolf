@@ -129,7 +129,10 @@ export async function POST(
 }
 
 async function handleAssignRoles(gameId: string, game: Game) {
+  console.log('🔧 handleAssignRoles called for game:', gameId, 'phase:', game.phase)
+  
   if (game.phase !== 'lobby') {
+    console.log('❌ Game not in lobby phase:', game.phase)
     return NextResponse.json({ error: 'Roles can only be assigned in lobby' }, { status: 400 })
   }
   
@@ -140,12 +143,18 @@ async function handleAssignRoles(gameId: string, game: Game) {
     .eq('game_id', gameId)
   
   if (playersError || !players) {
+    console.error('❌ Failed to fetch players:', playersError)
     return NextResponse.json({ error: 'Failed to fetch players' }, { status: 500 })
   }
   
+  console.log('🔧 Found players:', players.length, players.map(p => ({ name: p.name, is_host: p.is_host })))
+  
   // Check if we have enough non-host players (need 6 non-host players + 1 host = 7 total)
   const nonHostPlayers = players.filter(p => !p.is_host)
+  console.log('🔧 Non-host players:', nonHostPlayers.length)
+  
   if (nonHostPlayers.length < 6) {
+    console.log('❌ Not enough players:', nonHostPlayers.length, 'need at least 6')
     return NextResponse.json({ error: 'Need at least 6 non-host players to start' }, { status: 400 })
   }
   
@@ -153,26 +162,43 @@ async function handleAssignRoles(gameId: string, game: Game) {
   let playersWithRoles: Player[]
   try {
     playersWithRoles = assignRoles(players)
+    console.log('🔧 Roles assigned successfully:', playersWithRoles.map(p => ({ name: p.name, role: p.role, is_host: p.is_host })))
   } catch (error) {
+    console.error('❌ Error assigning roles:', error)
     return NextResponse.json({ error: error instanceof Error ? error.message : 'Failed to assign roles' }, { status: 400 })
   }
   
-  // Update players with roles
+  // Update players with roles (only non-host players)
+  console.log('🔧 Updating player roles in database...')
   for (const player of playersWithRoles) {
-    await supabase
-      .from('players')
-      .update({ role: player.role })
-      .eq('id', player.id)
+    if (!player.is_host && player.role) {
+      console.log('🔧 Updating player:', player.name, 'to role:', player.role)
+      const { error: updateError } = await supabase
+        .from('players')
+        .update({ role: player.role })
+        .eq('id', player.id)
+      
+      if (updateError) {
+        console.error('❌ Error updating player role:', updateError)
+        return NextResponse.json({ error: 'Failed to update player roles' }, { status: 500 })
+      }
+    }
   }
   
   // Create initial round state (but don't update game phase yet)
-  await supabase
+  console.log('🔧 Creating initial round state...')
+  const { error: roundStateError } = await supabase
     .from('round_state')
     .insert({
-      game_id: gameId,
-      phase: 'lobby',
-      day_count: 1
+      game_id: gameId
     })
+  
+  if (roundStateError) {
+    console.error('❌ Error creating round state:', roundStateError)
+    return NextResponse.json({ error: 'Failed to create round state' }, { status: 500 })
+  }
+  
+  console.log('✅ Role assignment completed successfully!')
   
   // Don't update game phase - let host control when to start night phase
   // await supabase
