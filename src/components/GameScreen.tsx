@@ -12,7 +12,8 @@ import {
   isDayPhaseAtom,
   voteCountsAtom,
   highestVotedPlayerAtom,
-  roundStateAtom
+  roundStateAtom,
+  setGameDataAtom
 } from '@/lib/game-store'
 import { getPhaseDisplayName, getRoleDisplayName, canPlayerAct, sortPlayers } from '@/lib/game-utils'
 import { Player } from '@/lib/supabase'
@@ -49,6 +50,7 @@ export default function GameScreen({ onEndGame, onRemovePlayer }: GameScreenProp
   const [voteCounts] = useAtom(voteCountsAtom)
   const [highestVotedPlayer] = useAtom(highestVotedPlayerAtom)
   const [roundState] = useAtom(roundStateAtom)
+  const [, setGameData] = useAtom(setGameDataAtom)
   
   // Loading state to prevent action screens from showing during initial load
   const [isLoaded, setIsLoaded] = useState(false)
@@ -61,6 +63,38 @@ export default function GameScreen({ onEndGame, onRemovePlayer }: GameScreenProp
     
     return () => clearTimeout(timer)
   }, [game, players, currentPlayer, roundState])
+  
+  // Fallback polling mechanism to ensure real-time sync works
+  useEffect(() => {
+    if (!game?.id || !currentPlayer) return
+    
+    const pollInterval = setInterval(async () => {
+      try {
+        const response = await fetch(`/api/games?code=${game.code}`, {
+          headers: { 'Cookie': `clientId=${currentPlayer.client_id}` }
+        })
+        if (response.ok) {
+          const data = await response.json()
+          if (data.roundState && data.roundState.phase_started !== roundState?.phase_started) {
+            console.log('🔧 Polling detected roundState change:', data.roundState)
+            // Force update by calling setGameData
+            setGameData({
+              game: data.game,
+              players: data.players,
+              roundState: data.roundState,
+              votes: data.votes || [],
+              leaveRequests: data.leaveRequests || [],
+              currentPlayer: currentPlayer
+            })
+          }
+        }
+      } catch (error) {
+        console.error('Polling error:', error)
+      }
+    }, 2000) // Poll every 2 seconds
+    
+    return () => clearInterval(pollInterval)
+  }, [game?.id, game?.code, currentPlayer, roundState?.phase_started])
 
   // Sort players with proper ordering: Host first, current player second, alive players, then dead players
   const sortedPlayers = sortPlayers(players, currentPlayer?.id)
