@@ -56,7 +56,7 @@ export default function GameScreen({ onEndGame, onRemovePlayer }: GameScreenProp
   
   // Check if current player has an active action screen
   const hasActiveActionScreen = currentPlayer && (
-    (isNightPhase && canPlayerAct(currentPlayer, gamePhase, currentPlayer.is_host, roundState)) ||
+    (isNightPhase && canPlayerAct(currentPlayer, gamePhase, currentPlayer.is_host, roundState || undefined)) ||
     (isDayPhase && currentPlayer.alive)
   )
 
