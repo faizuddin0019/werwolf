@@ -67,6 +67,7 @@ CREATE TABLE players (
 -- Round state table
 CREATE TABLE round_state (
   game_id UUID PRIMARY KEY REFERENCES games(id) ON DELETE CASCADE,
+  phase_started BOOLEAN DEFAULT FALSE,
   wolf_target_player_id UUID REFERENCES players(id) DEFAULT NULL,
   police_inspect_player_id UUID REFERENCES players(id) DEFAULT NULL,
   police_inspect_result police_result DEFAULT NULL,

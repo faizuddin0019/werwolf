@@ -98,9 +98,16 @@ export function getNextPhase(currentPhase: GamePhase): GamePhase {
 export function canPlayerAct(
   player: Player, 
   phase: GamePhase, 
-  isHost: boolean
+  isHost: boolean,
+  roundState?: { phase_started: boolean }
 ): boolean {
   if (!player.alive) return false
+  
+  // For night phases, check if the phase has been started by the host
+  const isNightPhase = ['night_wolf', 'night_police', 'night_doctor'].includes(phase)
+  if (isNightPhase && roundState && !roundState.phase_started) {
+    return false // Phase not started yet
+  }
   
   switch (phase) {
     case 'night_wolf':

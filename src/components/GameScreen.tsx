@@ -128,7 +128,7 @@ export default function GameScreen({ onEndGame, onRemovePlayer }: GameScreenProp
       <div className="relative z-20 max-w-7xl mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Sidebar */}
-          <div className="lg:col-span-1 lg:order-2">
+          <div className={`lg:col-span-1 ${(isNightPhase || isDayPhase) ? 'order-1' : 'lg:order-2'}`}>
             <div className="space-y-6">
               {/* Host Controls */}
               {isHost && (
@@ -161,6 +161,16 @@ export default function GameScreen({ onEndGame, onRemovePlayer }: GameScreenProp
                   </div>
                 </div>
               </div>
+
+              {/* Night Overlay - Only show when it's the player's turn */}
+              {isNightPhase && currentPlayer && (
+                <NightOverlay />
+              )}
+
+              {/* Voting Interface - Only show when it's day phase */}
+              {isDayPhase && currentPlayer && (
+                <VotingInterface />
+              )}
 
               {/* Host Player Management */}
               {isHost && (
@@ -207,12 +217,12 @@ export default function GameScreen({ onEndGame, onRemovePlayer }: GameScreenProp
           </div>
 
           {/* Players Grid */}
-          <div className="lg:col-span-3 lg:order-1">
+          <div className={`lg:col-span-3 ${(isNightPhase || isDayPhase) ? 'order-2' : 'lg:order-1'}`}>
             <div className="bg-slate-800/80 backdrop-blur-sm rounded-lg p-6 border border-slate-600/30 shadow-lg">
               <h2 className="text-xl font-semibold mb-4 text-white">
                 Players
               </h2>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {players.map((player) => {
                   const voteCount = voteCounts[player.id] || 0
                   const isHighestVoted = highestVotedPlayer?.id === player.id
@@ -220,18 +230,29 @@ export default function GameScreen({ onEndGame, onRemovePlayer }: GameScreenProp
                   return (
                     <div
                       key={player.id}
-                      className={`relative p-4 rounded-lg border-2 transition-all ${
+                      className={`relative p-6 rounded-lg border-2 transition-all ${
                         !player.alive
                           ? 'border-red-500 bg-red-900/20 opacity-60'
                           : player.is_host
                           ? 'border-yellow-400 bg-yellow-900/20'
-                          : 'border-slate-600 bg-slate-800/50'
+                          : player.id === currentPlayer?.id
+                          ? 'border-green-400 bg-green-900/20'
+                          : 'border-gray-600 bg-gray-800/50'
                       } ${isHighestVoted ? 'ring-2 ring-orange-400' : ''}`}
                     >
                       {/* Host Crown */}
                       {player.is_host && (
                         <div className="absolute -top-2 -right-2">
-                          <Crown className="w-6 h-6 text-yellow-500" />
+                          <Crown className="w-6 h-6 text-yellow-400" />
+                        </div>
+                      )}
+                      
+                      {/* Current Player Badge */}
+                      {player.id === currentPlayer?.id && !player.is_host && (
+                        <div className="absolute -top-2 -left-2">
+                          <div className="w-6 h-6 bg-green-400 rounded-full flex items-center justify-center">
+                            <span className="text-xs font-bold text-green-900">YOU</span>
+                          </div>
                         </div>
                       )}
                       
@@ -245,24 +266,64 @@ export default function GameScreen({ onEndGame, onRemovePlayer }: GameScreenProp
                       )}
 
                       <div className="text-center">
-                        {/* Player Name */}
-                        <div className="flex items-center justify-center space-x-2 mb-2">
-                          <h3 className="text-white font-medium">{player.name}</h3>
-                          {player.id === currentPlayer?.id && (
-                            <span className="text-xs bg-blue-600 text-white px-2 py-1 rounded">
-                              You
-                            </span>
-                          )}
+                        {/* Avatar */}
+                        <div className={`w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center ${
+                          !player.alive
+                            ? 'bg-red-800'
+                            : player.is_host 
+                            ? 'bg-yellow-800' 
+                            : player.id === currentPlayer?.id
+                            ? 'bg-green-800'
+                            : 'bg-gray-700'
+                        }`}>
+                          <span className={`text-lg font-bold ${
+                            !player.alive
+                              ? 'text-red-200'
+                              : player.is_host 
+                              ? 'text-yellow-200' 
+                              : player.id === currentPlayer?.id
+                              ? 'text-green-200'
+                              : 'text-gray-300'
+                          }`}>
+                            {player.name.charAt(0).toUpperCase()}
+                          </span>
                         </div>
-
-                        {/* Role Display */}
-                        {(isHost || player.id === currentPlayer?.id) && (
-                          <div className="flex items-center justify-center space-x-1 text-xs">
-                            {getPlayerIcon(player)}
-                            <span className="text-slate-300">
-                              {getRoleDisplayName(player.role)}
-                            </span>
-                          </div>
+                        
+                        {/* Player Name */}
+                        <p className={`font-semibold text-lg break-words ${
+                          !player.alive
+                            ? 'text-red-200'
+                            : player.is_host 
+                            ? 'text-yellow-200' 
+                            : player.id === currentPlayer?.id
+                            ? 'text-green-200'
+                            : 'text-white'
+                        }`}>
+                          {player.name}
+                        </p>
+                        
+                        {/* Host Label */}
+                        {player.is_host && (
+                          <p className="text-sm text-yellow-400 font-semibold">
+                            Host
+                          </p>
+                        )}
+                        
+                        {/* Role Display - Only show to host and the player themselves */}
+                        {!player.is_host && player.role && (isHost || player.id === currentPlayer?.id) && (
+                          <p className="text-sm text-blue-400 font-semibold">
+                            {player.role === 'werewolf' ? '🐺 Werewolf' :
+                             player.role === 'doctor' ? '🩺 Doctor' :
+                             player.role === 'police' ? '🛡️ Police' :
+                             '👥 Villager'}
+                          </p>
+                        )}
+                        
+                        {/* For other players, show "Villager" or nothing */}
+                        {!player.is_host && player.role && !isHost && player.id !== currentPlayer?.id && (
+                          <p className="text-sm text-gray-400 font-semibold">
+                            👥 Villager
+                          </p>
                         )}
 
                         {/* Status */}
@@ -283,15 +344,6 @@ export default function GameScreen({ onEndGame, onRemovePlayer }: GameScreenProp
         </div>
       </div>
 
-      {/* Night Overlay */}
-      {isNightPhase && currentPlayer && (
-        <NightOverlay />
-      )}
-
-      {/* Voting Interface */}
-      {isDayPhase && currentPlayer && (
-        <VotingInterface />
-      )}
 
       {/* Win Condition Display */}
       <WinConditionDisplay onClose={onEndGame} />

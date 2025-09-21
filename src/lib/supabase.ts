@@ -70,6 +70,7 @@ export interface Player {
 
 export interface RoundState {
   game_id: string
+  phase_started: boolean
   wolf_target_player_id: string | null
   police_inspect_player_id: string | null
   police_inspect_result: PoliceResult

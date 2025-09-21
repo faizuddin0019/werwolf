@@ -4,9 +4,10 @@ import { useState, useEffect } from 'react'
 import { useAtom } from 'jotai'
 import { 
   gameAtom, 
-  currentPlayerAtom,
+  currentPlayerAtom, 
   playersAtom,
-  gamePhaseAtom
+  gamePhaseAtom,
+  roundStateAtom
 } from '@/lib/game-store'
 import { canPlayerAct } from '@/lib/game-utils'
 import { 
@@ -23,13 +24,14 @@ export default function NightOverlay() {
   const [currentPlayer] = useAtom(currentPlayerAtom)
   const [players] = useAtom(playersAtom)
   const [gamePhase] = useAtom(gamePhaseAtom)
+  const [roundState] = useAtom(roundStateAtom)
   
   const [selectedTarget, setSelectedTarget] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error', message: string } | null>(null)
 
   const alivePlayers = players.filter(p => p.alive && p.id !== currentPlayer?.id && !p.is_host)
-  const canAct = currentPlayer && canPlayerAct(currentPlayer, gamePhase, currentPlayer.is_host)
+  const canAct = currentPlayer && canPlayerAct(currentPlayer, gamePhase, currentPlayer.is_host, roundState)
 
   useEffect(() => {
     if (feedback) {

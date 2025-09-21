@@ -193,13 +193,14 @@ async function handleAssignRoles(gameId: string, game: Game) {
     .eq('game_id', gameId)
     .single()
   
-  if (!existingRoundState) {
-    console.log('🔧 Creating initial round state...')
-    const { error: roundStateError } = await supabase
-      .from('round_state')
-      .insert({
-        game_id: gameId
-      })
+          if (!existingRoundState) {
+            console.log('🔧 Creating initial round state...')
+            const { error: roundStateError } = await supabase
+              .from('round_state')
+              .insert({
+                game_id: gameId,
+                phase_started: false
+              })
     
     if (roundStateError) {
       console.error('❌ Error creating round state:', roundStateError)
@@ -231,10 +232,19 @@ async function handleAssignRoles(gameId: string, game: Game) {
 async function handleNextPhase(gameId: string, game: Game, targetPhase?: string) {
   const nextPhase = targetPhase || getNextPhase(game.phase)
   
+  // Update game phase
   await supabase
     .from('games')
     .update({ phase: nextPhase })
     .eq('id', gameId)
+  
+  // For night phases, set phase_started to true
+  // For other phases, reset phase_started to false
+  const isNightPhase = ['night_wolf', 'night_police', 'night_doctor'].includes(nextPhase)
+  await supabase
+    .from('round_state')
+    .update({ phase_started: isNightPhase })
+    .eq('game_id', gameId)
   
   return NextResponse.json({ success: true, phase: nextPhase })
 }
