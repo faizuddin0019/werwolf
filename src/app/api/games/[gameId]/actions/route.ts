@@ -243,6 +243,8 @@ async function handleNextPhase(gameId: string, game: Game, targetPhase?: string)
   // Handle transition from lobby to first night phase
   if (game.phase === 'lobby') {
     console.log('🔧 Transitioning from lobby to first night phase (night_wolf)')
+    
+    // Update game phase to night_wolf
     const { error: phaseError } = await supabase
       .from('games')
       .update({ phase: 'night_wolf' })
@@ -251,6 +253,43 @@ async function handleNextPhase(gameId: string, game: Game, targetPhase?: string)
     if (phaseError) {
       console.error('❌ Error updating game phase to night_wolf:', phaseError)
       return NextResponse.json({ error: 'Failed to update game phase' }, { status: 500 })
+    }
+    
+    // Create or update round state to start the phase
+    const { data: existingRoundState } = await supabase
+      .from('round_state')
+      .select('*')
+      .eq('game_id', gameId)
+      .single()
+    
+    if (existingRoundState) {
+      // Update existing round state to start the phase
+      const { error: updateError } = await supabase
+        .from('round_state')
+        .update({ phase_started: true })
+        .eq('game_id', gameId)
+      
+      if (updateError) {
+        console.error('❌ Error updating round state:', updateError)
+        // Continue anyway - phase_started column might not exist
+      } else {
+        console.log('✅ Round state updated - phase started!')
+      }
+    } else {
+      // Create new round state
+      const { error: createError } = await supabase
+        .from('round_state')
+        .insert({
+          game_id: gameId,
+          phase_started: true
+        })
+      
+      if (createError) {
+        console.error('❌ Error creating round state:', createError)
+        // Continue anyway - phase_started column might not exist
+      } else {
+        console.log('✅ Round state created - phase started!')
+      }
     }
     
     console.log('✅ Game phase updated to night_wolf!')
@@ -415,6 +454,18 @@ async function handleWolfSelect(gameId: string, player: Player, targetId: string
     return NextResponse.json({ error: 'Only werewolves can select targets' }, { status: 403 })
   }
   
+  // Get current game phase
+  const { data: game } = await supabase
+    .from('games')
+    .select('phase')
+    .eq('id', gameId)
+    .single()
+  
+  if (!game || game.phase !== 'night_wolf') {
+    console.log('🔧 Werwolf can only act during night_wolf phase, current phase:', game?.phase)
+    return NextResponse.json({ error: 'Werwolf can only act during the wolf phase' }, { status: 400 })
+  }
+  
   // Check if werwolf has already selected a target and if phase has been started
   const { data: roundState } = await supabase
     .from('round_state')
@@ -454,6 +505,18 @@ async function handleWolfSelect(gameId: string, player: Player, targetId: string
 async function handlePoliceInspect(gameId: string, player: Player, targetId: string) {
   if (player.role !== 'police') {
     return NextResponse.json({ error: 'Only police can inspect players' }, { status: 403 })
+  }
+  
+  // Get current game phase
+  const { data: game } = await supabase
+    .from('games')
+    .select('phase')
+    .eq('id', gameId)
+    .single()
+  
+  if (!game || game.phase !== 'night_police') {
+    console.log('🔧 Police can only act during night_police phase, current phase:', game?.phase)
+    return NextResponse.json({ error: 'Police can only act during the police phase' }, { status: 400 })
   }
   
   // Check if police has already inspected someone and if phase has been started
@@ -509,6 +572,18 @@ async function handleDoctorSave(gameId: string, player: Player, targetId: string
     return NextResponse.json({ error: 'Only doctors can save players' }, { status: 403 })
   }
   
+  // Get current game phase
+  const { data: game } = await supabase
+    .from('games')
+    .select('phase')
+    .eq('id', gameId)
+    .single()
+  
+  if (!game || game.phase !== 'night_doctor') {
+    console.log('🔧 Doctor can only act during night_doctor phase, current phase:', game?.phase)
+    return NextResponse.json({ error: 'Doctor can only act during the doctor phase' }, { status: 400 })
+  }
+  
   // Check if doctor has already saved someone and if phase has been started
   const { data: roundState } = await supabase
     .from('round_state')
@@ -548,6 +623,12 @@ async function handleDoctorSave(gameId: string, player: Player, targetId: string
 async function handleRevealDead(gameId: string, game: Game) {
   try {
     console.log('🔧 handleRevealDead called for game:', gameId)
+    
+    // Check if we're in the correct phase for reveal_dead
+    if (game.phase !== 'night_police') {
+      console.log('🔧 Reveal dead can only be called during night_police phase, current phase:', game.phase)
+      return NextResponse.json({ error: 'Reveal dead can only be called during the police phase' }, { status: 400 })
+    }
     
     // Get round state
     const { data: roundState, error: roundStateError } = await supabase
@@ -605,10 +686,10 @@ async function handleRevealDead(gameId: string, game: Game) {
       }
     }
     
-    // Advance to day_vote phase after revealing dead
+    // Advance to reveal phase after revealing dead
     const { error: updateGameError } = await supabase
       .from('games')
-      .update({ phase: 'day_vote' })
+      .update({ phase: 'reveal' })
       .eq('id', gameId)
     
     if (updateGameError) {

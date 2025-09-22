@@ -67,8 +67,10 @@ class ActionVisibilityTest {
     })
     console.log('✅ Roles assigned')
 
-    // Fetch game state to find the players with roles
-    const gameState = await this.makeRequest(`${BASE_URL}/api/games?code=${this.gameCode}`)
+    // Fetch game state to find the players with roles (use host cookie to see all roles)
+    const gameState = await this.makeRequest(`${BASE_URL}/api/games?code=${this.gameCode}`, {
+      headers: { 'Cookie': `clientId=${this.hostClientId}` }
+    })
     const werwolfPlayer = gameState.players.find(p => p.role === 'werwolf' || p.role === 'werewolf')
     const doctorPlayer = gameState.players.find(p => p.role === 'doctor')
     const policePlayer = gameState.players.find(p => p.role === 'police')
@@ -98,7 +100,9 @@ class ActionVisibilityTest {
       })
     })
 
-    const gameState = await this.makeRequest(`${BASE_URL}/api/games?code=${this.gameCode}`)
+    const gameState = await this.makeRequest(`${BASE_URL}/api/games?code=${this.gameCode}`, {
+      headers: { 'Cookie': `clientId=${this.hostClientId}` }
+    })
     const targets = gameState.players.filter(p => p.id !== this.werwolfPlayerId && !p.is_host && p.alive)
 
     // Werwolf eliminates a target

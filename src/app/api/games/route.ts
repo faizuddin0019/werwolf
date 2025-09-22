@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase, isSupabaseConfigured } from '@/lib/supabase'
-import { generateGameCode } from '@/lib/game-utils'
+import { generateGameCode, sortPlayers } from '@/lib/game-utils'
 
 export async function POST(request: NextRequest) {
   try {
@@ -207,9 +207,12 @@ export async function GET(request: NextRequest) {
       console.error('Error fetching leave requests:', leaveRequestsError)
     }
     
+    // Sort players based on current player's perspective
+    const sortedPlayers = sortPlayers(filteredPlayers, currentPlayer?.id)
+    
     return NextResponse.json({
       game,
-      players: filteredPlayers,
+      players: sortedPlayers,
       roundState,
       votes: votes || [],
       leaveRequests: leaveRequests || []
