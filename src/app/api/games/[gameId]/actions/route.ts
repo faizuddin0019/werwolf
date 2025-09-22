@@ -231,25 +231,31 @@ async function handleAssignRoles(gameId: string, game: Game) {
   
   console.log('✅ Role assignment completed successfully!')
   
-  // Update game phase to night_wolf so host can start the game
-  console.log('🔧 Updating game phase to night_wolf...')
-  const { error: phaseError } = await supabase
-    .from('games')
-    .update({ phase: 'night_wolf' })
-    .eq('id', gameId)
-  
-  if (phaseError) {
-    console.error('❌ Error updating game phase:', phaseError)
-    return NextResponse.json({ error: 'Failed to update game phase' }, { status: 500 })
-  }
-  
-  console.log('✅ Game phase updated to night_wolf!')
+  // Keep game in lobby phase until host starts the game
+  console.log('🔧 Game remains in lobby phase until host starts')
   
   return NextResponse.json({ success: true })
 }
 
 async function handleNextPhase(gameId: string, game: Game, targetPhase?: string) {
   console.log('🔧 handleNextPhase called for game:', gameId, 'current phase:', game.phase)
+  
+  // Handle transition from lobby to first night phase
+  if (game.phase === 'lobby') {
+    console.log('🔧 Transitioning from lobby to first night phase (night_wolf)')
+    const { error: phaseError } = await supabase
+      .from('games')
+      .update({ phase: 'night_wolf' })
+      .eq('id', gameId)
+    
+    if (phaseError) {
+      console.error('❌ Error updating game phase to night_wolf:', phaseError)
+      return NextResponse.json({ error: 'Failed to update game phase' }, { status: 500 })
+    }
+    
+    console.log('✅ Game phase updated to night_wolf!')
+    return NextResponse.json({ success: true, phase: 'night_wolf', action: 'phase_advanced' })
+  }
   
   // Check if we're in a night phase and need to start it first
   const isNightPhase = ['night_wolf', 'night_police', 'night_doctor'].includes(game.phase)

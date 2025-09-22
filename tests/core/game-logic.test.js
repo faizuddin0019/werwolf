@@ -159,8 +159,10 @@ class GameLogicTests {
       throw new Error('Failed to start game and assign roles')
     }
     
-    // Get game state to verify roles were assigned
-    const gameState = await this.makeRequest(`${BASE_URL}/api/games?code=${this.gameCode}`)
+    // Get game state to verify roles were assigned (using host cookie to see all roles)
+    const gameState = await fetch(`${BASE_URL}/api/games?code=${this.gameCode}`, {
+      headers: { 'Cookie': `clientId=${this.hostClientId}` }
+    }).then(r => r.json())
     
     const playersWithRoles = gameState.players.filter(p => p.role && !p.is_host)
     const hostPlayer = gameState.players.find(p => p.is_host)
@@ -198,7 +200,9 @@ class GameLogicTests {
     console.log('\n🏆 Testing win conditions...')
     
     // Get current game state
-    const gameState = await this.makeRequest(`${BASE_URL}/api/games?code=${this.gameCode}`)
+    const gameState = await fetch(`${BASE_URL}/api/games?code=${this.gameCode}`, {
+      headers: { 'Cookie': `clientId=${this.hostClientId}` }
+    }).then(r => r.json())
     const alivePlayers = gameState.players.filter(p => p.alive)
     
     console.log(`Current alive players: ${alivePlayers.length}`)
@@ -303,10 +307,13 @@ class GameLogicTests {
     }
     
     // Verify game state
-    const gameState = await this.makeRequest(`${BASE_URL}/api/games?code=${this.gameCode}`)
+    const gameState = await fetch(`${BASE_URL}/api/games?code=${this.gameCode}`, {
+      headers: { 'Cookie': `clientId=${this.hostClientId}` }
+    }).then(r => r.json())
     
-    if (gameState.game.phase !== 'night_wolf') {
-      throw new Error(`Expected night_wolf phase after role assignment, got: ${gameState.game.phase}`)
+    console.log('🔧 Debug: Game phase after role assignment:', gameState.game.phase)
+    if (gameState.game.phase !== 'lobby') {
+      throw new Error(`Expected lobby phase after role assignment (until host starts phase), got: ${gameState.game.phase}`)
     }
     
     // Note: Sound effect testing is limited in automated tests
