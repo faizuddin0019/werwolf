@@ -13,7 +13,7 @@ import {
   pendingLeaveRequestsAtom,
   hasPendingLeaveRequestAtom
 } from '@/lib/game-store'
-import { Crown, Users, Play, Moon, Sun, RotateCcw, LogOut } from 'lucide-react'
+import { Crown, Users, Play, Sun, RotateCcw, LogOut } from 'lucide-react'
 import { sortPlayers } from '@/lib/game-utils'
 
 interface GameLobbyProps {
@@ -40,13 +40,13 @@ export default function GameLobby({
   const [currentPlayer] = useAtom(currentPlayerAtom)
   const [isHost] = useAtom(isHostAtom)
   const [canStartGame] = useAtom(canStartGameAtom)
-  const [playerName] = useAtom(playerNameAtom)
+  const [] = useAtom(playerNameAtom)
   const [leaveRequests] = useAtom(leaveRequestsAtom)
   const [pendingLeaveRequests] = useAtom(pendingLeaveRequestsAtom)
-  const [hasPendingLeaveRequest] = useAtom(hasPendingLeaveRequestAtom)
+  const [] = useAtom(hasPendingLeaveRequestAtom)
 
   // Loading state for leave requests
-  const [isLoading, setIsLoading] = useState(false)
+  const [] = useState(false)
 
   // Debug logging for players
   console.log('🔧 GameLobby Debug:', {
@@ -68,7 +68,7 @@ export default function GameLobby({
   const sortedPlayers = sortPlayers(players, currentPlayer?.id)
   
   // In lobby phase, show all players (they're all alive)
-  const alivePlayers = sortedPlayers.filter(p => p.alive)
+  // const alivePlayers = sortedPlayers.filter(p => p.alive)
   const playerCount = sortedPlayers.length
   const nonHostPlayerCount = sortedPlayers.filter(p => !p.is_host).length
 

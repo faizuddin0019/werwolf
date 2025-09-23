@@ -5,7 +5,7 @@
  * Ensures proper role distribution including Werwolf assignment
  */
 
-const BASE_URL = process.env.TEST_URL || 'http://localhost:3000'
+const BASE_URL = process.env.TEST_URL || 'http://localhost:3001'
 
 async function testRoleAssignment() {
   console.log('🎯 Testing Role Assignment Logic...')

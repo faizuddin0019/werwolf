@@ -334,42 +334,157 @@ async function handleNextPhase(gameId: string, game: Game, targetPhase?: string)
     return NextResponse.json({ success: true, phase: 'night_police', action: 'phase_advanced' })
   }
   
-  // Handle transition from night_police to reveal phase (Reveal the Dead)
-  if (game.phase === 'night_police') {
-    console.log('🔧 Host clicked "Reveal the Dead" - transitioning to reveal phase')
+  // Check if we're in a night phase and need to start it first
+  const isNightPhase = ['night_wolf', 'night_police', 'night_doctor'].includes(game.phase)
+  
+  if (isNightPhase) {
+    // Get current round state to check if phase has been started
+    const { data: roundState } = await supabase!
+      .from('round_state')
+      .select('*')
+      .eq('game_id', gameId)
+      .single()
     
-    // Update game phase to reveal
-    const { error: phaseError } = await supabase!
+    console.log('🔧 Current round state:', roundState)
+    
+    // Check if phase_started column exists by trying to read it
+    const phaseStarted = roundState?.phase_started
+    
+    if (phaseStarted === undefined || phaseStarted === false) {
+      // Start the current night phase
+      console.log('🔧 Starting night phase:', game.phase)
+      
+      if (!roundState) {
+        // Create round state if it doesn't exist
+        console.log('🔧 Creating round state for game:', gameId)
+        const { error: createError } = await supabase!
+          .from('round_state')
+          .insert({
+            game_id: gameId,
+            phase_started: true
+          })
+        
+        if (createError) {
+          console.error('❌ Error creating round state:', createError)
+          console.error('❌ Create error details:', JSON.stringify(createError, null, 2))
+          
+          // If phase_started column doesn't exist, create without it
+          if (createError.code === 'PGRST204' && createError.message.includes('phase_started')) {
+            console.log('⚠️ Creating round state without phase_started column')
+            const { error: createError2 } = await supabase!
+              .from('round_state')
+              .insert({
+                game_id: gameId
+              })
+            
+            if (createError2) {
+              console.error('❌ Error creating round state without phase_started:', createError2)
+              return NextResponse.json({ error: 'Failed to create round state' }, { status: 500 })
+            }
+            console.log('✅ Round state created without phase_started column')
+          } else {
+            return NextResponse.json({ error: 'Failed to create round state' }, { status: 500 })
+          }
+        } else {
+          console.log('✅ Round state created successfully')
+        }
+      } else {
+        // Update existing round state to start the phase
+        console.log('🔧 Updating existing round state to start phase for game:', gameId)
+        const { error: updateError } = await supabase!
+          .from('round_state')
+          .update({ phase_started: true })
+          .eq('game_id', gameId)
+        
+        if (updateError) {
+          console.error('❌ Error updating round state:', updateError)
+          console.error('❌ Update error details:', JSON.stringify(updateError, null, 2))
+          
+          // If phase_started column doesn't exist, that's okay for now
+          if (updateError.code === 'PGRST204' && updateError.message.includes('phase_started')) {
+            console.log('⚠️ phase_started column not found - skipping update')
+          } else {
+            return NextResponse.json({ error: 'Failed to update round state' }, { status: 500 })
+          }
+        } else {
+          console.log('✅ Round state updated successfully - phase started!')
+        }
+      }
+      
+      return NextResponse.json({ success: true, phase: game.phase, action: 'phase_started' })
+    } else {
+      // Phase already started, check if action is completed
+      let actionCompleted = false
+      
+      if (game.phase === 'night_wolf' && roundState.wolf_target_player_id) {
+        actionCompleted = true
+      } else if (game.phase === 'night_police' && roundState.police_inspect_player_id) {
+        actionCompleted = true
+      } else if (game.phase === 'night_doctor' && roundState.doctor_save_player_id) {
+        actionCompleted = true
+      }
+      
+      if (actionCompleted) {
+        // Action completed, advance to next phase
+        const nextPhase = targetPhase || getNextPhase(game.phase)
+        console.log('🔧 Action completed, advancing to next phase:', nextPhase)
+        
+        await supabase!
+          .from('games')
+          .update({ phase: nextPhase })
+          .eq('id', gameId)
+        
+        // Reset phase_started for next phase
+        const isNextNightPhase = ['night_wolf', 'night_police', 'night_doctor'].includes(nextPhase)
+        const { error: resetError } = await supabase!
+          .from('round_state')
+          .update({ phase_started: isNextNightPhase })
+          .eq('game_id', gameId)
+        
+        if (resetError) {
+          console.error('❌ Error resetting phase_started:', resetError)
+          // If column doesn't exist, that's okay for now - we'll add it later
+          if (resetError.code === 'PGRST204' && resetError.message.includes('phase_started')) {
+            console.log('⚠️ phase_started column not found - this will be fixed after database migration')
+          }
+        }
+        
+        return NextResponse.json({ success: true, phase: nextPhase, action: 'phase_advanced' })
+      } else {
+        // Action not completed yet
+        console.log('🔧 Action not completed yet for phase:', game.phase)
+        return NextResponse.json({ success: true, phase: game.phase, action: 'waiting_for_action' })
+      }
+    }
+  } else {
+    // Not a night phase, advance normally
+    const nextPhase = targetPhase || getNextPhase(game.phase)
+    console.log('🔧 Advancing to next phase:', nextPhase)
+    
+    await supabase!
       .from('games')
-      .update({ phase: 'reveal' })
+      .update({ phase: nextPhase })
       .eq('id', gameId)
     
-    if (phaseError) {
-      console.error('❌ Error updating game phase to reveal:', phaseError)
-      return NextResponse.json({ error: 'Failed to update game phase' }, { status: 500 })
+    // Reset phase_started for next phase
+    const isNextNightPhase = ['night_wolf', 'night_police', 'night_doctor'].includes(nextPhase)
+    const { error: resetError2 } = await supabase!
+      .from('round_state')
+      .update({ phase_started: isNextNightPhase })
+      .eq('game_id', gameId)
+    
+    if (resetError2) {
+      console.error('❌ Error resetting phase_started for non-night phase:', resetError2)
+      // If column doesn't exist, that's okay for now - we'll add it later
+      if (resetError2.code === 'PGRST204' && resetError2.message.includes('phase_started')) {
+        console.log('⚠️ phase_started column not found - this will be fixed after database migration')
+      }
     }
     
-    console.log('✅ Game phase updated to reveal!')
-    return NextResponse.json({ success: true, phase: 'reveal', action: 'phase_advanced' })
+    return NextResponse.json({ success: true, phase: nextPhase, action: 'phase_advanced' })
   }
-  
-  // Handle other phase transitions (day phases, etc.)
-  const nextPhase = targetPhase || getNextPhase(game.phase)
-  console.log('🔧 Advancing to next phase:', nextPhase)
-  
-  const { error: phaseError } = await supabase!
-    .from('games')
-    .update({ phase: nextPhase })
-    .eq('id', gameId)
-  
-  if (phaseError) {
-    console.error('❌ Error updating game phase:', phaseError)
-    return NextResponse.json({ error: 'Failed to update game phase' }, { status: 500 })
-  }
-  
-  console.log('✅ Game phase updated to', nextPhase)
-  return NextResponse.json({ success: true, phase: nextPhase, action: 'phase_advanced' })
 }
+
 async function handleWolfSelect(gameId: string, player: Player, targetId: string) {
   console.log('🔧 handleWolfSelect: Player role check:', { playerId: player.id, playerName: player.name, role: player.role, isWerwolf: player.role === 'werwolf' || player.role === 'werewolf' })
   
@@ -674,10 +789,6 @@ async function handleBeginVoting(gameId: string) {
 async function handleVote(gameId: string, player: Player, targetId: string, round: number, phase: string) {
   if (!player.alive) {
     return NextResponse.json({ error: 'Dead players cannot vote' }, { status: 403 })
-  }
-  
-  if (player.is_host) {
-    return NextResponse.json({ error: 'Host cannot vote' }, { status: 403 })
   }
   
   if (!['day_vote', 'day_final_vote'].includes(phase)) {

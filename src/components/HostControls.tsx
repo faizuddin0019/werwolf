@@ -17,7 +17,6 @@ import {
   Moon, 
   Eye, 
   Vote, 
-  CheckCircle, 
   XCircle,
   RotateCcw,
   Users
@@ -32,7 +31,7 @@ export default function HostControls({ onEndGame }: HostControlsProps) {
   const [currentPlayer] = useAtom(currentPlayerAtom)
   const [gamePhase] = useAtom(gamePhaseAtom)
   const [isNightPhase] = useAtom(isNightPhaseAtom)
-  const [isDayPhase] = useAtom(isDayPhaseAtom)
+  const [] = useAtom(isDayPhaseAtom)
   const [highestVotedPlayer] = useAtom(highestVotedPlayerAtom)
   const [roundState] = useAtom(roundStateAtom)
   
@@ -221,9 +220,8 @@ export default function HostControls({ onEndGame }: HostControlsProps) {
             }
             return true
           })
-          .map(({ action, label }) => {
+          .map(({ action }) => {
           const canPerform = canPerformAction(action)
-          const isCurrentAction = gamePhase === action.replace('_', '_')
           
           return (
             <button

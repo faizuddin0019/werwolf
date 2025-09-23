@@ -8,7 +8,7 @@ import {
   resetGameAtom,
   clientIdAtom 
 } from '@/lib/game-store'
-import { Copy, Users, Shield, Stethoscope, Eye } from 'lucide-react'
+import { Copy } from 'lucide-react'
 
 interface WelcomeScreenProps {
   onStartGame: (gameCode: string) => void
@@ -16,9 +16,9 @@ interface WelcomeScreenProps {
 }
 
 export default function WelcomeScreen({ onStartGame, onJoinGame }: WelcomeScreenProps) {
-  const [gameCode, setGameCode] = useAtom(gameCodeAtom)
+  const [] = useAtom(gameCodeAtom)
   const [playerName, setPlayerName] = useAtom(playerNameAtom)
-  const [resetGame] = useAtom(resetGameAtom)
+  const [] = useAtom(resetGameAtom)
   const [clientId, setClientId] = useAtom(clientIdAtom)
   
   const [joinCode, setJoinCode] = useState('')

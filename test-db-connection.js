@@ -5,7 +5,7 @@
  * Simple test to verify Supabase connection and schema
  */
 
-const { createClient } = require('@supabase/supabase-js')
+import { createClient } from '@supabase/supabase-js'
 
 async function testDatabaseConnection() {
   console.log('🔍 Testing Database Connection...')
@@ -27,7 +27,7 @@ async function testDatabaseConnection() {
   try {
     // Test 1: Check if we can connect
     console.log('📝 Test 1: Testing basic connection...')
-    const { data, error } = await supabase.from('games').select('count').limit(1)
+    const { error } = await supabase.from('games').select('count').limit(1)
     
     if (error) {
       console.error('❌ Database connection failed:', error.message)

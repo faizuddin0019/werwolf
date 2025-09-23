@@ -13,7 +13,7 @@ if ! command -v node &> /dev/null; then
 fi
 
 # Set default test URL
-TEST_URL=${1:-"http://localhost:3000"}
+TEST_URL=${1:-"http://localhost:3001"}
 
 echo "📍 Testing against: $TEST_URL"
 echo ""
@@ -74,8 +74,8 @@ case "${2:-all}" in
         echo "  all         - Run all test suites (default)"
         echo ""
         echo "Examples:"
-        echo "  $0                                    # Run all tests on localhost:3000"
-        echo "  $0 http://localhost:3000 core        # Run core tests on localhost:3000"
+        echo "  $0                                    # Run all tests on localhost:3001"
+        echo "  $0 http://localhost:3001 core        # Run core tests on localhost:3001"
         echo "  $0 https://wearwolf-theta.vercel.app all  # Run all tests on production"
         exit 1
         ;;

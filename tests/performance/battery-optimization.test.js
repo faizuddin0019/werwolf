@@ -5,7 +5,7 @@
  * Tests performance optimizations, console logging, and real-time efficiency
  */
 
-const BASE_URL = process.env.TEST_URL || 'http://localhost:3000'
+const BASE_URL = process.env.TEST_URL || 'http://localhost:3001'
 
 class BatteryOptimizationTests {
   constructor() {
@@ -60,6 +60,7 @@ class BatteryOptimizationTests {
     })
     
     this.gameCode = hostResponse.gameCode
+    this.gameId = hostResponse.game.id
     this.hostClientId = hostResponse.player.client_id
     
     console.log(`✅ Game created with code: ${this.gameCode}`)
@@ -86,7 +87,7 @@ class BatteryOptimizationTests {
     console.log('\n⚡ Testing debounced updates...')
     
     // Start the game
-    const startResponse = await this.makeRequest(`${BASE_URL}/api/games/${this.gameCode}/actions`, {
+    const startResponse = await this.makeRequest(`${BASE_URL}/api/games/${this.gameId}/actions`, {
       method: 'POST',
       body: JSON.stringify({
         action: 'assign_roles',
@@ -107,7 +108,7 @@ class BatteryOptimizationTests {
     const promises = []
     for (let i = 0; i < 5; i++) {
       promises.push(
-        this.makeRequest(`${BASE_URL}/api/games/${this.gameCode}/actions`, {
+        this.makeRequest(`${BASE_URL}/api/games/${this.gameId}/actions`, {
           method: 'POST',
           body: JSON.stringify({
             action: 'next_phase',
@@ -161,7 +162,7 @@ class BatteryOptimizationTests {
     // Make a change that should trigger real-time updates
     const werewolfPlayer = this.playerClientIds.find(id => id.includes('player'))
     if (werewolfPlayer) {
-      await this.makeRequest(`${BASE_URL}/api/games/${this.gameCode}/actions`, {
+      await this.makeRequest(`${BASE_URL}/api/games/${this.gameId}/actions`, {
         method: 'POST',
         body: JSON.stringify({
           action: 'next_phase',

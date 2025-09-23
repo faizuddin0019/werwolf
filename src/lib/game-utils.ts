@@ -46,27 +46,41 @@ export function assignRoles(players: Player[]): Player[] {
 
 // Check win conditions
 export function checkWinCondition(game: Game, players: Player[]): 'villagers' | 'werewolves' | null {
+  console.log('🔧 checkWinCondition called with:', players.length, 'players')
+  
   // Exclude host from win condition calculations
   const nonHostPlayers = players.filter(p => !p.is_host)
   const alivePlayers = nonHostPlayers.filter(p => p.alive)
   const aliveWerwolves = alivePlayers.filter(p => p.role === 'werwolf' || p.role === 'werewolf')
-  const aliveVillagers = alivePlayers.filter(p => p.role !== 'werwolf' && p.role !== 'werewolf')
+  const [] = alivePlayers.filter(p => p.role !== 'werwolf' && p.role !== 'werewolf')
+  
+  console.log('🔧 checkWinCondition debug:', {
+    totalPlayers: players.length,
+    nonHostPlayers: nonHostPlayers.length,
+    alivePlayers: alivePlayers.length,
+    aliveWerwolves: aliveWerwolves.length,
+    aliveWerwolfRoles: aliveWerwolves.map(p => ({ name: p.name, role: p.role }))
+  })
   
   // Game ends when there are only 2 non-host players left
   if (alivePlayers.length <= 2) {
     // If any werewolves are still alive, they win
     if (aliveWerwolves.length > 0) {
+      console.log('🔧 Win condition: werewolves win (2 players left)')
       return 'werewolves'
     }
     // If no werewolves are alive, villagers win
+    console.log('🔧 Win condition: villagers win (2 players left)')
     return 'villagers'
   }
   
   // Villagers win if all werwolves are eliminated (even with more than 2 players)
   if (aliveWerwolves.length === 0) {
+    console.log('🔧 Win condition: villagers win (all werewolves dead)')
     return 'villagers'
   }
   
+  console.log('🔧 Win condition: no win yet')
   return null
 }
 

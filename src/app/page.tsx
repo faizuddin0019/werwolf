@@ -27,7 +27,7 @@ export default function HomePage() {
   const [game] = useAtom(gameAtom)
   const [players] = useAtom(playersAtom)
   const [currentPlayer] = useAtom(currentPlayerAtom)
-  const [gameCode, setGameCode] = useAtom(gameCodeAtom)
+  const [, setGameCode] = useAtom(gameCodeAtom)
   const [playerName, setPlayerName] = useAtom(playerNameAtom)
   const [clientId, setClientId] = useAtom(clientIdAtom)
   const [, setGameData] = useAtom(setGameDataAtom)
@@ -107,15 +107,15 @@ export default function HomePage() {
         const gameData = await response.json()
         
         // Find the current player in the game
-        const currentPlayer = gameData.players.find((p: any) => p.client_id === clientId)
+        const currentPlayer = gameData.players.find((p: { client_id: string }) => p.client_id === clientId)
         
         if (process.env.NODE_ENV === 'development') {
           console.log('🔧 Restore Game Debug:', {
             clientId,
-            gameDataPlayers: gameData.players.map((p: any) => ({ id: p.id, name: p.name, client_id: p.client_id, is_host: p.is_host })),
+            gameDataPlayers: gameData.players.map((p: { id: string; name: string; client_id: string; is_host: boolean }) => ({ id: p.id, name: p.name, client_id: p.client_id, is_host: p.is_host })),
             foundCurrentPlayer: currentPlayer ? { id: currentPlayer.id, name: currentPlayer.name, client_id: currentPlayer.client_id, is_host: currentPlayer.is_host } : null,
             gameHostClientId: gameData.game.host_client_id,
-            clientIdMatch: gameData.players.some((p: any) => p.client_id === clientId)
+            clientIdMatch: gameData.players.some((p: { client_id: string }) => p.client_id === clientId)
           })
         }
         
@@ -140,7 +140,7 @@ export default function HomePage() {
             console.log('🔧 Player not found in game - kicking out to welcome screen:', {
               clientId,
               gameCode: code,
-              gamePlayers: gameData.players.map((p: any) => ({ id: p.id, name: p.name, client_id: p.client_id }))
+              gamePlayers: gameData.players.map((p: { id: string; name: string; client_id: string }) => ({ id: p.id, name: p.name, client_id: p.client_id }))
             })
           }
           setGameState('welcome')
@@ -214,7 +214,7 @@ export default function HomePage() {
     }
   }, [game])
 
-  const handleStartGame = async (code: string) => {
+  const handleStartGame = async () => {
     if (!playerName.trim() || !clientId) return
     
     setIsLoading(true)

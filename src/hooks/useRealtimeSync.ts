@@ -1,8 +1,8 @@
 'use client'
 
-import { useEffect, useRef, useCallback } from 'react'
+import { useEffect, useRef } from 'react'
 import { useAtom, getDefaultStore } from 'jotai'
-import { supabase, Game, Player, RoundState, Vote, LeaveRequest, isSupabaseConfigured } from '@/lib/supabase'
+import { supabase, Game, RoundState, isSupabaseConfigured } from '@/lib/supabase'
 import { 
   gameAtom, 
   playersAtom, 
@@ -19,9 +19,9 @@ const isDevelopment = process.env.NODE_ENV === 'development'
 const log = isDevelopment ? console.log : () => {}
 
 // Debounce utility to prevent excessive API calls
-function debounce<T extends (...args: any[]) => any>(func: T, wait: number): T {
+function debounce<T extends (...args: unknown[]) => unknown>(func: T, wait: number): T {
   let timeout: NodeJS.Timeout | null = null
-  return ((...args: any[]) => {
+  return ((...args: unknown[]) => {
     if (timeout) clearTimeout(timeout)
     timeout = setTimeout(() => func(...args), wait)
   }) as T
@@ -38,11 +38,11 @@ export function useRealtimeSync(gameId: string | null, onGameEnded?: () => void)
   const [, resetGame] = useAtom(resetGameAtom)
   
   const subscriptionRef = useRef<{
-    game: any
-    players: any
-    roundState: any
-    votes: any
-    leaveRequests: any
+    game: unknown
+    players: unknown
+    roundState: unknown
+    votes: unknown
+    leaveRequests: unknown
   } | null>(null)
   
   // Use refs to get current values without causing dependency issues
@@ -281,7 +281,7 @@ export function useRealtimeSync(gameId: string | null, onGameEnded?: () => void)
       .subscribe()
 
     // Debounced function to refetch leave requests
-    const debouncedRefetchLeaveRequests = debounce(async () => {
+    debounce(async () => {
       log('🔧 Refetching leave requests after debounce')
       const { data: updatedLeaveRequests } = await supabase
         .from('leave_requests')

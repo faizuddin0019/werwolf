@@ -15,18 +15,15 @@ import {
   roundStateAtom,
   setGameDataAtom
 } from '@/lib/game-store'
-import { getPhaseDisplayName, getRoleDisplayName, canPlayerAct, sortPlayers } from '@/lib/game-utils'
+import { getPhaseDisplayName, canPlayerAct, sortPlayers } from '@/lib/game-utils'
 import { Player } from '@/lib/supabase'
 import { 
   Crown, 
   Moon, 
   Sun, 
   Users, 
-  Eye, 
   Shield, 
   Stethoscope,
-  Vote,
-  CheckCircle,
   XCircle
 } from 'lucide-react'
 import HostControls from './HostControls'

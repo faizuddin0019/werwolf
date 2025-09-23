@@ -38,7 +38,9 @@
     "test:comprehensive:prod": "./tests/run-comprehensive-tests.sh https://wearwolf-bewk9ijpj-faizuddin0019s-projects.vercel.app",
     "test:verify-all": "npm run test:core && npm run test:game-flow && npm run test:end-game && npm run test:integration",
     "test:all": "node tests/run-all-tests.js",
-    "test:all:prod": "node tests/run-all-tests.js prod"
+    "test:all:prod": "node tests/run-all-tests.js prod",
+    "test:coverage": "TEST_URL=http://localhost:3000 node tests/coverage/coverage-report.js",
+    "test:coverage:html": "TEST_URL=http://localhost:3000 node tests/coverage/coverage-report.js --html"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.57.4",

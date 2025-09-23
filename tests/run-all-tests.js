@@ -5,12 +5,12 @@
  * Runs all test suites organized by category
  */
 
-const { spawn } = require('child_process')
-const path = require('path')
-const fs = require('fs')
+import { spawn } from 'child_process'
+import path from 'path'
+import fs from 'fs'
 
 // Test configuration
-const TEST_URL = process.env.TEST_URL || 'http://localhost:3000'
+const TEST_URL = process.env.TEST_URL || 'http://localhost:3001'
 const PROD_URL = 'https://wearwolf-bewk9ijpj-faizuddin0019s-projects.vercel.app'
 
 // Test categories and their files

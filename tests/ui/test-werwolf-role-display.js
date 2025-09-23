@@ -5,7 +5,7 @@
  * Ensures Werwolf role is properly displayed to host and the Werwolf player
  */
 
-const BASE_URL = process.env.TEST_URL || 'http://localhost:3000'
+const BASE_URL = process.env.TEST_URL || 'http://localhost:3001'
 
 async function testWerwolfRoleDisplay() {
   console.log('🐺 Testing Werwolf Role Display in Frontend...')

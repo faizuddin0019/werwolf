@@ -1,11 +1,11 @@
 // Test: Werwolf Action Screen Integration
 // Tests the complete flow from host clicking "Wake Up Werwolf" to Werwolf seeing action screen
 
-const { createClient } = require('@supabase/supabase-js')
+import { createClient } from '@supabase/supabase-js'
 
 // Test configuration
 const TEST_CONFIG = {
-  baseUrl: 'http://localhost:3000',
+  baseUrl: 'http://localhost:3001',
   supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL,
   supabaseKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
   timeout: 30000
