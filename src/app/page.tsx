@@ -35,13 +35,21 @@ export default function HomePage() {
   
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [isClient, setIsClient] = useState(false)
   
   // Track if client ID has been initialized to prevent infinite loops
   const clientIdInitialized = useRef(false)
 
+  // Ensure we're on the client side
+  useEffect(() => {
+    setIsClient(true)
+  }, [])
+
   // Persist game state to localStorage
   const saveGameState = (state: GameState) => {
-    localStorage.setItem('werwolf-game-state', state)
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('werwolf-game-state', state)
+    }
   }
 
   // Load game state from localStorage
@@ -736,6 +744,18 @@ export default function HomePage() {
   // Show demo mode if Supabase is not configured
   if (!isSupabaseConfigured()) {
     return <DemoMode />
+  }
+
+  // Don't render anything until we're on the client side
+  if (!isClient) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto"></div>
+          <p className="text-lg text-gray-300 mt-4">Loading...</p>
+        </div>
+      </div>
+    )
   }
 
   // Render appropriate screen based on game state
