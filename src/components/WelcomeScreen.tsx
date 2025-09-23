@@ -11,12 +11,12 @@ import {
 import { Copy } from 'lucide-react'
 
 interface WelcomeScreenProps {
-  onStartGame: (gameCode: string) => void
+  onStartGame: () => void
   onJoinGame: (gameCode: string, playerName: string) => void
 }
 
 export default function WelcomeScreen({ onStartGame, onJoinGame }: WelcomeScreenProps) {
-  const [] = useAtom(gameCodeAtom)
+  const [gameCode] = useAtom(gameCodeAtom)
   const [playerName, setPlayerName] = useAtom(playerNameAtom)
   const [] = useAtom(resetGameAtom)
   const [clientId, setClientId] = useAtom(clientIdAtom)
@@ -43,7 +43,7 @@ export default function WelcomeScreen({ onStartGame, onJoinGame }: WelcomeScreen
 
   const handleStartGame = () => {
     if (playerName.trim()) {
-      onStartGame(gameCode)
+      onStartGame()
     }
   }
 
