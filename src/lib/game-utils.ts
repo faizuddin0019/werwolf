@@ -52,7 +52,7 @@ export function checkWinCondition(game: Game, players: Player[]): 'villagers' | 
   const nonHostPlayers = players.filter(p => !p.is_host)
   const alivePlayers = nonHostPlayers.filter(p => p.alive)
   const aliveWerwolves = alivePlayers.filter(p => p.role === 'werwolf' || p.role === 'werewolf')
-  const [] = alivePlayers.filter(p => p.role !== 'werwolf' && p.role !== 'werewolf')
+  const villagers = alivePlayers.filter(p => p.role !== 'werwolf' && p.role !== 'werewolf')
   
   console.log('🔧 checkWinCondition debug:', {
     totalPlayers: players.length,

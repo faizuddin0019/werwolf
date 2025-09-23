@@ -18,7 +18,7 @@ interface WelcomeScreenProps {
 export default function WelcomeScreen({ onStartGame, onJoinGame }: WelcomeScreenProps) {
   const [gameCode] = useAtom(gameCodeAtom)
   const [playerName, setPlayerName] = useAtom(playerNameAtom)
-  const [] = useAtom(resetGameAtom)
+  const [, resetGame] = useAtom(resetGameAtom)
   const [clientId, setClientId] = useAtom(clientIdAtom)
   
   const [joinCode, setJoinCode] = useState('')

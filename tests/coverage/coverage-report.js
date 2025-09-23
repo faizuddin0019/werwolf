@@ -10,8 +10,12 @@
 import { spawn } from 'child_process'
 import fs from 'fs'
 import path from 'path'
+import { fileURLToPath } from 'url'
 
-const BASE_URL = process.env.TEST_BASE_URL || 'http://localhost:3001'
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
+
+const BASE_URL = process.env.TEST_BASE_URL || 'http://localhost:3000'
 const HTML_OUTPUT = process.argv.includes('--html')
 
 class CoverageReporter {
@@ -238,12 +242,11 @@ class CoverageReporter {
   }
 }
 
-if (require.main === module) {
-  const reporter = new CoverageReporter()
-  reporter.runAllTests().catch(error => {
-    console.error('❌ Coverage analysis failed:', error.message)
-    process.exit(1)
-  })
-}
+// ES module entry point
+const reporter = new CoverageReporter()
+reporter.runAllTests().catch(error => {
+  console.error('❌ Coverage analysis failed:', error.message)
+  process.exit(1)
+})
 
-module.exports = { CoverageReporter }
+export { CoverageReporter }

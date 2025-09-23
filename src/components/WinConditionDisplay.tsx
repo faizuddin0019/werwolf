@@ -32,7 +32,7 @@ export default function WinConditionDisplay({ onClose }: WinConditionDisplayProp
   }
 
   const isWerwolfWin = game.win_state === 'werewolves'
-  const [] = game.win_state === 'villagers'
+  const isVillagerWin = game.win_state === 'villagers'
 
   return (
     <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50">

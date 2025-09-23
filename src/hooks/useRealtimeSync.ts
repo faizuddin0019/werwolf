@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
-import { useAtom, getDefaultStore } from 'jotai'
+import { useAtom } from 'jotai'
 import { supabase, Game, RoundState, isSupabaseConfigured } from '@/lib/supabase'
 import { 
   gameAtom, 
@@ -27,7 +27,7 @@ function debounce<T extends (...args: unknown[]) => unknown>(func: T, wait: numb
   }) as T
 }
 
-export function useRealtimeSync(gameId: string | null, onGameEnded?: () => void) {
+export function useRealtimeSync(gameCode: string | null, onGameEnded?: () => void) {
   const [game] = useAtom(gameAtom)
   const [players] = useAtom(playersAtom)
   const [roundState] = useAtom(roundStateAtom)
@@ -37,12 +37,15 @@ export function useRealtimeSync(gameId: string | null, onGameEnded?: () => void)
   const [, setGameData] = useAtom(setGameDataAtom)
   const [, resetGame] = useAtom(resetGameAtom)
   
+  // Note: Cannot use early return here as it violates Rules of Hooks
+  // All hooks must be called in the same order on every render
+  
   const subscriptionRef = useRef<{
-    game: unknown
-    players: unknown
-    roundState: unknown
-    votes: unknown
-    leaveRequests: unknown
+    game: any
+    players: any
+    roundState: any
+    votes: any
+    leaveRequests: any
   } | null>(null)
   
   // Use refs to get current values without causing dependency issues
@@ -61,18 +64,18 @@ export function useRealtimeSync(gameId: string | null, onGameEnded?: () => void)
   currentPlayerRef.current = currentPlayer
 
   useEffect(() => {
-    if (!gameId || !isSupabaseConfigured() || !supabase) {
-      log('🔧 useRealtimeSync: Skipping setup - gameId:', gameId, 'isSupabaseConfigured:', isSupabaseConfigured(), 'supabase:', !!supabase)
+    if (!gameCode || gameCode === '' || !isSupabaseConfigured() || !supabase) {
+      log('🔧 useRealtimeSync: Skipping setup - gameCode:', gameCode, 'isSupabaseConfigured:', isSupabaseConfigured(), 'supabase:', !!supabase)
       return
     }
     
-    log('🔧 useRealtimeSync: Setting up real-time sync for gameId:', gameId)
+    log('🔧 useRealtimeSync: Setting up real-time sync for gameCode:', gameCode)
 
     // Subscribe to game changes
     const gameSubscription = supabase
-      .channel(`game:${gameId}`)
+      .channel(`game:${gameCode}`)
       .on('postgres_changes', 
-        { event: '*', schema: 'public', table: 'games', filter: `id=eq.${gameId}` },
+        { event: '*', schema: 'public', table: 'games', filter: `code=eq.${gameCode}` },
         (payload) => {
           log('🔧 Game updated:', payload.new)
           const updatedGame = payload.new as Game
@@ -88,10 +91,10 @@ export function useRealtimeSync(gameId: string | null, onGameEnded?: () => void)
           setGameData({
             game: updatedGame,
             players: playersRef.current || [],
-            roundState: roundStateRef.current,
+            roundState: roundStateRef.current || undefined,
             votes: votesRef.current || [],
             leaveRequests: leaveRequestsRef.current || [],
-            currentPlayer: currentPlayer
+            currentPlayer: currentPlayer || undefined || undefined
           })
           
           // If game ended, redirect to welcome page (but not for host)
@@ -125,10 +128,10 @@ export function useRealtimeSync(gameId: string | null, onGameEnded?: () => void)
     // Debounced function to refetch players (reduced delay for faster updates)
     const debouncedRefetchPlayers = debounce(async () => {
       log('🔧 Refetching players after debounce')
-      const { data: updatedPlayers } = await supabase
+      const { data: updatedPlayers } = await supabase!!
         .from('players')
         .select('*')
-        .eq('game_id', gameId)
+        .eq('game_id', game?.id)
         .order('id')
         .abortSignal(AbortSignal.timeout(5000)) // Add timeout to prevent hanging
           
@@ -169,7 +172,7 @@ export function useRealtimeSync(gameId: string | null, onGameEnded?: () => void)
           setGameData({
             game: gameRef.current || {} as Game,
             players: updatedPlayers,
-            roundState: roundStateRef.current,
+            roundState: roundStateRef.current || undefined,
             votes: votesRef.current,
             leaveRequests: leaveRequestsRef.current,
             currentPlayer: updatedCurrentPlayer
@@ -182,9 +185,9 @@ export function useRealtimeSync(gameId: string | null, onGameEnded?: () => void)
 
     // Subscribe to player changes
     const playersSubscription = supabase
-      .channel(`players:${gameId}`)
+      .channel(`players:${gameCode}`)
       .on('postgres_changes',
-        { event: '*', schema: 'public', table: 'players', filter: `game_id=eq.${gameId}` },
+        { event: '*', schema: 'public', table: 'players', filter: `game_id=eq.${game?.id}` },
         (payload) => {
           log('🔧 Players subscription triggered', payload.eventType)
           debouncedRefetchPlayers()
@@ -194,14 +197,14 @@ export function useRealtimeSync(gameId: string | null, onGameEnded?: () => void)
 
     // Subscribe to round state changes
     const roundStateSubscription = supabase
-      .channel(`round_state:${gameId}`)
+      .channel(`round_state:${gameCode}`)
       .on('postgres_changes',
-        { event: '*', schema: 'public', table: 'round_state', filter: `game_id=eq.${gameId}` },
+        { event: '*', schema: 'public', table: 'round_state', filter: `game_id=eq.${game?.id}` },
         (payload) => {
           log('🔧 Round state subscription triggered:', payload.eventType, payload.new)
           const updatedRoundState = payload.new as RoundState
           log('🔧 Round state update details:', {
-            gameId: updatedRoundState.game_id,
+            gameCode: gameCode,
             phase_started: updatedRoundState.phase_started,
             wolfTarget: updatedRoundState.wolf_target_player_id,
             policeInspect: updatedRoundState.police_inspect_player_id,
@@ -230,7 +233,7 @@ export function useRealtimeSync(gameId: string | null, onGameEnded?: () => void)
             roundState: updatedRoundState,
             votes: votesRef.current || [],
             leaveRequests: leaveRequestsRef.current || [],
-            currentPlayer: currentPlayer
+            currentPlayer: currentPlayer || undefined
           })
         }
       )
@@ -238,16 +241,16 @@ export function useRealtimeSync(gameId: string | null, onGameEnded?: () => void)
 
     // Subscribe to vote changes for real-time voting updates
     const votesSubscription = supabase
-      .channel(`votes:${gameId}`)
+      .channel(`votes:${gameCode}`)
       .on('postgres_changes',
-        { event: '*', schema: 'public', table: 'votes', filter: `game_id=eq.${gameId}` },
+        { event: '*', schema: 'public', table: 'votes', filter: `game_id=eq.${game?.id}` },
         async () => {
           log('🔧 Vote change detected, refetching votes')
           // Refetch all votes for this game
-          const { data: updatedVotes } = await supabase
+          const { data: updatedVotes } = await supabase!!
             .from('votes')
             .select('*')
-            .eq('game_id', gameId)
+            .eq('game_id', game?.id)
           
           if (updatedVotes) {
             // Check if votes actually changed to prevent infinite loops
@@ -258,7 +261,7 @@ export function useRealtimeSync(gameId: string | null, onGameEnded?: () => void)
                 const updatedVote = updatedVotes[index]
                 return !updatedVote || 
                   currentVote.id !== updatedVote.id ||
-                  currentVote.voter_id !== updatedVote.voter_id ||
+                  currentVote.voter_player_id !== updatedVote.voter_player_id ||
                   currentVote.target_player_id !== updatedVote.target_player_id
               })
             
@@ -267,10 +270,10 @@ export function useRealtimeSync(gameId: string | null, onGameEnded?: () => void)
               setGameData({
                 game: gameRef.current || {} as Game,
                 players: playersRef.current || [],
-                roundState: roundStateRef.current,
+                roundState: roundStateRef.current || undefined,
                 votes: updatedVotes,
                 leaveRequests: leaveRequestsRef.current || [],
-                currentPlayer: currentPlayerRef.current
+                currentPlayer: currentPlayer || undefined
               })
             } else {
               log('🔧 Votes unchanged, skipping state update')
@@ -283,10 +286,10 @@ export function useRealtimeSync(gameId: string | null, onGameEnded?: () => void)
     // Debounced function to refetch leave requests
     debounce(async () => {
       log('🔧 Refetching leave requests after debounce')
-      const { data: updatedLeaveRequests } = await supabase
+      const { data: updatedLeaveRequests } = await supabase!
         .from('leave_requests')
         .select('*')
-        .eq('game_id', gameId)
+        .eq('game_id', game?.id)
           
       if (updatedLeaveRequests) {
         // Check if leave requests actually changed to prevent infinite loops
@@ -306,10 +309,10 @@ export function useRealtimeSync(gameId: string | null, onGameEnded?: () => void)
           setGameData({
             game: gameRef.current || {} as Game,
             players: playersRef.current || [],
-            roundState: roundStateRef.current,
+            roundState: roundStateRef.current || undefined,
             votes: votesRef.current || [],
             leaveRequests: updatedLeaveRequests,
-            currentPlayer: currentPlayerRef.current
+            currentPlayer: currentPlayer || undefined
           })
         } else {
           log('🔧 Leave requests unchanged, skipping state update')
@@ -319,16 +322,16 @@ export function useRealtimeSync(gameId: string | null, onGameEnded?: () => void)
 
     // Subscribe to leave request changes
     const leaveRequestsSubscription = supabase
-      .channel(`leave_requests:${gameId}`)
+      .channel(`leave_requests:${gameCode}`)
       .on('postgres_changes',
-        { event: '*', schema: 'public', table: 'leave_requests', filter: `game_id=eq.${gameId}` },
+        { event: '*', schema: 'public', table: 'leave_requests', filter: `game_id=eq.${game?.id}` },
         async (payload) => {
           log('🔧 Leave requests subscription triggered', payload.eventType, payload)
           // Immediate update for leave requests (no debounce)
-          const { data: updatedLeaveRequests } = await supabase
+          const { data: updatedLeaveRequests } = await supabase!
             .from('leave_requests')
             .select('*')
-            .eq('game_id', gameId)
+            .eq('game_id', game?.id)
               
           if (updatedLeaveRequests) {
             log('🔧 Immediate leave requests update:', updatedLeaveRequests.length, 'requests')
@@ -338,10 +341,10 @@ export function useRealtimeSync(gameId: string | null, onGameEnded?: () => void)
             setGameData({
               game: gameRef.current || {} as Game,
               players: playersRef.current || [],
-              roundState: roundStateRef.current,
+              roundState: roundStateRef.current || undefined,
               votes: votesRef.current || [],
               leaveRequests: updatedLeaveRequests,
-              currentPlayer: currentPlayerRef.current
+              currentPlayer: currentPlayer || undefined
             })
           }
         }
@@ -357,11 +360,11 @@ export function useRealtimeSync(gameId: string | null, onGameEnded?: () => void)
       leaveRequests: leaveRequestsSubscription
     }
     
-    log('🔧 Real-time subscriptions created for game:', gameId)
+    log('🔧 Real-time subscriptions created for game:', gameCode)
 
     return () => {
       // Cleanup subscriptions
-      if (subscriptionRef.current) {
+      if (subscriptionRef.current && supabase) {
         if (subscriptionRef.current.game) supabase.removeChannel(subscriptionRef.current.game)
         if (subscriptionRef.current.players) supabase.removeChannel(subscriptionRef.current.players)
         if (subscriptionRef.current.roundState) supabase.removeChannel(subscriptionRef.current.roundState)
@@ -369,35 +372,35 @@ export function useRealtimeSync(gameId: string | null, onGameEnded?: () => void)
         if (subscriptionRef.current.leaveRequests) supabase.removeChannel(subscriptionRef.current.leaveRequests)
       }
     }
-  }, [gameId])
+  }, [gameCode])
 
   // Initial data fetch
   useEffect(() => {
-    if (!gameId || !isSupabaseConfigured() || !supabase) return
+    if (!gameCode || gameCode === '' || !isSupabaseConfigured() || !supabase) return
 
     const fetchGameData = async () => {
       try {
-        // Fetch game
-        const { data: gameData } = await supabase
+        // Fetch game by code
+        const { data: gameData } = await supabase!
           .from('games')
           .select('*')
-          .eq('id', gameId)
+          .eq('code', gameCode)
           .single()
 
         if (!gameData) return
 
         // Fetch players
-        const { data: playersData } = await supabase
+        const { data: playersData } = await supabase!
           .from('players')
           .select('*')
-          .eq('game_id', gameId)
+          .eq('game_id', gameData.id)
           .order('id')
 
         // Fetch round state
-        const { data: roundStateData, error: roundStateError } = await supabase
+        const { data: roundStateData, error: roundStateError } = await supabase!
           .from('round_state')
           .select('*')
-          .eq('game_id', gameId)
+          .eq('game_id', gameData.id)
           .single()
         
         // Ignore "no rows" error for round state - it's normal when game is in lobby
@@ -406,10 +409,10 @@ export function useRealtimeSync(gameId: string | null, onGameEnded?: () => void)
         }
 
         // Fetch votes
-        const { data: votesData, error: votesError } = await supabase
+        const { data: votesData, error: votesError } = await supabase!
           .from('votes')
           .select('*')
-          .eq('game_id', gameId)
+          .eq('game_id', gameData.id)
         
         // Ignore errors for votes - it's normal when game is in lobby
         if (votesError) {
@@ -417,10 +420,10 @@ export function useRealtimeSync(gameId: string | null, onGameEnded?: () => void)
         }
 
         // Fetch leave requests
-        const { data: leaveRequestsData } = await supabase
+        const { data: leaveRequestsData } = await supabase!
           .from('leave_requests')
           .select('*')
-          .eq('game_id', gameId)
+          .eq('game_id', gameData.id)
           
         log('🔧 Fetched leave requests:', leaveRequestsData?.length || 0, 'requests')
         if (leaveRequestsData && leaveRequestsData.length > 0) {
@@ -435,15 +438,14 @@ export function useRealtimeSync(gameId: string | null, onGameEnded?: () => void)
         })
         
         // Preserve current player to maintain isHostAtom state
-        const store = getDefaultStore()
-        const currentPlayer = store.get(currentPlayerAtom)
+        const currentPlayer = currentPlayerRef.current
         setGameData({
           game: gameData,
           players: playersData || [],
           roundState: roundStateData,
           votes: votesData || [],
           leaveRequests: leaveRequestsData || [],
-          currentPlayer: currentPlayer // Preserve current player
+          currentPlayer: currentPlayer || undefined // Preserve current player
         })
       } catch (error) {
         console.error('Error fetching game data:', error)
@@ -451,5 +453,5 @@ export function useRealtimeSync(gameId: string | null, onGameEnded?: () => void)
     }
 
     fetchGameData()
-  }, [gameId])
+  }, [gameCode])
 }

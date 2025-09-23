@@ -5,7 +5,7 @@
  * Tests basic game functionality: creation, joining, role assignment, win conditions
  */
 
-const BASE_URL = process.env.TEST_URL || 'http://localhost:3001'
+const BASE_URL = process.env.TEST_URL || 'http://localhost:3000'
 
 class GameLogicTests {
   constructor() {

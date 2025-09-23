@@ -5,7 +5,7 @@
  * Tests real-time sync, player management, game flow, and host controls
  */
 
-const BASE_URL = process.env.TEST_URL || 'http://localhost:3001'
+const BASE_URL = process.env.TEST_URL || 'http://localhost:3000'
 
 class RealTimeSyncTests {
   constructor() {

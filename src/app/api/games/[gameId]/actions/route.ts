@@ -231,8 +231,32 @@ async function handleAssignRoles(gameId: string, game: Game) {
   
   console.log('✅ Role assignment completed successfully!')
   
-  // Keep game in lobby phase until host starts the game
-  console.log('🔧 Game remains in lobby phase until host starts')
+  // Automatically transition to night_wolf phase after role assignment
+  console.log('🔧 Auto-transitioning to night_wolf phase after role assignment')
+  
+  const { error: phaseError } = await supabase!
+    .from('games')
+    .update({ phase: 'night_wolf' })
+    .eq('id', gameId)
+  
+  if (phaseError) {
+    console.error('❌ Error updating game phase:', phaseError)
+    return NextResponse.json({ error: 'Failed to update game phase' }, { status: 500 })
+  }
+  
+  // Update round state to mark phase as started
+  const { error: roundStateError } = await supabase!
+    .from('round_state')
+    .update({ phase_started: true })
+    .eq('game_id', gameId)
+  
+  if (roundStateError) {
+    console.error('❌ Error updating round state:', roundStateError)
+  } else {
+    console.log('✅ Round state updated - phase started!')
+  }
+  
+  console.log('✅ Game phase updated to night_wolf!')
   
   return NextResponse.json({ success: true })
 }

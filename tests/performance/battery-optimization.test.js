@@ -5,7 +5,7 @@
  * Tests performance optimizations, console logging, and real-time efficiency
  */
 
-const BASE_URL = process.env.TEST_URL || 'http://localhost:3001'
+const BASE_URL = process.env.TEST_URL || 'http://localhost:3000'
 
 class BatteryOptimizationTests {
   constructor() {

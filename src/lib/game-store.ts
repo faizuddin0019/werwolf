@@ -194,7 +194,56 @@ export const setGameDataAtom = atom(null, (get, set, data: {
       currentPlayer.is_host !== data.currentPlayer.is_host))
   
   if (gameChanged) {
-    if (process.env.NODE_ENV === 'development') console.log('🔧 Game changed, updating gameAtom')
+    if (process.env.NODE_ENV === 'development') {
+      console.log('🔧 Game changed, updating gameAtom')
+      console.log('🔧 Setting gameAtom to:', data.game)
+    }
+    set(gameAtom, data.game)
+  } else {
+    if (process.env.NODE_ENV === 'development') {
+      console.log('🔧 Game unchanged, skipping gameAtom update')
+      console.log('🔧 Current game:', currentGame)
+      console.log('🔧 New game:', data.game)
+    }
+  }
+  
+  // FORCE UPDATE: Always set gameAtom if data.game exists
+  if (data.game && data.game.id) {
+    if (process.env.NODE_ENV === 'development') {
+      console.log('🔧 FORCE UPDATE: Setting gameAtom to:', data.game)
+    }
+    set(gameAtom, data.game)
+  }
+  
+  // CRITICAL FIX: Always update gameAtom when setGameData is called
+  if (data.game) {
+    if (process.env.NODE_ENV === 'development') {
+      console.log('🔧 CRITICAL FIX: Force updating gameAtom with:', data.game)
+    }
+    set(gameAtom, data.game)
+  }
+  
+  // ULTIMATE FIX: Force update gameAtom regardless of conditions
+  if (data.game && data.game.id) {
+    if (process.env.NODE_ENV === 'development') {
+      console.log('🔧 ULTIMATE FIX: Force updating gameAtom with:', data.game)
+    }
+    set(gameAtom, data.game)
+  }
+  
+  // FINAL FIX: Always update gameAtom when setGameData is called
+  if (data.game) {
+    if (process.env.NODE_ENV === 'development') {
+      console.log('🔧 FINAL FIX: Force updating gameAtom with:', data.game)
+    }
+    set(gameAtom, data.game)
+  }
+  
+  // ULTIMATE FIX: Force update gameAtom regardless of conditions
+  if (data.game && data.game.id) {
+    if (process.env.NODE_ENV === 'development') {
+      console.log('🔧 ULTIMATE FIX: Force updating gameAtom with:', data.game)
+    }
     set(gameAtom, data.game)
   }
   

@@ -58,46 +58,6 @@ export default function HomePage() {
     return (localStorage.getItem('werwolf-game-state') as GameState) || 'welcome'
   }
 
-  // Restore game state on page load
-  useEffect(() => {
-    const savedState = loadGameState()
-    const savedGameCode = localStorage.getItem('werwolf-game-code')
-    const savedPlayerName = localStorage.getItem('werwolf-player-name')
-    const savedClientId = localStorage.getItem('werwolf-client-id')
-    
-    if (savedGameCode && savedPlayerName && savedClientId) {
-      // Check if the saved client ID is from the current browser
-      if (isClientIdFromCurrentBrowser(savedClientId)) {
-        setGameCode(savedGameCode)
-        setPlayerName(savedPlayerName)
-        setClientId(savedClientId)
-        
-        // If we have a saved game state, try to restore the game
-        if (savedState !== 'welcome' && savedGameCode) {
-          restoreGame(savedGameCode, savedClientId)
-        } else {
-          setGameState(savedState)
-        }
-      } else {
-        // Client ID is from a different browser, clear saved state
-        localStorage.removeItem('werwolf-game-state')
-        localStorage.removeItem('werwolf-game-code')
-        localStorage.removeItem('werwolf-player-name')
-        localStorage.removeItem('werwolf-client-id')
-        setGameState('welcome')
-      }
-    } else {
-      setGameState(savedState)
-    }
-  }, [])
-
-  // Enable real-time sync when we have a game
-  if (process.env.NODE_ENV === 'development') console.log('useRealtimeSync called with gameId:', game?.id || null)
-  useRealtimeSync(game?.id || null, () => {
-    // Game ended - redirect to welcome page
-    setGameState('welcome')
-  })
-
   // Restore game from saved state
   const restoreGame = async (code: string, clientId: string) => {
     try {
@@ -147,27 +107,79 @@ export default function HomePage() {
           if (process.env.NODE_ENV === 'development') {
             console.log('🔧 Player not found in game - kicking out to welcome screen:', {
               clientId,
-              gameCode: code,
               gamePlayers: gameData.players.map((p: { id: string; name: string; client_id: string }) => ({ id: p.id, name: p.name, client_id: p.client_id }))
             })
           }
           setGameState('welcome')
+          // Clear saved state since player is not in the game
           localStorage.removeItem('werwolf-game-state')
           localStorage.removeItem('werwolf-game-code')
+          localStorage.removeItem('werwolf-player-name')
+          localStorage.removeItem('werwolf-client-id')
         }
       } else {
         // Game not found, reset to welcome
+        console.warn('🔧 Game not found during restore, resetting to welcome')
         setGameState('welcome')
+        // Clear saved state since game doesn't exist
         localStorage.removeItem('werwolf-game-state')
         localStorage.removeItem('werwolf-game-code')
+        localStorage.removeItem('werwolf-player-name')
+        localStorage.removeItem('werwolf-client-id')
       }
     } catch (error) {
-      console.error('Error restoring game:', error)
+      console.error('🔧 Error restoring game:', error)
       setGameState('welcome')
     } finally {
       setIsLoading(false)
     }
   }
+
+  // Restore game state on page load
+  useEffect(() => {
+    const savedState = loadGameState()
+    const savedGameCode = localStorage.getItem('werwolf-game-code')
+    const savedPlayerName = localStorage.getItem('werwolf-player-name')
+    const savedClientId = localStorage.getItem('werwolf-client-id')
+    
+    if (savedGameCode && savedPlayerName && savedClientId) {
+      // Check if the saved client ID is from the current browser
+      if (isClientIdFromCurrentBrowser(savedClientId)) {
+        setGameCode(savedGameCode)
+        setPlayerName(savedPlayerName)
+        setClientId(savedClientId)
+        
+        // If we have a saved game state, try to restore the game
+        if (savedState !== 'welcome' && savedGameCode) {
+          restoreGame(savedGameCode, savedClientId)
+        } else {
+          setGameState(savedState)
+        }
+      } else {
+        // Client ID is from a different browser, clear saved state
+        localStorage.removeItem('werwolf-game-state')
+        localStorage.removeItem('werwolf-game-code')
+        localStorage.removeItem('werwolf-player-name')
+        localStorage.removeItem('werwolf-client-id')
+        setGameState('welcome')
+      }
+    } else {
+      setGameState(savedState)
+    }
+  }, []) // Only run once on mount
+
+  // Enable real-time sync when we have a game - only call when gameCode exists
+  const gameCode = game?.code || null
+  if (process.env.NODE_ENV === 'development') {
+    console.log('🔧 Current game atom:', game)
+    console.log('🔧 gameCode:', gameCode)
+  }
+  
+  // Re-enabled real-time sync - fixed infinite loop
+  useRealtimeSync(gameCode, () => {
+    // Game ended - redirect to welcome page
+    setGameState('welcome')
+  })
 
   // Generate browser-specific client ID if not exists
   useEffect(() => {
@@ -203,7 +215,7 @@ export default function HomePage() {
           }
           clientIdInitialized.current = true
         }
-  }, [clientId])
+  }, [clientId]) // Remove setClientId from dependencies
 
   // Update game state based on game phase
   useEffect(() => {
@@ -252,6 +264,9 @@ export default function HomePage() {
         throw new Error('Invalid game code received from server')
       }
       const gameResponse = await fetch(`/api/games?code=${data.gameCode}`)
+      if (process.env.NODE_ENV === 'development') {
+        console.log('🔧 Game response status:', gameResponse.status, 'ok:', gameResponse.ok)
+      }
       if (gameResponse.ok) {
         const gameData = await gameResponse.json()
         if (process.env.NODE_ENV === 'development') {
@@ -261,25 +276,43 @@ export default function HomePage() {
             currentPlayer: data.player
           })
         }
+        console.log('🔧 About to call setGameData with:', {
+          game: data.game,
+          players: gameData.players || [data.player],
+          currentPlayer: data.player
+        })
+        
         setGameData({
           game: data.game,
           players: gameData.players || [data.player],
           currentPlayer: data.player
         })
+        
+        // Debug: Check if game atom was set
+        console.log('🔧 After setGameData - game atom should be set to:', data.game)
       } else {
         // Fallback to just the host if we can't fetch all players
         if (process.env.NODE_ENV === 'development') {
+          console.log('🔧 TAKING FALLBACK PATH - Game response not ok')
           console.log('handleStartGame - Fallback setting game data:', {
             game: data.game,
             players: [data.player],
             currentPlayer: data.player
           })
         }
+        console.log('🔧 About to call setGameData (fallback) with:', {
+          game: data.game,
+          players: [data.player],
+          currentPlayer: data.player
+        })
+        
         setGameData({
           game: data.game,
           players: [data.player],
           currentPlayer: data.player
         })
+        
+        console.log('🔧 After setGameData (fallback) - game atom should be set to:', data.game)
       }
       
       setGameCode(data.gameCode)
@@ -569,7 +602,7 @@ export default function HomePage() {
     // Debug logging
     if (process.env.NODE_ENV === 'development') {
       console.log('🔧 Remove Player Debug:', {
-        gameId: game.id,
+        gameCode: game.code,
         currentPlayerId: currentPlayer.id,
         currentPlayerName: currentPlayer.name,
         isHost: currentPlayer.is_host,
@@ -647,7 +680,7 @@ export default function HomePage() {
     const isHost = currentPlayer.client_id === game.host_client_id
     if (!isHost) return
     
-    console.log('🔧 Frontend: handleAssignRoles called', { gameId: game.id, hostClientId: game.host_client_id, currentPlayerClientId: currentPlayer.client_id })
+    console.log('🔧 Frontend: handleAssignRoles called', { gameCode: game.code, hostClientId: game.host_client_id, currentPlayerClientId: currentPlayer.client_id })
     
     setIsLoading(true)
     setError(null)
@@ -746,17 +779,17 @@ export default function HomePage() {
     return <DemoMode />
   }
 
-  // Don't render anything until we're on the client side
-  if (!isClient) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto"></div>
-          <p className="text-lg text-gray-300 mt-4">Loading...</p>
-        </div>
-      </div>
-    )
-  }
+  // TODO: Temporarily removed !isClient check to debug infinite loop
+  // if (!isClient) {
+  //   return (
+  //     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800 flex items-center justify-center">
+  //       <div className="text-center">
+  //         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto"></div>
+  //         <p className="text-lg text-gray-300 mt-4">Loading...</p>
+  //       </div>
+  //     </div>
+  //   )
+  // }
 
   // Render appropriate screen based on game state
   switch (gameState) {

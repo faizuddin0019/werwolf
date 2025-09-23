@@ -15,7 +15,7 @@ BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 # Test configuration
-TEST_URL=${1:-"http://localhost:3001"}
+TEST_URL=${1:-"http://localhost:3000"}
 PROD_URL="https://wearwolf-bewk9ijpj-faizuddin0019s-projects.vercel.app"
 
 # Function to run a test
@@ -62,7 +62,7 @@ main() {
     echo ""
     
     # Check if we're testing local or production
-    if [ "$TEST_URL" = "http://localhost:3001" ]; then
+    if [ "$TEST_URL" = "http://localhost:3000" ]; then
         echo -e "${YELLOW}📱 Testing Local Development Server${NC}"
         if ! check_server "$TEST_URL"; then
             echo -e "${RED}❌ Local server is not running. Please start it with 'npm run dev'${NC}"
@@ -171,11 +171,11 @@ show_help() {
     echo "Usage: $0 [URL]"
     echo ""
     echo "Arguments:"
-    echo "  URL    Test URL (default: http://localhost:3001)"
+    echo "  URL    Test URL (default: http://localhost:3000)"
     echo ""
     echo "Examples:"
     echo "  $0                                    # Test local development server"
-    echo "  $0 http://localhost:3001             # Test local development server"
+    echo "  $0 http://localhost:3000             # Test local development server"
     echo "  $0 https://wearwolf-bewk9ijpj-faizuddin0019s-projects.vercel.app  # Test production"
     echo ""
     echo "Environment Variables:"

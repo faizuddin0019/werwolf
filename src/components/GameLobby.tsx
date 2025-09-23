@@ -40,13 +40,13 @@ export default function GameLobby({
   const [currentPlayer] = useAtom(currentPlayerAtom)
   const [isHost] = useAtom(isHostAtom)
   const [canStartGame] = useAtom(canStartGameAtom)
-  const [] = useAtom(playerNameAtom)
+  const [playerName] = useAtom(playerNameAtom)
   const [leaveRequests] = useAtom(leaveRequestsAtom)
   const [pendingLeaveRequests] = useAtom(pendingLeaveRequestsAtom)
-  const [] = useAtom(hasPendingLeaveRequestAtom)
+  const [hasPendingLeaveRequest] = useAtom(hasPendingLeaveRequestAtom)
 
   // Loading state for leave requests
-  const [] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
 
   // Debug logging for players
   console.log('🔧 GameLobby Debug:', {
@@ -523,7 +523,7 @@ export default function GameLobby({
                           </p>
                         )}
                         
-                        {player.id === currentPlayer?.id && !player.is_host && (
+                        {player.id === currentPlayer?.id && (
                           <p className="text-sm text-green-400 font-semibold">
                             You
                           </p>

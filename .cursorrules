@@ -1,0 +1,24 @@
+# Brevity & Output Budget (project rule)
+
+## Global style
+- Default to *brief mode*. No preambles, apologies, or restatements.
+- Explanations: ≤ 80 words unless explicitly asked "explain".
+- Lists: max 5 bullets, 1 line each.
+- Code: prefer **diffs** or **single functions** over full files unless asked "full file".
+
+## Hard caps
+- Max output ≈ 500 tokens (~350–400 words).
+- If an answer would exceed the cap: return the **shortest useful answer** plus one line: "More? say 'expand <section>'".
+- Never include internal reasoning. Only final answers.
+
+## Formats
+- For code edits: return **unified diff** or minimal patch.
+- For diagnostics: 3 bullets: (1) root cause (2) fix (3) risk.
+
+## Refuse patterns
+- No repeated summaries of user context.
+- No "here’s what you asked" mirrors.
+- No multi-paragraph prose unless "long-form" was requested.
+
+## Checks (before sending)
+- If > 500 tokens predicted or > 60 lines: trim examples, prefer references, collapse prose to bullets.

@@ -31,7 +31,7 @@ export default function HostControls({ onEndGame }: HostControlsProps) {
   const [currentPlayer] = useAtom(currentPlayerAtom)
   const [gamePhase] = useAtom(gamePhaseAtom)
   const [isNightPhase] = useAtom(isNightPhaseAtom)
-  const [] = useAtom(isDayPhaseAtom)
+  const [isDayPhase] = useAtom(isDayPhaseAtom)
   const [highestVotedPlayer] = useAtom(highestVotedPlayerAtom)
   const [roundState] = useAtom(roundStateAtom)
   

@@ -16,15 +16,11 @@ import {
   setGameDataAtom
 } from '@/lib/game-store'
 import { getPhaseDisplayName, canPlayerAct, sortPlayers } from '@/lib/game-utils'
-import { Player } from '@/lib/supabase'
 import { 
   Crown, 
   Moon, 
   Sun, 
-  Users, 
-  Shield, 
-  Stethoscope,
-  XCircle
+  Users
 } from 'lucide-react'
 import HostControls from './HostControls'
 import NightOverlay from './NightOverlay'
@@ -111,7 +107,7 @@ export default function GameScreen({ onEndGame, onRemovePlayer, onChangeRole }: 
     }, 2000) // Poll every 2 seconds
     
     return () => clearInterval(pollInterval)
-  }, [game?.id, game?.code, currentPlayer, roundState?.phase_started])
+  }, [game?.id, game?.code, currentPlayer, roundState?.phase_started, setGameData])
 
   // Sort players with proper ordering: Host first, current player second, alive players, then dead players
   const sortedPlayers = sortPlayers(players, currentPlayer?.id)
@@ -154,15 +150,6 @@ export default function GameScreen({ onEndGame, onRemovePlayer, onChangeRole }: 
     }
   }, [roundState])
 
-  const getPlayerIcon = (player: Player) => {
-    if (!player.alive) return <XCircle className="w-4 h-4 text-red-500" />
-    if (isHost || player.id === currentPlayer?.id) {
-      if (player.role === 'werwolf') return <Moon className="w-4 h-4 text-red-600" />
-      if (player.role === 'doctor') return <Stethoscope className="w-4 h-4 text-green-600" />
-      if (player.role === 'police') return <Shield className="w-4 h-4 text-blue-600" />
-    }
-    return <Users className="w-4 h-4 text-gray-600" />
-  }
 
   const getBackgroundClass = () => {
     if (isNightPhase) {
