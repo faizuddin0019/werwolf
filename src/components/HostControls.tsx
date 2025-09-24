@@ -43,6 +43,16 @@ export default function HostControls({ onEndGame }: HostControlsProps) {
   
   const [isLoading, setIsLoading] = useState(false)
 
+  // Resolve player names for action status
+  const getPlayerName = (playerId: string | null | undefined) => {
+    if (!playerId) return null
+    const p = (players || []).find((pl: { id: string }) => pl.id === playerId)
+    return p ? p.name : null
+  }
+  const wolfTargetName = getPlayerName(roundState?.wolf_target_player_id || null)
+  const doctorSaveName = getPlayerName(roundState?.doctor_save_player_id || null)
+  const policeInspectName = getPlayerName(roundState?.police_inspect_player_id || null)
+
   const handleAction = async (action: string, data?: unknown) => {
     if (!game || !currentPlayer || isLoading) return
     
@@ -312,19 +322,19 @@ export default function HostControls({ onEndGame }: HostControlsProps) {
             <div className="flex justify-between">
               <span>Werwolf:</span>
               <span className={roundState?.wolf_target_player_id ? 'text-green-600' : 'text-gray-400'}>
-                {roundState?.wolf_target_player_id ? 'Target Selected' : 'Waiting'}
+                {roundState?.wolf_target_player_id ? (wolfTargetName || 'Target Selected') : 'Waiting'}
               </span>
             </div>
             <div className="flex justify-between">
               <span>Doctor:</span>
               <span className={roundState?.doctor_save_player_id ? 'text-green-600' : 'text-gray-400'}>
-                {roundState?.doctor_save_player_id ? 'Player Saved' : 'Waiting'}
+                {roundState?.doctor_save_player_id ? (doctorSaveName || 'Player Saved') : 'Waiting'}
               </span>
             </div>
             <div className="flex justify-between">
               <span>Police:</span>
               <span className={roundState?.police_inspect_player_id ? 'text-green-600' : 'text-gray-400'}>
-                {roundState?.police_inspect_player_id ? 'Inspection Done' : 'Waiting'}
+                {roundState?.police_inspect_player_id ? (policeInspectName || 'Inspection Done') : 'Waiting'}
               </span>
             </div>
           </div>
