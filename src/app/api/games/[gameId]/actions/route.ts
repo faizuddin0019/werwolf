@@ -788,14 +788,22 @@ async function handleRevokeVote(gameId: string, player: Player, round: number, p
 }
 
 async function handleFinalVote(gameId: string, game: Game) {
-  // Update existing votes to final vote phase
+  // Clear any previous final-vote records for this round (idempotency)
   await supabase!
     .from('votes')
-    .update({ phase: 'day_final_vote' })
+    .delete()
+    .eq('game_id', gameId)
+    .eq('round', game.day_count)
+    .eq('phase', 'day_final_vote')
+
+  // Clear initial votes so players must vote again in the final round
+  await supabase!
+    .from('votes')
+    .delete()
     .eq('game_id', gameId)
     .eq('round', game.day_count)
     .eq('phase', 'day_vote')
-  
+
   // Move to final vote phase
   await supabase!
     .from('games')
