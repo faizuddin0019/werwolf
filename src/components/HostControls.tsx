@@ -243,7 +243,7 @@ export default function HostControls({ onEndGame }: HostControlsProps) {
   const actions = [
     { action: 'assign_roles', label: 'Start Game' },
     { action: 'next_phase', label: 'Next Phase' },
-    { action: 'reveal_dead', label: 'Reveal' },
+    // Removed duplicate explicit reveal_dead button; handled via next_phase label + routing below
     { action: 'begin_voting', label: 'Begin Voting' },
     { action: 'final_vote', label: 'Final Vote' },
     { action: 'eliminate_player', label: 'Eliminate' },
@@ -279,9 +279,13 @@ export default function HostControls({ onEndGame }: HostControlsProps) {
                   if (confirm('Are you sure you want to end the game?')) {
                     onEndGame()
                   }
-                } else {
-                  handleAction(action)
+                  return
                 }
+                // Route next_phase to reveal_dead when appropriate to avoid duplicate button
+                const realAction = (action === 'next_phase' && gamePhase === 'night_police' && (roundState?.police_inspect_player_id !== null))
+                  ? 'reveal_dead'
+                  : action
+                handleAction(realAction)
               }}
               disabled={!canPerform || isLoading}
               className={`w-full py-2 px-4 text-white rounded-md transition-colors flex items-center justify-center space-x-2 disabled:bg-gray-300 disabled:cursor-not-allowed ${getButtonColor(action)}`}
