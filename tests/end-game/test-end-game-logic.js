@@ -534,7 +534,7 @@ async function testRealTimeSync() {
     })
     await sleep(300)
     
-    // 3) Host advances to night_doctor
+    // 3) Host advances to night_doctor (skip-safe if doctor dead)
     await nextPhase(gameId, hostClientId)
     await sleep(400)
     
@@ -549,15 +549,15 @@ async function testRealTimeSync() {
       await sleep(300)
     }
     
-    // 5) Host advances to night_police
+    // 5) Host advances to night_police (skip-safe if doctor was dead)
     await nextPhase(gameId, hostClientId)
     await sleep(400)
     
-    // 6) Police inspects
+    // 6) Police inspects (if alive; otherwise proceed directly to reveal)
     gameState = await getGameState(gameId, hostClientId)
     const police = gameState.players.find(p => p.role === 'police' && !p.is_host)
     const inspectTarget = gameState.players.find(p => !p.is_host && p.id !== police?.id)
-    if (police && inspectTarget) {
+    if (police && police.alive !== false && inspectTarget) {
       await makeRequest(`${BASE_URL}/api/games/${gameState.game.id}/actions`, {
         method: 'POST',
         body: JSON.stringify({ action: 'police_inspect', clientId: police.client_id, data: { targetId: inspectTarget.id } })

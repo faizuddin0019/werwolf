@@ -287,8 +287,8 @@ async function testManualVotingControls() {
     let gameState = await getGameState(gameId, hostClientId)
     const gamePlayers = gameState.players.filter(p => !p.is_host)
     const werewolf = gamePlayers.find(p => p.role === 'werewolf' || p.role === 'werwolf')
-    const police = gamePlayers.find(p => p.role === 'police')
-    const doctor = gamePlayers.find(p => p.role === 'doctor')
+  const police = gamePlayers.find(p => p.role === 'police')
+  const doctor = gamePlayers.find(p => p.role === 'doctor')
     const target = gamePlayers.find(p => p.role !== 'werewolf')
     
     // Werewolf phase (game is already in night_wolf after role assignment)
@@ -296,13 +296,17 @@ async function testManualVotingControls() {
     await performHostAction(gameUuid, hostClientId, 'next_phase')
     await sleep(1000)
     
-    // Doctor phase
+  // Doctor phase (skip-safe): if doctor dead, host next_phase should still advance
+  if (doctor && doctor.alive !== false) {
     await performPlayerAction(gameUuid, doctor.client_id, 'doctor_save', target.id)
-    await performHostAction(gameUuid, hostClientId, 'next_phase')
+  }
+  await performHostAction(gameUuid, hostClientId, 'next_phase')
     await sleep(1000)
     
-    // Police phase
+  // Police phase (skip-safe): if police dead, we still can reveal
+  if (police && police.alive !== false) {
     await performPlayerAction(gameUuid, police.client_id, 'police_inspect', target.id)
+  }
     // Host must reveal after police
     await performHostAction(gameUuid, hostClientId, 'reveal_dead')
     await sleep(1000)
