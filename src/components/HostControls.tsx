@@ -49,9 +49,11 @@ export default function HostControls({ onEndGame }: HostControlsProps) {
     const p = (players || []).find((pl: { id: string }) => pl.id === playerId)
     return p ? p.name : null
   }
-  const wolfTargetName = getPlayerName(roundState?.wolf_target_player_id || null)
-  const doctorSaveName = getPlayerName(roundState?.doctor_save_player_id || null)
-  const policeInspectName = getPlayerName(roundState?.police_inspect_player_id || null)
+  // Reset display when a fresh night starts (host hasn’t started the phase yet)
+  const isFreshNight = gamePhase === 'night_wolf' && roundState?.phase_started !== true
+  const wolfTargetName = isFreshNight ? null : getPlayerName(roundState?.wolf_target_player_id || null)
+  const doctorSaveName = isFreshNight ? null : getPlayerName(roundState?.doctor_save_player_id || null)
+  const policeInspectName = isFreshNight ? null : getPlayerName(roundState?.police_inspect_player_id || null)
 
   const handleAction = async (action: string, data?: unknown) => {
     if (!game || !currentPlayer || isLoading) return

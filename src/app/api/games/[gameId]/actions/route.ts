@@ -885,6 +885,7 @@ async function handleEliminatePlayer(gameId: string, game: Game) {
         police_inspect_player_id: null,
         police_inspect_result: null,
         resolved_death_player_id: null,
+        // phase not started yet, UI should show fresh night
         phase_started: false
       })
       .eq('game_id', gameId)
