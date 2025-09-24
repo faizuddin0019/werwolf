@@ -776,10 +776,14 @@ async function handleRevealDead(gameId: string, game: Game) {
     
     console.log('🔧 Dead players determined:', deadPlayerIds)
     
-    // Update round state with resolved death(s)
+    // Update round state with resolved death(s) and clear per-night picks
     const { error: updateRoundStateError } = await supabase!
       .from('round_state')
-      .update({ resolved_death_player_id: deadPlayerIds.join(',') || null })
+      .update({ 
+        resolved_death_player_id: deadPlayerIds.join(',') || null,
+        wolf_target_player_id: null,
+        doctor_save_player_id: null
+      })
       .eq('game_id', gameId)
     
     if (updateRoundStateError) {
@@ -789,14 +793,27 @@ async function handleRevealDead(gameId: string, game: Game) {
     
     // Mark players as dead if they died (atomic, scoped to this game)
     if (deadPlayerIds.length > 0) {
-      const { error: bulkUpdateErr } = await supabase!
+      const { data: bulkData, error: bulkUpdateErr } = await supabase!
         .from('players')
         .update({ alive: false })
         .eq('game_id', gameId)
         .in('id', deadPlayerIds)
+        .select('id')
       if (bulkUpdateErr) {
         console.error('Error bulk-updating player alive status:', bulkUpdateErr)
         return NextResponse.json({ error: `Failed to update player status: ${bulkUpdateErr.message}` }, { status: 500 })
+      }
+      const updatedIds = new Set((bulkData || []).map(r => r.id))
+      const notUpdated = deadPlayerIds.filter(id => !updatedIds.has(id))
+      // Fallback: update individually (handles strict RLS paths)
+      for (const pid of notUpdated) {
+        const { error: updErr } = await supabase!
+          .from('players')
+          .update({ alive: false })
+          .eq('id', pid)
+        if (updErr) {
+          console.warn('Non-fatal: individual player update failed', { pid, updErr })
+        }
       }
     }
     
