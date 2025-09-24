@@ -63,6 +63,14 @@ export default function HomePage() {
   // Track if client ID has been initialized to prevent infinite loops
   const clientIdInitialized = useRef(false)
 
+  const setClientIdCookie = (cid: string) => {
+    try {
+      if (typeof document !== 'undefined' && cid) {
+        document.cookie = `clientId=${cid}; path=/; max-age=31536000; samesite=lax`
+      }
+    } catch {}
+  }
+
   // Ensure we're on the client side
   useEffect(() => {
     setIsClient(true)
@@ -343,6 +351,7 @@ export default function HomePage() {
           const newClientId = getOrCreateBrowserClientId()
           if (process.env.NODE_ENV === 'development') console.log('🔧 Generated new client ID:', newClientId)
           setClientId(newClientId)
+          setClientIdCookie(newClientId)
           clientIdInitialized.current = true
         } else {
           // Check if the existing client ID is from the current browser
@@ -360,12 +369,15 @@ export default function HomePage() {
             const newClientId = getOrCreateBrowserClientId()
             if (process.env.NODE_ENV === 'development') console.log('🔧 Client ID from different browser, generated new one:', newClientId)
             setClientId(newClientId)
+            setClientIdCookie(newClientId)
             // Clear any saved game state since this is a different browser
             localStorage.removeItem('werwolf-game-state')
             localStorage.removeItem('werwolf-game-code')
             localStorage.removeItem('werwolf-player-name')
             setGameState('welcome')
           }
+          // Ensure cookie is present for server role visibility
+          setClientIdCookie(clientId)
           clientIdInitialized.current = true
         }
   }, [clientId]) // Remove setClientId from dependencies

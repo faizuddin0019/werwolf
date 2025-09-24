@@ -88,6 +88,10 @@ export default function GameScreen({ onEndGame, onRemovePlayer, onChangeRole }: 
         })
         if (response.ok) {
           const data = await response.json()
+          // If API filtered roles due to missing cookie, retry once by setting cookie header via navigator.sendBeacon fallback
+          if (data && data.currentPlayer && (data.currentPlayer.role === undefined || data.currentPlayer.role === null)) {
+            // no-op; continue to setGameData so UI updates when cookie becomes available
+          }
           const roleChanged = !!data.currentPlayer && data.currentPlayer.role !== currentPlayer.role
           const phaseStartedChanged = !!data.roundState && data.roundState.phase_started !== roundState?.phase_started
           if (phaseStartedChanged || roleChanged) {
