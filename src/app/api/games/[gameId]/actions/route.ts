@@ -730,7 +730,10 @@ async function handleRevealDead(gameId: string, game: Game) {
     let deadPlayerIds: string[] = []
     if (roundState.wolf_target_player_id) {
       const selections = String(roundState.wolf_target_player_id).split(',').filter(Boolean)
-      const targets = selections.map(s => s.split(':')[1]).filter(Boolean)
+      // Support both formats: "wolfId:targetId" and legacy "targetId"
+      const targets = selections
+        .map((sel) => (sel.includes(':') ? sel.split(':')[1] : sel))
+        .filter(Boolean)
       const uniqueTargets = Array.from(new Set(targets))
       // Doctor saves one target if matches
       deadPlayerIds = uniqueTargets.filter(t => t !== roundState.doctor_save_player_id)
