@@ -315,29 +315,55 @@ async function handleNextPhase(gameId: string, game: Game, targetPhase?: string)
     return NextResponse.json({ success: true, phase: 'night_wolf', action: 'phase_advanced' })
   }
   
-  // Handle transition from night_wolf to night_doctor (Wakeup Doctor)
+  // Handle night_wolf: if phase not started, start it and clear any stale selections; otherwise if target chosen, move to doctor
   if (game.phase === 'night_wolf') {
-    console.log('🔧 Host clicked "Wakeup Doctor" - transitioning to night_doctor phase')
-    
-    // Update game phase to night_doctor
-    const { data: updatedGame, error: phaseError } = await supabase!
-      .from('games')
-      .update({ phase: 'night_doctor' })
-      .eq('id', gameId)
-      .eq('phase', 'night_wolf')
-      .select('id, phase')
+    const { data: round } = await supabase!
+      .from('round_state')
+      .select('phase_started, wolf_target_player_id')
+      .eq('game_id', gameId)
       .single()
     
-    if (phaseError) {
-      console.error('❌ Error updating game phase to night_doctor:', phaseError)
-      return NextResponse.json({ error: 'Failed to update game phase' }, { status: 500 })
+    if (!round || round.phase_started !== true) {
+      const { error: startErr } = await supabase!
+        .from('round_state')
+        .update({
+          phase_started: true,
+          // Clear stale previous-night selections
+          wolf_target_player_id: null,
+          doctor_save_player_id: null,
+          police_inspect_player_id: null,
+          police_inspect_result: null,
+          resolved_death_player_id: null
+        })
+        .eq('game_id', gameId)
+      if (startErr) {
+        console.error('❌ Error starting night_wolf phase:', startErr)
+        return NextResponse.json({ error: 'Failed to start werwolf phase' }, { status: 500 })
+      }
+      console.log('✅ night_wolf phase started; selections cleared')
+      return NextResponse.json({ success: true, phase: 'night_wolf', action: 'phase_started' })
     }
-    if (!updatedGame) {
-      return NextResponse.json({ error: 'State changed; retry next_phase' }, { status: 409 })
+    // If target chosen, advance to doctor
+    if (round.wolf_target_player_id) {
+      const { data: updatedGame, error: phaseError } = await supabase!
+        .from('games')
+        .update({ phase: 'night_doctor' })
+        .eq('id', gameId)
+        .eq('phase', 'night_wolf')
+        .select('id, phase')
+        .single()
+      if (phaseError) {
+        console.error('❌ Error updating game phase to night_doctor:', phaseError)
+        return NextResponse.json({ error: 'Failed to update game phase' }, { status: 500 })
+      }
+      if (!updatedGame) {
+        return NextResponse.json({ error: 'State changed; retry next_phase' }, { status: 409 })
+      }
+      console.log('✅ Game phase updated to night_doctor!')
+      return NextResponse.json({ success: true, phase: 'night_doctor', action: 'phase_advanced' })
     }
-    
-    console.log('✅ Game phase updated to night_doctor!')
-    return NextResponse.json({ success: true, phase: 'night_doctor', action: 'phase_advanced' })
+    // Otherwise, remain in night_wolf awaiting selection
+    return NextResponse.json({ success: true, phase: 'night_wolf', action: 'awaiting_wolf' })
   }
   
   // Handle transition from night_doctor to night_police (Wakeup Police)
