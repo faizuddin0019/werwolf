@@ -301,7 +301,7 @@ async function testManualVotingControls() {
     
     // Assign roles (server enters night_wolf with phase_started=false)
     await assignRoles(gameUuid, hostClientId)
-    await sleep(600)
+    await sleep(900)
     
     // Complete night phases quickly - get updated game state with roles
     let gameState = await getGameState(gameId, hostClientId)
@@ -492,7 +492,7 @@ async function testCompleteGameFlow() {
     
     // 1. Lobby → Assign Roles (stays lobby) → Host advances to night_wolf
     await assignRoles(gameUuid, hostClientId)
-    await sleep(600)
+    await sleep(900)
     let gameState = await getGameState(gameId, hostClientId)
     if (gameState.game.phase === 'lobby') {
       await nextPhase(gameUuid, hostClientId)

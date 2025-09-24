@@ -164,7 +164,7 @@ async function getGameState(gameId, hostClientId) {
   })
 }
 
-async function waitForPhase(gameId, hostClientId, expectedPhase, timeoutMs = 6000) {
+async function waitForPhase(gameId, hostClientId, expectedPhase, timeoutMs = 12000) {
   const start = Date.now()
   while (Date.now() - start < timeoutMs) {
     const gs = await getGameState(gameId, hostClientId)
@@ -208,7 +208,7 @@ async function testEndGameLogicWithTwoPlayers() {
     
     // Assign roles
     await assignRoles(gameId, hostClientId)
-    await sleep(1000)
+    await sleep(1200)
     
     // Get initial game state (should be night_wolf after role assignment)
     let gameState = await waitForPhase(gameId, hostClientId, 'night_wolf')

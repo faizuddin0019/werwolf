@@ -264,17 +264,23 @@ async function handleAssignRoles(gameId: string, game: Game) {
     return NextResponse.json({ error: 'Failed to prepare round state' }, { status: 500 })
   }
   
-  // Move game to night_wolf
-  const { error: toNightError } = await supabase!
+  // Move game to night_wolf (optimistic concurrency: only if still in lobby)
+  const { data: updatedGame, error: toNightError } = await supabase!
     .from('games')
     .update({ phase: 'night_wolf' })
     .eq('id', gameId)
+    .eq('phase', 'lobby')
+    .select('id, phase')
+    .single()
   if (toNightError) {
     console.error('❌ Error updating game phase to night_wolf:', toNightError)
     return NextResponse.json({ error: 'Failed to update game phase' }, { status: 500 })
   }
+  if (!updatedGame) {
+    return NextResponse.json({ error: 'State changed; retry assign_roles' }, { status: 409 })
+  }
   
-  return NextResponse.json({ success: true, phase: 'night_wolf' })
+  return NextResponse.json({ success: true, phase: updatedGame.phase })
 }
 
 async function handleNextPhase(gameId: string, game: Game, targetPhase?: string) {

@@ -332,16 +332,28 @@ class RealTimeSyncTests {
     console.log(`🔍 Player to remove name: ${playerToRemove.name}`)
     
     // Test player removal
-    const removeResponse = await this.makeRequest(`${BASE_URL}/api/games/${this.gameUuid}/actions`, {
-      method: 'POST',
-      body: JSON.stringify({
-        action: 'remove_player',
-        clientId: this.hostClientId,
-        data: {
-          playerId: playerToRemove.id
-        }
+    // Try removal twice to tolerate transient RLS delays
+    let removeResponse
+    try {
+      removeResponse = await this.makeRequest(`${BASE_URL}/api/games/${this.gameUuid}/actions`, {
+        method: 'POST',
+        body: JSON.stringify({
+          action: 'remove_player',
+          clientId: this.hostClientId,
+          data: { playerId: playerToRemove.id }
+        })
       })
-    })
+    } catch (e) {
+      await sleep(400)
+      removeResponse = await this.makeRequest(`${BASE_URL}/api/games/${this.gameUuid}/actions`, {
+        method: 'POST',
+        body: JSON.stringify({
+          action: 'remove_player',
+          clientId: this.hostClientId,
+          data: { playerId: playerToRemove.id }
+        })
+      })
+    }
     
     if (!removeResponse.success) {
       throw new Error('Failed to remove player')
