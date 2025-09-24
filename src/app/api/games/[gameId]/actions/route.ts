@@ -548,17 +548,26 @@ async function handleWolfSelect(gameId: string, player: Player, targetId: string
   // Multiple wolves: accumulate unique targets as CSV keyed by wolf id; last choice per wolf overrides
   const { data: round } = await supabase!
     .from('round_state')
-    .select('wolf_target_player_id')
+    .select('*')
     .eq('game_id', gameId)
     .single()
-  const existing = round?.wolf_target_player_id ? String(round.wolf_target_player_id) : ''
-  const parts = existing.split(',').filter(Boolean)
-  // Remove any prior selection by this wolf (encoded as wolfId:targetId)
-  const filtered = parts.filter(p => !p.startsWith(player.id + ':'))
-  const next = [...filtered, `${player.id}:${targetId}`]
+  // Decide storage strategy based on available columns
+  const hasMap = round && Object.prototype.hasOwnProperty.call(round, 'wolf_target_map')
+  let updateObj: Record<string, any> = {}
+  if (hasMap) {
+    const existingMap: string = (round as any).wolf_target_map || ''
+    const parts = existingMap.split(',').filter(Boolean)
+    const filtered = parts.filter((p: string) => !p.startsWith(player.id + ':'))
+    const next = [...filtered, `${player.id}:${targetId}`]
+    updateObj.wolf_target_map = next.join(',')
+    // Also keep legacy single target for compatibility
+    updateObj.wolf_target_player_id = targetId
+  } else {
+    updateObj.wolf_target_player_id = targetId
+  }
   const { error: updateError } = await supabase!
     .from('round_state')
-    .update({ wolf_target_player_id: next.join(',') })
+    .update(updateObj)
     .eq('game_id', gameId)
   
   if (updateError) {
@@ -566,7 +575,7 @@ async function handleWolfSelect(gameId: string, player: Player, targetId: string
     return NextResponse.json({ error: 'Failed to update werwolf selection' }, { status: 500 })
   }
   
-  console.log('🔧 Werwolf select update successful:', { wolf: player.id, targetId, encoded: next.join(',') })
+  console.log('🔧 Werwolf select update successful:', { wolf: player.id, targetId, map: updateObj.wolf_target_map || null })
   
   // Don't automatically advance phase - let host control it
   return NextResponse.json({ success: true })
@@ -1418,12 +1427,15 @@ async function handleRemovePlayer(gameId: string, hostPlayer: Player, playerId: 
     return NextResponse.json({ error: 'Host cannot remove themselves. Use "End Game" instead.' }, { status: 400 })
   }
   
-  // Remove any pending leave requests for this player
-  await supabase!
+  // Remove any pending leave requests for this player (ignore missing)
+  const { error: leaveDelErr } = await supabase!
     .from('leave_requests')
     .delete()
     .eq('game_id', gameId)
     .eq('player_id', playerId)
+  if (leaveDelErr && leaveDelErr.code !== 'PGRST116') {
+    console.warn('Non-fatal: failed to delete leave request', leaveDelErr)
+  }
   
   // Remove the player from the game
   const { error: deleteError } = await supabase!
