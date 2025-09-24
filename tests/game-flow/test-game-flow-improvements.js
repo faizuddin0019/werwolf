@@ -5,7 +5,7 @@
  * Tests the new host-controlled phases and manual voting system
  */
 
-const BASE_URL = process.env.TEST_BASE_URL || 'http://localhost:3001'
+const BASE_URL = process.env.TEST_BASE_URL || 'http://localhost:3000'
 
 // Test configuration
 const TEST_CONFIG = {
@@ -68,19 +68,23 @@ async function createTestGame() {
     })
   })
   
-  assert(data.gameCode, 'Game code not returned')
+  assert(data.gameId, 'Game code not returned')
+  assert(data.game && data.game.id, 'Game UUID not returned')
   
-  log(`Game created with code: ${data.gameCode}`)
-  return data
+  log(`Game created with code: ${data.gameId}`)
+  return {
+    ...data,
+    gameUuid: data.game.id
+  }
 }
 
-async function joinGame(gameCode, playerName, clientId) {
-  log(`Player ${playerName} joining game ${gameCode}...`)
+async function joinGame(gameId, playerName, clientId) {
+  log(`Player ${playerName} joining game ${gameId}...`)
   
   const data = await makeRequest(`${BASE_URL}/api/games/join`, {
     method: 'POST',
     body: JSON.stringify({
-      gameCode,
+      gameId,
       playerName,
       clientId
     })
@@ -92,10 +96,10 @@ async function joinGame(gameCode, playerName, clientId) {
   return data
 }
 
-async function assignRoles(gameId, hostClientId) {
+async function assignRoles(gameUuid, hostClientId) {
   log('Assigning roles to players...')
   
-  const response = await makeRequest(`${BASE_URL}/api/games/${gameId}/actions`, {
+  const response = await makeRequest(`${BASE_URL}/api/games/${gameUuid}/actions`, {
     method: 'POST',
     body: JSON.stringify({
       action: 'assign_roles',
@@ -107,10 +111,10 @@ async function assignRoles(gameId, hostClientId) {
   return response
 }
 
-async function performHostAction(gameId, hostClientId, action) {
+async function performHostAction(gameUuid, hostClientId, action) {
   log(`Host performing action: ${action}`)
   
-  const response = await makeRequest(`${BASE_URL}/api/games/${gameId}/actions`, {
+  const response = await makeRequest(`${BASE_URL}/api/games/${gameUuid}/actions`, {
     method: 'POST',
     body: JSON.stringify({
       action: action,
@@ -122,7 +126,7 @@ async function performHostAction(gameId, hostClientId, action) {
   return response
 }
 
-async function performPlayerAction(gameId, clientId, action, targetId = null) {
+async function performPlayerAction(gameUuid, clientId, action, targetId = null) {
   log(`Player performing action: ${action}${targetId ? ` on ${targetId}` : ''}`)
   
   const body = {
@@ -134,7 +138,7 @@ async function performPlayerAction(gameId, clientId, action, targetId = null) {
     body.targetId = targetId
   }
   
-  const response = await makeRequest(`${BASE_URL}/api/games/${gameId}/actions`, {
+  const response = await makeRequest(`${BASE_URL}/api/games/${gameUuid}/actions`, {
     method: 'POST',
     body: JSON.stringify(body)
   })
@@ -143,17 +147,14 @@ async function performPlayerAction(gameId, clientId, action, targetId = null) {
   return response
 }
 
-async function getGameState(gameCode, hostClientId) {
-  return await makeRequest(`${BASE_URL}/api/games?code=${gameCode}`, {
+async function getGameState(gameId, hostClientId) {
+  return await makeRequest(`${BASE_URL}/api/games?code=${gameId}`, {
     headers: { 'Cookie': `clientId=${hostClientId}` }
   })
 }
 
-async function nextPhase(gameCode, hostClientId) {
-  const gameState = await getGameState(gameCode, hostClientId)
-  const gameId = gameState.game.id
-  
-  return await makeRequest(`${BASE_URL}/api/games/${gameId}/actions`, {
+async function nextPhase(gameUuid, hostClientId) {
+  return await makeRequest(`${BASE_URL}/api/games/${gameUuid}/actions`, {
     method: 'POST',
     body: JSON.stringify({
       action: 'next_phase',
@@ -169,46 +170,40 @@ async function testReorderedNightPhases() {
   try {
     // Create game
     const gameData = await createTestGame()
-    const gameCode = gameData.gameCode
-    const gameId = gameData.game.id
+    const gameId = gameData.gameId
+    const gameUuid = gameData.gameUuid
     const hostClientId = gameData.player.client_id
     
     // Join 6 players
     const players = []
     for (let i = 0; i < 6; i++) {
       const clientId = `test-player-${i}-${Date.now()}`
-      const playerData = await joinGame(gameCode, TEST_CONFIG.playerNames[i], clientId)
+      const playerData = await joinGame(gameId, TEST_CONFIG.playerNames[i], clientId)
       players.push({ ...playerData.player, clientId })
     }
     
     // Assign roles
-    await assignRoles(gameId, hostClientId)
+    await assignRoles(gameUuid, hostClientId)
     await sleep(1000)
     
-    // Test phase sequence: lobby → lobby (after role assignment)
-    let gameState = await getGameState(gameCode, hostClientId)
-    assert(gameState.game.phase === 'lobby', 'Game should stay in lobby after role assignment')
-    log('✅ Phase 1: Lobby → Lobby (after role assignment) (PASSED)')
-    
-    // Host advances to night_wolf phase
-    await nextPhase(gameCode, hostClientId)
-    gameState = await getGameState(gameCode, hostClientId)
-    assert(gameState.game.phase === 'night_wolf', 'Game should be in night_wolf phase after host advances')
-    log('✅ Phase 2: Lobby → Night Wolf (after host advances) (PASSED)')
+    // Test phase sequence: lobby → night_wolf (after role assignment)
+    let gameState = await getGameState(gameId, hostClientId)
+    assert(gameState.game.phase === 'night_wolf', 'Game should transition to night_wolf after role assignment')
+    log('✅ Phase 1: Lobby → Night Wolf (after role assignment) (PASSED)')
     
     // Test werewolf action - use players from gameState
     const werewolf = gameState.players.find(p => p.role === 'werewolf' || p.role === 'werwolf')
     assert(werewolf, 'Werewolf player should exist')
     
     const target = gameState.players.find(p => p.role !== 'werewolf' && p.role !== 'werwolf' && !p.is_host)
-    await performPlayerAction(gameId, werewolf.client_id, 'wolf_select', target.id)
+    await performPlayerAction(gameUuid, werewolf.client_id, 'wolf_select', target.id)
     await sleep(1000)
     
     // Test phase progression: night_wolf → night_doctor (Host clicks "Wakeup Doctor")
-    await performHostAction(gameId, hostClientId, 'next_phase')
+    await performHostAction(gameUuid, hostClientId, 'next_phase')
     await sleep(1000)
     
-    gameState = await getGameState(gameCode, hostClientId)
+    gameState = await getGameState(gameId, hostClientId)
     assert(gameState.game.phase === 'night_doctor', 'Game should be in night_doctor phase after host clicks "Wakeup Doctor"')
     log('✅ Phase 3: Night Wolf → Night Doctor (PASSED)')
     
@@ -217,14 +212,14 @@ async function testReorderedNightPhases() {
     assert(doctor, 'Doctor player should exist')
     
     const saveTarget = gameState.players.find(p => p.role !== 'doctor' && !p.is_host)
-    await performPlayerAction(gameId, doctor.client_id, 'doctor_save', saveTarget.id)
+    await performPlayerAction(gameUuid, doctor.client_id, 'doctor_save', saveTarget.id)
     await sleep(1000)
     
     // Test phase progression: night_doctor → night_police (Host clicks "Wakeup Police")
-    await performHostAction(gameId, hostClientId, 'next_phase')
+    await performHostAction(gameUuid, hostClientId, 'next_phase')
     await sleep(1000)
     
-    gameState = await getGameState(gameCode, hostClientId)
+    gameState = await getGameState(gameId, hostClientId)
     assert(gameState.game.phase === 'night_police', 'Game should be in night_police phase after host clicks "Wakeup Police"')
     log('✅ Phase 4: Night Doctor → Night Police (PASSED)')
     
@@ -233,14 +228,14 @@ async function testReorderedNightPhases() {
     assert(police, 'Police player should exist')
     
     const inspectTarget = gameState.players.find(p => p.role !== 'police' && !p.is_host)
-    await performPlayerAction(gameId, police.client_id, 'police_inspect', inspectTarget.id)
+    await performPlayerAction(gameUuid, police.client_id, 'police_inspect', inspectTarget.id)
     await sleep(1000)
     
     // Test phase progression: night_police → reveal (Host clicks "Reveal the Dead")
-    await performHostAction(gameId, hostClientId, 'next_phase')
+    await performHostAction(gameUuid, hostClientId, 'next_phase')
     await sleep(1000)
     
-    gameState = await getGameState(gameCode, hostClientId)
+    gameState = await getGameState(gameId, hostClientId)
     assert(gameState.game.phase === 'reveal', 'Game should be in reveal phase after host clicks "Reveal the Dead"')
     log('✅ Phase 5: Night Police → Reveal (PASSED)')
     
@@ -263,82 +258,78 @@ async function testManualVotingControls() {
   try {
     // Create game and get to reveal phase
     const gameData = await createTestGame()
-    const gameCode = gameData.gameCode
-    const gameId = gameData.game.id
+    const gameId = gameData.gameId
+    const gameUuid = gameData.gameUuid
     const hostClientId = gameData.player.client_id
     
     // Join 6 players
     const players = []
     for (let i = 0; i < 6; i++) {
       const clientId = `test-player-${i}-${Date.now()}`
-      const playerData = await joinGame(gameCode, TEST_CONFIG.playerNames[i], clientId)
+      const playerData = await joinGame(gameId, TEST_CONFIG.playerNames[i], clientId)
       players.push({ ...playerData.player, clientId })
     }
     
     // Assign roles and complete night phases
-    await assignRoles(gameId, hostClientId)
+    await assignRoles(gameUuid, hostClientId)
     await sleep(1000)
     
     // Complete night phases quickly - get updated game state with roles
-    let gameState = await getGameState(gameCode, hostClientId)
+    let gameState = await getGameState(gameId, hostClientId)
     const gamePlayers = gameState.players.filter(p => !p.is_host)
     const werewolf = gamePlayers.find(p => p.role === 'werewolf')
     const police = gamePlayers.find(p => p.role === 'police')
     const doctor = gamePlayers.find(p => p.role === 'doctor')
     const target = gamePlayers.find(p => p.role !== 'werewolf')
     
-    // Advance to night_wolf phase first
-    await performHostAction(gameId, hostClientId, 'next_phase')
-    await sleep(1000)
-    
-    // Werewolf phase
-    await performPlayerAction(gameId, werewolf.client_id, 'wolf_select', target.id)
-    await performHostAction(gameId, hostClientId, 'next_phase')
+    // Werewolf phase (game is already in night_wolf after role assignment)
+    await performPlayerAction(gameUuid, werewolf.client_id, 'wolf_select', target.id)
+    await performHostAction(gameUuid, hostClientId, 'next_phase')
     await sleep(1000)
     
     // Doctor phase
-    await performPlayerAction(gameId, doctor.client_id, 'doctor_save', target.id)
-    await performHostAction(gameId, hostClientId, 'next_phase')
+    await performPlayerAction(gameUuid, doctor.client_id, 'doctor_save', target.id)
+    await performHostAction(gameUuid, hostClientId, 'next_phase')
     await sleep(1000)
     
     // Police phase
-    await performPlayerAction(gameId, police.client_id, 'police_inspect', target.id)
-    await performHostAction(gameId, hostClientId, 'next_phase')
+    await performPlayerAction(gameUuid, police.client_id, 'police_inspect', target.id)
+    await performHostAction(gameUuid, hostClientId, 'next_phase')
     await sleep(1000)
     
     // Test reveal phase
-    gameState = await getGameState(gameCode, hostClientId)
+    gameState = await getGameState(gameId, hostClientId)
     assert(gameState.game.phase === 'reveal', 'Game should be in reveal phase')
     log('✅ Reached reveal phase successfully')
     
     // Test that voting doesn't start automatically
     await sleep(2000) // Wait to ensure no automatic transition
-    gameState = await getGameState(gameCode, hostClientId)
+    gameState = await getGameState(gameId, hostClientId)
     assert(gameState.game.phase === 'reveal', 'Game should still be in reveal phase (no automatic voting)')
     log('✅ No automatic voting transition (PASSED)')
     
     // Test manual begin voting
-    await performHostAction(gameId, hostClientId, 'begin_voting')
+    await performHostAction(gameUuid, hostClientId, 'begin_voting')
     await sleep(1000)
     
-    gameState = await getGameState(gameCode, hostClientId)
+    gameState = await getGameState(gameId, hostClientId)
     assert(gameState.game.phase === 'day_vote', 'Game should be in day_vote phase after begin_voting')
     log('✅ Manual begin voting works (PASSED)')
     
     // Test initial voting - get updated game state with roles
-    gameState = await getGameState(gameCode, hostClientId)
+    gameState = await getGameState(gameId, hostClientId)
     const votingPlayers = gameState.players.filter(p => !p.is_host)
     const voter = votingPlayers[0]
     const voteTarget = votingPlayers[1]
     
-    await performPlayerAction(gameId, voter.client_id, 'vote', voteTarget.id)
+    await performPlayerAction(gameUuid, voter.client_id, 'vote', voteTarget.id)
     await sleep(1000)
     
     // Test final vote
-    await performHostAction(gameId, hostClientId, 'final_vote')
+    await performHostAction(gameUuid, hostClientId, 'final_vote')
     await sleep(1000)
     
-    gameState = await getGameState(gameCode, hostClientId)
+    gameState = await getGameState(gameId, hostClientId)
     assert(gameState.game.phase === 'day_final_vote', 'Game should be in day_final_vote phase after final_vote')
     log('✅ Manual final vote works (PASSED)')
     
@@ -357,78 +348,74 @@ async function testHostButtonLabels() {
   try {
     // Create game
     const gameData = await createTestGame()
-    const gameCode = gameData.gameCode
-    const gameId = gameData.game.id
+    const gameId = gameData.gameId
+    const gameUuid = gameData.gameUuid
     const hostClientId = gameData.player.client_id
     
     // Join 6 players
     const players = []
     for (let i = 0; i < 6; i++) {
       const clientId = `test-player-${i}-${Date.now()}`
-      const playerData = await joinGame(gameCode, TEST_CONFIG.playerNames[i], clientId)
+      const playerData = await joinGame(gameId, TEST_CONFIG.playerNames[i], clientId)
       players.push({ ...playerData.player, clientId })
     }
     
     // Test lobby phase
-    let gameState = await getGameState(gameCode, hostClientId)
+    let gameState = await getGameState(gameId, hostClientId)
     assert(gameState.game.phase === 'lobby', 'Game should start in lobby phase')
     log('✅ Lobby phase: Assign Roles button should be visible')
     
     // Assign roles
-    await assignRoles(gameId, hostClientId)
+    await assignRoles(gameUuid, hostClientId)
     await sleep(1000)
     
-    // Advance to night_wolf phase
-    await performHostAction(gameId, hostClientId, 'next_phase')
-    await sleep(1000)
-    
-    // Test night_wolf phase
-    gameState = await getGameState(gameCode, hostClientId)
+    // Test night_wolf phase (game auto-transitions after role assignment)
+    gameState = await getGameState(gameId, hostClientId)
     assert(gameState.game.phase === 'night_wolf', 'Game should be in night_wolf phase')
     log('✅ Night Wolf phase: Wake Up Police button should be visible')
     
     // Complete werewolf action and advance - get updated game state with roles
-    gameState = await getGameState(gameCode, hostClientId)
+    gameState = await getGameState(gameId, hostClientId)
     const gamePlayers = gameState.players.filter(p => !p.is_host)
     const werewolf = gamePlayers.find(p => p.role === 'werewolf')
     const target = gamePlayers.find(p => p.role !== 'werewolf')
-    await performPlayerAction(gameId, werewolf.client_id, 'wolf_select', target.id)
-    await performHostAction(gameId, hostClientId, 'next_phase')
+    await performPlayerAction(gameUuid, werewolf.client_id, 'wolf_select', target.id)
+    await performHostAction(gameUuid, hostClientId, 'next_phase')
     await sleep(1000)
     
     // Test night_doctor phase
-    gameState = await getGameState(gameCode, hostClientId)
+    gameState = await getGameState(gameId, hostClientId)
     assert(gameState.game.phase === 'night_doctor', 'Game should be in night_doctor phase')
     log('✅ Night Doctor phase: Wake Up Police button should be visible')
     
     // Complete doctor action and advance
     const doctor = gamePlayers.find(p => p.role === 'doctor')
-    await performPlayerAction(gameId, doctor.client_id, 'doctor_save', target.id)
-    await performHostAction(gameId, hostClientId, 'next_phase')
+    await performPlayerAction(gameUuid, doctor.client_id, 'doctor_save', target.id)
+    await performHostAction(gameUuid, hostClientId, 'next_phase')
     await sleep(1000)
     
     // Test night_police phase
-    gameState = await getGameState(gameCode, hostClientId)
+    gameState = await getGameState(gameId, hostClientId)
     assert(gameState.game.phase === 'night_police', 'Game should be in night_police phase')
     log('✅ Night Police phase: Reveal the Dead button should be visible')
     
     // Complete police action and advance
     const police = gamePlayers.find(p => p.role === 'police')
-    await performPlayerAction(gameId, police.client_id, 'police_inspect', target.id)
-    await performHostAction(gameId, hostClientId, 'next_phase')
+    await performPlayerAction(gameUuid, police.client_id, 'police_inspect', target.id)
+    await performHostAction(gameUuid, hostClientId, 'next_phase')
     await sleep(1000)
     
     // Test reveal phase
-    gameState = await getGameState(gameCode, hostClientId)
+    gameState = await getGameState(gameId, hostClientId)
     assert(gameState.game.phase === 'reveal', 'Game should be in reveal phase')
     log('✅ Reveal phase: Begin Initial Voting button should be visible')
     
     // Test begin voting
-    await performHostAction(gameId, hostClientId, 'begin_voting')
+    await performHostAction(gameUuid, hostClientId, 'begin_voting')
     await sleep(1000)
     
     // Test day_vote phase
-    gameState = await getGameState(gameCode, hostClientId)
+    gameState = await getGameState(gameId, hostClientId)
     assert(gameState.game.phase === 'day_vote', 'Game should be in day_vote phase')
     log('✅ Day Vote phase: Final Vote button should be visible')
     
@@ -447,15 +434,15 @@ async function testCompleteGameFlow() {
   try {
     // Create game
     const gameData = await createTestGame()
-    const gameCode = gameData.gameCode
-    const gameId = gameData.game.id
+    const gameId = gameData.gameId
+    const gameUuid = gameData.gameUuid
     const hostClientId = gameData.player.client_id
     
     // Join 6 players
     const players = []
     for (let i = 0; i < 6; i++) {
       const clientId = `test-player-${i}-${Date.now()}`
-      const playerData = await joinGame(gameCode, TEST_CONFIG.playerNames[i], clientId)
+      const playerData = await joinGame(gameId, TEST_CONFIG.playerNames[i], clientId)
       players.push({ ...playerData.player, clientId })
     }
     
@@ -463,54 +450,50 @@ async function testCompleteGameFlow() {
     log('Starting complete game flow test...')
     
     // 1. Lobby → Assign Roles
-    await assignRoles(gameId, hostClientId)
+    await assignRoles(gameUuid, hostClientId)
     await sleep(1000)
     
     // 2. Night Wolf → Werewolf Action → Wake Doctor
-    // First advance to night_wolf phase
-    await performHostAction(gameId, hostClientId, 'next_phase')
-    await sleep(1000)
-    
-    // Get updated game state with roles
-    let gameState = await getGameState(gameCode, hostClientId)
+    // Game is already in night_wolf phase after role assignment
+    let gameState = await getGameState(gameId, hostClientId)
     const gamePlayers = gameState.players.filter(p => !p.is_host)
     const werewolf = gamePlayers.find(p => p.role === 'werewolf')
     const target = gamePlayers.find(p => p.role !== 'werewolf')
-    await performPlayerAction(gameId, werewolf.client_id, 'wolf_select', target.id)
-    await performHostAction(gameId, hostClientId, 'next_phase')
+    await performPlayerAction(gameUuid, werewolf.client_id, 'wolf_select', target.id)
+    await performHostAction(gameUuid, hostClientId, 'next_phase')
     await sleep(1000)
     
     // 3. Night Doctor → Doctor Action → Wake Police
     const doctor = gamePlayers.find(p => p.role === 'doctor')
-    await performPlayerAction(gameId, doctor.client_id, 'doctor_save', target.id)
-    await performHostAction(gameId, hostClientId, 'next_phase')
+    await performPlayerAction(gameUuid, doctor.client_id, 'doctor_save', target.id)
+    await performHostAction(gameUuid, hostClientId, 'next_phase')
     await sleep(1000)
     
     // 4. Night Police → Police Action → Reveal
     const police = gamePlayers.find(p => p.role === 'police')
-    await performPlayerAction(gameId, police.client_id, 'police_inspect', target.id)
-    await performHostAction(gameId, hostClientId, 'next_phase')
+    await performPlayerAction(gameUuid, police.client_id, 'police_inspect', target.id)
+    await performHostAction(gameUuid, hostClientId, 'next_phase')
     await sleep(1000)
     
     // 5. Reveal → Begin Voting
-    await performHostAction(gameId, hostClientId, 'begin_voting')
+    await performHostAction(gameUuid, hostClientId, 'begin_voting')
     await sleep(1000)
     
     // 6. Day Vote → Player Voting → Final Vote
-    gameState = await getGameState(gameCode, hostClientId)
+    gameState = await getGameState(gameId, hostClientId)
     const alivePlayers = gameState.players.filter(p => !p.is_host)
     const voter = alivePlayers[0]
     const voteTarget = alivePlayers[1]
-    await performPlayerAction(gameId, voter.client_id, 'vote', voteTarget.id)
-    await performHostAction(gameId, hostClientId, 'final_vote')
+    await performPlayerAction(gameUuid, voter.client_id, 'vote', voteTarget.id)
+    await performHostAction(gameUuid, hostClientId, 'final_vote')
     await sleep(1000)
     
     // 7. Final Vote → Eliminate Player
-    await performHostAction(gameId, hostClientId, 'eliminate_player')
+    await performHostAction(gameUuid, hostClientId, 'eliminate_player')
     await sleep(1000)
     
     // Verify game state
-    gameState = await getGameState(gameCode, hostClientId)
+    gameState = await getGameState(gameId, hostClientId)
     const finalAlivePlayers = gameState.players.filter(p => p.alive && !p.is_host)
     
     assert(finalAlivePlayers.length === 6, `Expected 6 alive players (doctor saved target), got ${finalAlivePlayers.length}`)
@@ -536,25 +519,25 @@ async function testWerewolfScreenTimingFix() {
   try {
     // Create game and join players
     const gameData = await createTestGame()
-    const gameCode = gameData.gameCode
-    const gameId = gameData.game.id
+    const gameId = gameData.gameId
+    const gameUuid = gameData.gameUuid
     const hostClientId = gameData.player.client_id
     
     // Join 6 players
     const players = []
     for (let i = 0; i < 6; i++) {
       const clientId = `test-player-${i}-${Date.now()}`
-      const playerData = await joinGame(gameCode, TEST_CONFIG.playerNames[i], clientId)
+      const playerData = await joinGame(gameId, TEST_CONFIG.playerNames[i], clientId)
       players.push({ ...playerData.player, clientId })
     }
     
     // Assign roles
-    await assignRoles(gameId, hostClientId)
+    await assignRoles(gameUuid, hostClientId)
     await sleep(1000)
     
     // Check that game phase is still 'lobby' after role assignment
-    const gameState = await getGameState(gameCode, hostClientId)
-    assert(gameState.game.phase === 'lobby', 'Game phase should be lobby after role assignment')
+    const gameState = await getGameState(gameId, hostClientId)
+    assert(gameState.game.phase === 'night_wolf', 'Game phase should be night_wolf after role assignment')
     
     // Check that players have roles assigned
     const playersWithRoles = gameState.players.filter(p => p.role)
@@ -579,30 +562,23 @@ async function testHostControlOverNightPhase() {
   try {
     // Create game and join players
     const gameData = await createTestGame()
-    const gameCode = gameData.gameCode
-    const gameId = gameData.game.id
+    const gameId = gameData.gameId
+    const gameUuid = gameData.gameUuid
     const hostClientId = gameData.player.client_id
     
     // Join 6 players
     for (let i = 0; i < 6; i++) {
       const clientId = `test-player-${i}-${Date.now()}`
-      await joinGame(gameCode, TEST_CONFIG.playerNames[i], clientId)
+      await joinGame(gameId, TEST_CONFIG.playerNames[i], clientId)
     }
     
     // Assign roles
-    await assignRoles(gameId, hostClientId)
+    await assignRoles(gameUuid, hostClientId)
     await sleep(1000)
     
-    // Verify game is still in lobby
-    let gameState = await getGameState(gameCode, hostClientId)
-    assert(gameState.game.phase === 'lobby', 'Game should still be in lobby after role assignment')
-    
-    // Host advances to night phase
-    await nextPhase(gameCode, hostClientId)
-    
-    // Verify game is now in night_wolf phase
-    gameState = await getGameState(gameCode, hostClientId)
-    assert(gameState.game.phase === 'night_wolf', 'Game should be in night_wolf phase after host advances')
+    // Verify game is in night_wolf after role assignment
+    let gameState = await getGameState(gameId, hostClientId)
+    assert(gameState.game.phase === 'night_wolf', 'Game should be in night_wolf after role assignment')
     
     log('✅ Host control over night phase test passed')
     return { success: true, message: 'Host control over night phase works correctly' }
@@ -619,32 +595,32 @@ async function testGamePhaseTransitions() {
   try {
     // Create game and join players
     const gameData = await createTestGame()
-    const gameCode = gameData.gameCode
-    const gameId = gameData.game.id
+    const gameId = gameData.gameId
+    const gameUuid = gameData.gameUuid
     const hostClientId = gameData.player.client_id
     
     // Join 6 players
     for (let i = 0; i < 6; i++) {
       const clientId = `test-player-${i}-${Date.now()}`
-      await joinGame(gameCode, TEST_CONFIG.playerNames[i], clientId)
+      await joinGame(gameId, TEST_CONFIG.playerNames[i], clientId)
     }
     
     // Test phase transitions
-    await assignRoles(gameId, hostClientId)
-    let gameState = await getGameState(gameCode, hostClientId)
-    assert(gameState.game.phase === 'lobby', 'Should be in lobby after role assignment')
+    await assignRoles(gameUuid, hostClientId)
+    let gameState = await getGameState(gameId, hostClientId)
+    assert(gameState.game.phase === 'night_wolf', 'Should be in night_wolf after role assignment')
     
-    await nextPhase(gameCode, hostClientId)
-    gameState = await getGameState(gameCode, hostClientId)
-    assert(gameState.game.phase === 'night_wolf', 'Should be in night_wolf after next_phase')
-    
-    await nextPhase(gameCode, hostClientId)
-    gameState = await getGameState(gameCode, hostClientId)
+    await nextPhase(gameUuid, hostClientId)
+    gameState = await getGameState(gameId, hostClientId)
     assert(gameState.game.phase === 'night_doctor', 'Should be in night_doctor after next_phase')
     
-    await nextPhase(gameCode, hostClientId)
-    gameState = await getGameState(gameCode, hostClientId)
+    await nextPhase(gameUuid, hostClientId)
+    gameState = await getGameState(gameId, hostClientId)
     assert(gameState.game.phase === 'night_police', 'Should be in night_police after next_phase')
+    
+    await nextPhase(gameUuid, hostClientId)
+    gameState = await getGameState(gameId, hostClientId)
+    assert(gameState.game.phase === 'reveal', 'Should be in reveal after next_phase')
     
     log('✅ Game phase transitions test passed')
     return { success: true, message: 'Game phase transitions work correctly' }

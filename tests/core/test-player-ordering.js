@@ -32,8 +32,8 @@ async function testPlayerOrdering() {
     }
     
     const hostData = await hostResponse.json()
-    const gameCode = hostData.game.code
-    console.log(`✅ Game created with code: ${gameCode}`)
+    const gameId = hostData.game.code
+    console.log(`✅ Game created with code: ${gameId}`)
     
     // Test 2: Join as multiple players
     console.log('📝 Test 2: Joining as multiple players...')
@@ -51,7 +51,7 @@ async function testPlayerOrdering() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          gameCode: gameCode,
+          gameId: gameId,
           playerName: player.name,
           clientId: player.clientId
         })
@@ -85,12 +85,12 @@ async function testPlayerOrdering() {
     console.log('📝 Test 4: Verifying player ordering...')
     
     // Get game data from host perspective
-    const hostGameData = await fetch(`${BASE_URL}/api/games?code=${gameCode}`, {
+    const hostGameData = await fetch(`${BASE_URL}/api/games?code=${gameId}`, {
       headers: { 'Cookie': `clientId=host-client-123` }
     }).then(r => r.json())
     
     // Get game data from player1 perspective
-    const player1GameData = await fetch(`${BASE_URL}/api/games?code=${gameCode}`, {
+    const player1GameData = await fetch(`${BASE_URL}/api/games?code=${gameId}`, {
       headers: { 'Cookie': `clientId=player1-client-456` }
     }).then(r => r.json())
     
@@ -124,7 +124,7 @@ async function testPlayerOrdering() {
       console.log(`🔧 Simulating death of player: ${playerToKill.name}`)
       
       // Get updated game data
-      const updatedGameData = await fetch(`${BASE_URL}/api/games?code=${gameCode}`, {
+      const updatedGameData = await fetch(`${BASE_URL}/api/games?code=${gameId}`, {
         headers: { 'Cookie': `clientId=host-client-123` }
       }).then(r => r.json())
       

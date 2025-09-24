@@ -2,7 +2,7 @@ const BASE_URL = process.env.BASE_URL || 'http://localhost:3001'
 
 class MultipleActionsPreventionTest {
   constructor() {
-    this.gameCode = null
+    this.gameId = null
     this.gameId = null
     this.hostClientId = null
     this.werwolfPlayerId = null
@@ -34,10 +34,9 @@ class MultipleActionsPreventionTest {
         clientId: 'multiple-actions-test-host-' + Date.now()
       })
     })
-    this.gameCode = hostResponse.gameCode
-    this.gameId = hostResponse.game.id
+    this.gameId = hostResponse.gameId     this.gameId = hostResponse.game.id
     this.hostClientId = hostResponse.player.client_id
-    console.log(`✅ Game created: ${this.gameCode}`)
+    console.log(`✅ Game created: ${this.gameId}`)
 
     console.log('📝 Step 2: Adding 6 players...')
     for (let i = 1; i <= 6; i++) {
@@ -45,7 +44,7 @@ class MultipleActionsPreventionTest {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          gameCode: this.gameCode,
+          gameId: this.gameId,
           playerName: `MultipleActionsPlayer${i}`,
           clientId: `multiple-actions-player-${i}-${Date.now()}`
         })
@@ -68,7 +67,7 @@ class MultipleActionsPreventionTest {
     console.log('✅ Roles assigned')
 
     // Fetch game state to find the players with roles (using host cookie to see all roles)
-    const gameState = await fetch(`${BASE_URL}/api/games?code=${this.gameCode}`, {
+    const gameState = await fetch(`${BASE_URL}/api/games?code=${this.gameId}`, {
       headers: { 'Cookie': `clientId=${this.hostClientId}` }
     }).then(r => r.json())
     const werwolfPlayer = gameState.players.find(p => p.role === 'werwolf' || p.role === 'werewolf')
@@ -101,7 +100,7 @@ class MultipleActionsPreventionTest {
     console.log('✅ Host started werwolf phase')
 
     // Get game state to find targets
-    const gameState = await fetch(`${BASE_URL}/api/games?code=${this.gameCode}`, {
+    const gameState = await fetch(`${BASE_URL}/api/games?code=${this.gameId}`, {
       headers: { 'Cookie': `clientId=${this.hostClientId}` }
     }).then(r => r.json())
     const targets = gameState.players.filter(p => p.id !== this.werwolfPlayerId && !p.is_host && p.alive)
@@ -166,7 +165,7 @@ class MultipleActionsPreventionTest {
     console.log('✅ Host started doctor phase')
 
     // Get game state to find targets
-    const gameState = await fetch(`${BASE_URL}/api/games?code=${this.gameCode}`, {
+    const gameState = await fetch(`${BASE_URL}/api/games?code=${this.gameId}`, {
       headers: { 'Cookie': `clientId=${this.hostClientId}` }
     }).then(r => r.json())
     const targets = gameState.players.filter(p => p.id !== this.doctorPlayerId && !p.is_host && p.alive)
@@ -231,7 +230,7 @@ class MultipleActionsPreventionTest {
     console.log('✅ Host started police phase')
 
     // Get game state to find targets
-    const gameState = await fetch(`${BASE_URL}/api/games?code=${this.gameCode}`, {
+    const gameState = await fetch(`${BASE_URL}/api/games?code=${this.gameId}`, {
       headers: { 'Cookie': `clientId=${this.hostClientId}` }
     }).then(r => r.json())
     const targets = gameState.players.filter(p => p.id !== this.policePlayerId && !p.is_host && p.alive)

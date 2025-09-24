@@ -42,7 +42,7 @@ async function testWerwolfRoleDisplay() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          gameCode: gameData.game.code,
+          gameId: gameData.game.code,
           playerName: `Player${i}`,
           clientId: `player-${i}-test-123`
         })

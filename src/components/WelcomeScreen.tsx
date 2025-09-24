@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useAtom } from 'jotai'
 import { 
-  gameCodeAtom, 
+  gameIdAtom, 
   playerNameAtom, 
   resetGameAtom,
   clientIdAtom 
@@ -12,11 +12,11 @@ import { Copy } from 'lucide-react'
 
 interface WelcomeScreenProps {
   onStartGame: () => void
-  onJoinGame: (gameCode: string, playerName: string) => void
+  onJoinGame: (gameId: string, playerName: string) => void
 }
 
 export default function WelcomeScreen({ onStartGame, onJoinGame }: WelcomeScreenProps) {
-  const [gameCode] = useAtom(gameCodeAtom)
+  const [gameId] = useAtom(gameIdAtom)
   const [playerName, setPlayerName] = useAtom(playerNameAtom)
   const [, resetGame] = useAtom(resetGameAtom)
   const [clientId, setClientId] = useAtom(clientIdAtom)
@@ -33,7 +33,7 @@ export default function WelcomeScreen({ onStartGame, onJoinGame }: WelcomeScreen
 
   const handleCopyCode = async () => {
     try {
-      await navigator.clipboard.writeText(gameCode)
+      await navigator.clipboard.writeText(gameId)
       setCopySuccess(true)
       setTimeout(() => setCopySuccess(false), 2000)
     } catch (err) {
@@ -424,13 +424,13 @@ export default function WelcomeScreen({ onStartGame, onJoinGame }: WelcomeScreen
           </div>
 
           {/* Game Code Display */}
-          {gameCode && (
+          {gameId && (
             <div className="bg-slate-800/80 backdrop-blur-sm rounded-lg p-4 border border-slate-600/30 shadow-lg">
               <div className="text-center">
                 <p className="text-sm text-gray-400 mb-2">Game Code</p>
                 <div className="flex items-center justify-center space-x-2">
                   <span className="text-2xl font-mono font-bold text-white">
-                    {gameCode}
+                    {gameId}
                   </span>
                   <button
                     onClick={handleCopyCode}

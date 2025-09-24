@@ -1,12 +1,12 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { useAtom } from 'jotai'
 import { 
   gameAtom, 
   playersAtom, 
   currentPlayerAtom, 
-  gameCodeAtom, 
+  gameIdAtom, 
   playerNameAtom, 
   clientIdAtom,
   setGameDataAtom,
@@ -27,7 +27,7 @@ export default function HomePage() {
   const [game] = useAtom(gameAtom)
   const [players] = useAtom(playersAtom)
   const [currentPlayer] = useAtom(currentPlayerAtom)
-  const [, setGameCode] = useAtom(gameCodeAtom)
+  const [, setGameId] = useAtom(gameIdAtom)
   const [playerName, setPlayerName] = useAtom(playerNameAtom)
   const [clientId, setClientId] = useAtom(clientIdAtom)
   const [, setGameData] = useAtom(setGameDataAtom)
@@ -145,7 +145,7 @@ export default function HomePage() {
     if (savedGameCode && savedPlayerName && savedClientId) {
       // Check if the saved client ID is from the current browser
       if (isClientIdFromCurrentBrowser(savedClientId)) {
-        setGameCode(savedGameCode)
+        setGameId(savedGameCode)
         setPlayerName(savedPlayerName)
         setClientId(savedClientId)
         
@@ -168,18 +168,101 @@ export default function HomePage() {
     }
   }, []) // Only run once on mount
 
-  // Enable real-time sync when we have a game - only call when gameCode exists
-  const gameCode = game?.code || null
+  // Enable real-time sync when we have a game - only call when gameId exists
+  const gameId = game?.code || null
   if (process.env.NODE_ENV === 'development') {
     console.log('🔧 Current game atom:', game)
-    console.log('🔧 gameCode:', gameCode)
+    console.log('🔧 gameId:', gameId)
   }
   
   // Re-enabled real-time sync - fixed infinite loop
-  useRealtimeSync(gameCode, () => {
+  useRealtimeSync(gameId, () => {
     // Game ended - redirect to welcome page
     setGameState('welcome')
   })
+
+  // Auto-detect and process API responses
+  useEffect(() => {
+    const checkForGameUpdates = async () => {
+      // Check if there's a game code in localStorage that we haven't processed
+      const savedGameCode = localStorage.getItem('werwolf-game-code')
+      if (savedGameCode && savedGameCode !== gameId) {
+        console.log('🔧 Found saved game code:', savedGameCode, 'Current gameId:', gameId)
+        
+        try {
+          // Fetch game data by code
+          const gameResponse = await fetch(`/api/games?code=${savedGameCode}`)
+          if (gameResponse.ok) {
+            const gameData = await gameResponse.json()
+            console.log('🔧 Auto-fetched game data:', gameData)
+            
+            // Set the game data in the atom
+            setGameData({
+              game: gameData.game,
+              players: gameData.players || [],
+              currentPlayer: gameData.currentPlayer
+            })
+            
+            // Set the gameId atom
+            setGameId(savedGameCode)
+            
+            // Update game state
+            setGameState('lobby')
+            
+            console.log('🔧 Game data auto-set from saved game code')
+          }
+        } catch (error) {
+          console.error('Error auto-setting game data:', error)
+        }
+      }
+    }
+
+    // Check for updates every 2 seconds
+    const interval = setInterval(checkForGameUpdates, 2000)
+    
+    // Also check immediately
+    checkForGameUpdates()
+    
+    return () => clearInterval(interval)
+  }, [gameId, setGameData, setGameId, setGameState])
+
+  // Global function to set game data from API responses (for manual testing)
+  const setGameDataFromAPI = useCallback(async (gameId: string) => {
+    try {
+      console.log('🔧 setGameDataFromAPI called with gameId:', gameId)
+      
+      // Fetch game data by code
+      const gameResponse = await fetch(`/api/games?code=${gameId}`)
+      if (gameResponse.ok) {
+        const gameData = await gameResponse.json()
+        console.log('🔧 API Game data fetched:', gameData)
+        
+        // Set the game data in the atom
+        setGameData({
+          game: gameData.game,
+          players: gameData.players || [],
+          currentPlayer: gameData.currentPlayer
+        })
+        
+        // Set the gameId atom
+        setGameId(gameId)
+        
+        // Update game state
+        setGameState('lobby')
+        
+        console.log('🔧 Game data set from API response')
+      }
+    } catch (error) {
+      console.error('Error setting game data from API:', error)
+    }
+  }, [setGameData, setGameId, setGameState])
+
+  // Make setGameDataFromAPI available globally (for testing)
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      (window as any).setGameDataFromAPI = setGameDataFromAPI
+    }
+  }, [setGameDataFromAPI])
 
   // Generate browser-specific client ID if not exists
   useEffect(() => {
@@ -260,10 +343,10 @@ export default function HomePage() {
       const data = await response.json()
       
       // Fetch all players in the game to get complete list
-      if (!data.gameCode || data.gameCode === '1' || data.gameCode.length < 6) {
+      if (!data.gameId || data.gameId === '1' || data.gameId.length < 6) {
         throw new Error('Invalid game code received from server')
       }
-      const gameResponse = await fetch(`/api/games?code=${data.gameCode}`)
+      const gameResponse = await fetch(`/api/games?code=${data.gameId}`)
       if (process.env.NODE_ENV === 'development') {
         console.log('🔧 Game response status:', gameResponse.status, 'ok:', gameResponse.ok)
       }
@@ -282,14 +365,17 @@ export default function HomePage() {
           currentPlayer: data.player
         })
         
+        // Ensure game.code is set to the gameId
+        const gameWithCode = { ...data.game, code: data.gameId }
+        
         setGameData({
-          game: data.game,
+          game: gameWithCode,
           players: gameData.players || [data.player],
           currentPlayer: data.player
         })
         
         // Debug: Check if game atom was set
-        console.log('🔧 After setGameData - game atom should be set to:', data.game)
+        console.log('🔧 After setGameData - game atom should be set to:', gameWithCode)
       } else {
         // Fallback to just the host if we can't fetch all players
         if (process.env.NODE_ENV === 'development') {
@@ -306,20 +392,23 @@ export default function HomePage() {
           currentPlayer: data.player
         })
         
+        // Ensure game.code is set to the gameId
+        const gameWithCode = { ...data.game, code: data.gameId }
+        
         setGameData({
-          game: data.game,
+          game: gameWithCode,
           players: [data.player],
           currentPlayer: data.player
         })
         
-        console.log('🔧 After setGameData (fallback) - game atom should be set to:', data.game)
+        console.log('🔧 After setGameData (fallback) - game atom should be set to:', gameWithCode)
       }
       
-      setGameCode(data.gameCode)
+      setGameId(data.gameId)
       setGameState('lobby')
       
       // Save state to localStorage
-      localStorage.setItem('werwolf-game-code', data.gameCode)
+      localStorage.setItem('werwolf-game-code', data.gameId)
       localStorage.setItem('werwolf-player-name', playerName.trim())
       localStorage.setItem('werwolf-client-id', clientId)
       saveGameState('lobby')
@@ -344,7 +433,7 @@ export default function HomePage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          gameCode: code,
+          gameId: code,
           playerName: joinPlayerName.trim(),
           clientId
         }),
@@ -358,13 +447,16 @@ export default function HomePage() {
       const joinData = await joinResponse.json()
       
       // Set game data with all players from the join response
+      // Ensure game.code is set to the gameId
+      const gameWithCode = { ...joinData.game, code: code }
+      
       setGameData({
-        game: joinData.game,
+        game: gameWithCode,
         players: joinData.players || [joinData.player],
         currentPlayer: joinData.player
       })
       
-      setGameCode(code)
+      setGameId(code)
       setGameState('lobby')
       
       // Save state to localStorage
@@ -602,7 +694,7 @@ export default function HomePage() {
     // Debug logging
     if (process.env.NODE_ENV === 'development') {
       console.log('🔧 Remove Player Debug:', {
-        gameCode: game.code,
+        gameId: game.code,
         currentPlayerId: currentPlayer.id,
         currentPlayerName: currentPlayer.name,
         isHost: currentPlayer.is_host,
@@ -680,7 +772,7 @@ export default function HomePage() {
     const isHost = currentPlayer.client_id === game.host_client_id
     if (!isHost) return
     
-    console.log('🔧 Frontend: handleAssignRoles called', { gameCode: game.code, hostClientId: game.host_client_id, currentPlayerClientId: currentPlayer.client_id })
+    console.log('🔧 Frontend: handleAssignRoles called', { gameId: game.code, hostClientId: game.host_client_id, currentPlayerClientId: currentPlayer.client_id })
     
     setIsLoading(true)
     setError(null)

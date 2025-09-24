@@ -8,8 +8,11 @@ export const roundStateAtom = atom<RoundState | null>(null)
 export const votesAtom = atom<Vote[]>([])
 export const leaveRequestsAtom = atom<LeaveRequest[]>([])
 export const currentPlayerAtom = atom<Player | null>(null)
-export const isHostAtom = atom<boolean>(false)
-export const gameCodeAtom = atom<string>('')
+export const isHostAtom = atom((get) => {
+  const currentPlayer = get(currentPlayerAtom)
+  return currentPlayer?.is_host || false
+})
+export const gameIdAtom = atom<string>('')
 export const playerNameAtom = atom<string>('')
 export const clientIdAtom = atom<string>('')
 
@@ -120,8 +123,8 @@ export const resetGameAtom = atom(null, (get, set) => {
   set(votesAtom, [])
   set(leaveRequestsAtom, [])
   set(currentPlayerAtom, null)
-  set(isHostAtom, false)
-  set(gameCodeAtom, '')
+  // isHostAtom is now a derived atom, so it will automatically update
+  set(gameIdAtom, '')
   set(playerNameAtom, '')
 })
 
@@ -207,42 +210,10 @@ export const setGameDataAtom = atom(null, (get, set, data: {
     }
   }
   
-  // FORCE UPDATE: Always set gameAtom if data.game exists
-  if (data.game && data.game.id) {
-    if (process.env.NODE_ENV === 'development') {
-      console.log('🔧 FORCE UPDATE: Setting gameAtom to:', data.game)
-    }
-    set(gameAtom, data.game)
-  }
-  
-  // CRITICAL FIX: Always update gameAtom when setGameData is called
+  // Always update gameAtom when data.game exists
   if (data.game) {
     if (process.env.NODE_ENV === 'development') {
-      console.log('🔧 CRITICAL FIX: Force updating gameAtom with:', data.game)
-    }
-    set(gameAtom, data.game)
-  }
-  
-  // ULTIMATE FIX: Force update gameAtom regardless of conditions
-  if (data.game && data.game.id) {
-    if (process.env.NODE_ENV === 'development') {
-      console.log('🔧 ULTIMATE FIX: Force updating gameAtom with:', data.game)
-    }
-    set(gameAtom, data.game)
-  }
-  
-  // FINAL FIX: Always update gameAtom when setGameData is called
-  if (data.game) {
-    if (process.env.NODE_ENV === 'development') {
-      console.log('🔧 FINAL FIX: Force updating gameAtom with:', data.game)
-    }
-    set(gameAtom, data.game)
-  }
-  
-  // ULTIMATE FIX: Force update gameAtom regardless of conditions
-  if (data.game && data.game.id) {
-    if (process.env.NODE_ENV === 'development') {
-      console.log('🔧 ULTIMATE FIX: Force updating gameAtom with:', data.game)
+      console.log('🔧 Setting gameAtom to:', data.game)
     }
     set(gameAtom, data.game)
   }
@@ -291,12 +262,10 @@ export const setGameDataAtom = atom(null, (get, set, data: {
       if (process.env.NODE_ENV === 'development') console.log('🔧 Current player changed, updating currentPlayerAtom')
       set(currentPlayerAtom, data.currentPlayer)
       set(playerNameAtom, data.currentPlayer.name)
-      const isHost = data.currentPlayer.is_host || false
-      if (process.env.NODE_ENV === 'development') console.log('🔧 setGameDataAtom - Setting isHostAtom to:', isHost, 'for player:', data.currentPlayer.name)
-      set(isHostAtom, isHost)
+      // isHostAtom is now a derived atom, so it will automatically update
     } else {
-      if (process.env.NODE_ENV === 'development') console.log('🔧 No current player, setting isHostAtom to false')
-      set(isHostAtom, false)
+      if (process.env.NODE_ENV === 'development') console.log('🔧 No current player, clearing currentPlayerAtom')
+      set(currentPlayerAtom, null)
     }
   }
   

@@ -118,6 +118,15 @@ export default function HostControls({ onEndGame }: HostControlsProps) {
       case 'assign_roles':
         return 'Assign Roles & Start Game'
       case 'next_phase':
+        // After role assignment, game stays in lobby phase and host can start night phases
+        if (gamePhase === 'lobby') {
+          // Check if roles have been assigned (players have roles)
+          const playersWithRoles = game?.players?.filter(p => p.role && !p.is_host) || []
+          if (playersWithRoles.length > 0) {
+            return 'Wake Up Werwolf'
+          }
+        }
+        
         // Show specific phase-based labels for night actions
         if (gamePhase === 'night_wolf') {
           if (!roundState?.phase_started) {
@@ -165,6 +174,13 @@ export default function HostControls({ onEndGame }: HostControlsProps) {
       case 'assign_roles':
         return gamePhase === 'lobby'
       case 'next_phase':
+        // After role assignment, game stays in lobby phase and host can start night phases
+        if (gamePhase === 'lobby') {
+          // Check if roles have been assigned (players have roles)
+          const playersWithRoles = game?.players?.filter(p => p.role && !p.is_host) || []
+          return playersWithRoles.length > 0
+        }
+        
         if (!isNightPhase) return false
         
         // For night phases, check if phase has been started and action completed

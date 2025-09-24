@@ -2,7 +2,6 @@ const BASE_URL = process.env.BASE_URL || 'http://localhost:3000'
 
 class ActionVisibilityTest {
   constructor() {
-    this.gameCode = null
     this.gameId = null
     this.hostClientId = null
     this.werwolfPlayerId = null
@@ -34,10 +33,9 @@ class ActionVisibilityTest {
         clientId: 'action-visibility-test-host-' + Date.now()
       })
     })
-    this.gameCode = hostResponse.gameCode
-    this.gameId = hostResponse.game.id
+    this.gameId = hostResponse.gameId
     this.hostClientId = hostResponse.player.client_id
-    console.log(`✅ Game created: ${this.gameCode}`)
+    console.log(`✅ Game created: ${this.gameId}`)
 
     console.log('📝 Step 2: Adding 6 players...')
     for (let i = 1; i <= 6; i++) {
@@ -45,7 +43,7 @@ class ActionVisibilityTest {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          gameCode: this.gameCode,
+          gameId: this.gameId,
           playerName: `ActionVisibilityPlayer${i}`,
           clientId: `action-visibility-player-${i}-${Date.now()}`
         })
@@ -68,7 +66,7 @@ class ActionVisibilityTest {
     console.log('✅ Roles assigned')
 
     // Fetch game state to find the players with roles (use host cookie to see all roles)
-    const gameState = await this.makeRequest(`${BASE_URL}/api/games?code=${this.gameCode}`, {
+    const gameState = await this.makeRequest(`${BASE_URL}/api/games?code=${this.gameId}`, {
       headers: { 'Cookie': `clientId=${this.hostClientId}` }
     })
     const werwolfPlayer = gameState.players.find(p => p.role === 'werwolf' || p.role === 'werewolf')
@@ -100,7 +98,7 @@ class ActionVisibilityTest {
       })
     })
 
-    const gameState = await this.makeRequest(`${BASE_URL}/api/games?code=${this.gameCode}`, {
+    const gameState = await this.makeRequest(`${BASE_URL}/api/games?code=${this.gameId}`, {
       headers: { 'Cookie': `clientId=${this.hostClientId}` }
     })
     const targets = gameState.players.filter(p => p.id !== this.werwolfPlayerId && !p.is_host && p.alive)
@@ -118,7 +116,7 @@ class ActionVisibilityTest {
     })
 
     // Check if host can see the werwolf action
-    const hostView = await this.makeRequest(`${BASE_URL}/api/games?code=${this.gameCode}`, {
+    const hostView = await this.makeRequest(`${BASE_URL}/api/games?code=${this.gameId}`, {
       headers: { 'Cookie': `clientId=${this.hostClientId}` }
     })
 
@@ -153,7 +151,7 @@ class ActionVisibilityTest {
     })
 
     // Check if host can see the doctor action
-    const hostView2 = await this.makeRequest(`${BASE_URL}/api/games?code=${this.gameCode}`, {
+    const hostView2 = await this.makeRequest(`${BASE_URL}/api/games?code=${this.gameId}`, {
       headers: { 'Cookie': `clientId=${this.hostClientId}` }
     })
 
@@ -188,7 +186,7 @@ class ActionVisibilityTest {
     })
 
     // Check if host can see the police action
-    const hostView3 = await this.makeRequest(`${BASE_URL}/api/games?code=${this.gameCode}`, {
+    const hostView3 = await this.makeRequest(`${BASE_URL}/api/games?code=${this.gameId}`, {
       headers: { 'Cookie': `clientId=${this.hostClientId}` }
     })
 
@@ -199,7 +197,7 @@ class ActionVisibilityTest {
 
     // Step 4d: Verify all actions are visible to host
     console.log('📝 Step 4d: Verifying all actions are visible to host...')
-    const finalHostView = await this.makeRequest(`${BASE_URL}/api/games?code=${this.gameCode}`, {
+    const finalHostView = await this.makeRequest(`${BASE_URL}/api/games?code=${this.gameId}`, {
       headers: { 'Cookie': `clientId=${this.hostClientId}` }
     })
 

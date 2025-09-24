@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Browser GameId Setting</title>
+</head>
+<body>
+    <h1>Test Browser GameId Setting</h1>
+    <div id="status">Loading...</div>
+    <button id="testButton" onclick="testGameIdSetting()">Test GameId Setting</button>
+    <div id="results"></div>
+
+    <script>
+        async function testGameIdSetting() {
+            const statusDiv = document.getElementById('status');
+            const resultsDiv = document.getElementById('results');
+            
+            try {
+                statusDiv.textContent = 'Testing...';
+                
+                // Step 1: Create a game via API
+                console.log('1. Creating game via API...');
+                const createResponse = await fetch('/api/games', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        hostName: 'BrowserTestHost',
+                        clientId: 'browser-test-client-' + Date.now()
+                    })
+                });
+                
+                if (!createResponse.ok) {
+                    throw new Error(`Failed to create game: ${createResponse.status}`);
+                }
+                
+                const createData = await createResponse.json();
+                console.log('✅ Game created:', createData.gameId);
+                
+                // Step 2: Wait for the global function to be available
+                console.log('2. Waiting for setGameDataFromAPI function...');
+                let attempts = 0;
+                while (attempts < 50 && !window.setGameDataFromAPI) {
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                    attempts++;
+                }
+                
+                if (!window.setGameDataFromAPI) {
+                    throw new Error('setGameDataFromAPI function not available');
+                }
+                
+                console.log('✅ setGameDataFromAPI function found');
+                
+                // Step 3: Call the global function to set game data
+                console.log('3. Calling setGameDataFromAPI...');
+                await window.setGameDataFromAPI(createData.gameId);
+                
+                console.log('✅ setGameDataFromAPI called successfully');
+                
+                // Step 4: Verify that the gameId is now set
+                console.log('4. Verifying gameId is set...');
+                // Check if the page has updated to show the game
+                const gameElements = document.querySelectorAll('[data-testid="game-screen"]');
+                if (gameElements.length > 0) {
+                    console.log('✅ Game screen is now visible');
+                    resultsDiv.innerHTML = '<p style="color: green;">✅ SUCCESS: GameId was set and UI updated!</p>';
+                } else {
+                    console.log('⚠️ Game screen not visible, but function was called');
+                    resultsDiv.innerHTML = '<p style="color: orange;">⚠️ PARTIAL: Function called but UI not updated</p>';
+                }
+                
+                statusDiv.textContent = 'Test completed';
+                
+            } catch (error) {
+                console.error('❌ Test failed:', error);
+                statusDiv.textContent = 'Test failed';
+                resultsDiv.innerHTML = `<p style="color: red;">❌ FAILED: ${error.message}</p>`;
+            }
+        }
+        
+        // Auto-run test when page loads
+        window.addEventListener('load', () => {
+            document.getElementById('status').textContent = 'Ready to test';
+        });
+    </script>
+</body>
+</html>

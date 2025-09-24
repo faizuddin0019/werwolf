@@ -31,8 +31,8 @@ async function testRoleVisibility() {
     }
     
     const hostData = await hostResponse.json()
-    const gameCode = hostData.game.code
-    console.log(`✅ Game created with code: ${gameCode}`)
+    const gameId = hostData.game.code
+    console.log(`✅ Game created with code: ${gameId}`)
     
     // Test 2: Join as player 1 (will be assigned werewolf)
     console.log('📝 Test 2: Joining as player 1...')
@@ -40,7 +40,7 @@ async function testRoleVisibility() {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        gameCode: gameCode,
+        gameId: gameId,
         playerName: 'WerewolfPlayer',
         clientId: 'player1-client-456'
       })
@@ -56,7 +56,7 @@ async function testRoleVisibility() {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        gameCode: gameCode,
+        gameId: gameId,
         playerName: 'DoctorPlayer',
         clientId: 'player2-client-789'
       })
@@ -72,7 +72,7 @@ async function testRoleVisibility() {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        gameCode: gameCode,
+        gameId: gameId,
         playerName: 'PolicePlayer',
         clientId: 'player3-client-101'
       })
@@ -88,7 +88,7 @@ async function testRoleVisibility() {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        gameCode: gameCode,
+        gameId: gameId,
         playerName: 'VillagerPlayer1',
         clientId: 'player4-client-112'
       })
@@ -104,7 +104,7 @@ async function testRoleVisibility() {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        gameCode: gameCode,
+        gameId: gameId,
         playerName: 'VillagerPlayer2',
         clientId: 'player5-client-113'
       })
@@ -120,7 +120,7 @@ async function testRoleVisibility() {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        gameCode: gameCode,
+        gameId: gameId,
         playerName: 'VillagerPlayer3',
         clientId: 'player6-client-114'
       })
@@ -152,13 +152,13 @@ async function testRoleVisibility() {
     
     // Get game data for each player to check what they can see
     const gameDataResponses = await Promise.all([
-      fetch(`${BASE_URL}/api/games?code=${gameCode}`, {
+      fetch(`${BASE_URL}/api/games?code=${gameId}`, {
         headers: { 'Cookie': `clientId=host-client-123` }
       }),
-      fetch(`${BASE_URL}/api/games?code=${gameCode}`, {
+      fetch(`${BASE_URL}/api/games?code=${gameId}`, {
         headers: { 'Cookie': `clientId=player1-client-456` }
       }),
-      fetch(`${BASE_URL}/api/games?code=${gameCode}`, {
+      fetch(`${BASE_URL}/api/games?code=${gameId}`, {
         headers: { 'Cookie': `clientId=player2-client-789` }
       })
     ])

@@ -28,19 +28,19 @@ export async function POST(request: NextRequest) {
     console.log('✅ API: Request validation passed')
     
     // Generate unique game code
-    let gameCode: string
+    let gameId: string
     let attempts = 0
     const maxAttempts = 5
     
     do {
-      gameCode = generateGameCode()
+      gameId = generateGameCode()
       attempts++
       
       // Check if code already exists today
       const { data: existingGame } = await supabase
         .from('games')
         .select('id')
-        .eq('code', gameCode)
+        .eq('code', gameId)
         .gte('created_at', new Date().toISOString().split('T')[0])
         .single()
       
@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
     const { data: game, error: gameError } = await supabase
       .from('games')
       .insert({
-        code: gameCode,
+        code: gameId,
         host_client_id: clientId,
         phase: 'lobby'
       })
@@ -99,7 +99,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       game,
       player: hostPlayer,
-      gameCode
+      gameId
     })
     
   } catch (error) {

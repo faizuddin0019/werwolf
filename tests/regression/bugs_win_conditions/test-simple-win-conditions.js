@@ -9,7 +9,7 @@ const BASE_URL = process.env.TEST_BASE_URL || 'http://localhost:3001'
 
 class SimpleWinConditionsTest {
   constructor() {
-    this.gameCode = null
+    this.gameId = null
     this.gameId = null
     this.hostClientId = null
   }
@@ -36,10 +36,9 @@ class SimpleWinConditionsTest {
       })
     })
     
-    this.gameCode = hostResponse.gameCode
-    this.gameId = hostResponse.game.id
+    this.gameId = hostResponse.gameId     this.gameId = hostResponse.game.id
     this.hostClientId = hostResponse.player.client_id
-    console.log(`✅ Game created: ${this.gameCode}`)
+    console.log(`✅ Game created: ${this.gameId}`)
 
     // Add 6 players
     for (let i = 1; i <= 6; i++) {
@@ -47,7 +46,7 @@ class SimpleWinConditionsTest {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          gameCode: this.gameCode,
+          gameId: this.gameId,
           playerName: `Player${i}`,
           clientId: `simple-player-${i}-${Date.now()}`
         })
@@ -72,7 +71,7 @@ class SimpleWinConditionsTest {
     
     // Test 1: Check initial state
     console.log('📝 Test 1: Checking initial game state...')
-    const initialState = await this.makeRequest(`${BASE_URL}/api/games?code=${this.gameCode}`, {
+    const initialState = await this.makeRequest(`${BASE_URL}/api/games?code=${this.gameId}`, {
       headers: { 'Cookie': `clientId=${this.hostClientId}` }
     })
     
@@ -106,7 +105,7 @@ class SimpleWinConditionsTest {
     console.log('✅ Game started')
     
     // Get game state and find werewolf
-    const gameState = await this.makeRequest(`${BASE_URL}/api/games?code=${this.gameCode}`, {
+    const gameState = await this.makeRequest(`${BASE_URL}/api/games?code=${this.gameId}`, {
       headers: { 'Cookie': `clientId=${this.hostClientId}` }
     })
     
@@ -193,7 +192,7 @@ class SimpleWinConditionsTest {
     
     // Test 3: Check win conditions after one cycle
     console.log('📝 Test 3: Checking win conditions after one cycle...')
-    const cycleState = await this.makeRequest(`${BASE_URL}/api/games?code=${this.gameCode}`, {
+    const cycleState = await this.makeRequest(`${BASE_URL}/api/games?code=${this.gameId}`, {
       headers: { 'Cookie': `clientId=${this.hostClientId}` }
     })
     

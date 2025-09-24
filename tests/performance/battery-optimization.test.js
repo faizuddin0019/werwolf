@@ -10,7 +10,7 @@ const BASE_URL = process.env.TEST_URL || 'http://localhost:3000'
 class BatteryOptimizationTests {
   constructor() {
     this.results = []
-    this.gameCode = null
+    this.gameId = null
     this.hostClientId = null
     this.playerClientIds = []
   }
@@ -59,18 +59,18 @@ class BatteryOptimizationTests {
       })
     })
     
-    this.gameCode = hostResponse.gameCode
-    this.gameId = hostResponse.game.id
+    this.gameId = hostResponse.gameId
+    this.gameUuid = hostResponse.game.id
     this.hostClientId = hostResponse.player.client_id
     
-    console.log(`✅ Game created with code: ${this.gameCode}`)
+    console.log(`✅ Game created with code: ${this.gameId}`)
     
     // Add 6 players (minimum required)
     for (let i = 1; i <= 6; i++) {
       const playerResponse = await this.makeRequest(`${BASE_URL}/api/games/join`, {
         method: 'POST',
         body: JSON.stringify({
-          gameCode: this.gameCode,
+          gameId: this.gameId,
           playerName: `Player${i}`,
           clientId: `test-player-${i}-${Date.now()}`
         })
@@ -87,7 +87,7 @@ class BatteryOptimizationTests {
     console.log('\n⚡ Testing debounced updates...')
     
     // Start the game
-    const startResponse = await this.makeRequest(`${BASE_URL}/api/games/${this.gameId}/actions`, {
+    const startResponse = await this.makeRequest(`${BASE_URL}/api/games/${this.gameUuid}/actions`, {
       method: 'POST',
       body: JSON.stringify({
         action: 'assign_roles',
@@ -144,7 +144,7 @@ class BatteryOptimizationTests {
     }
     
     // Test that the app still functions correctly regardless of logging level
-    const gameState = await this.makeRequest(`${BASE_URL}/api/games?code=${this.gameCode}`)
+    const gameState = await this.makeRequest(`${BASE_URL}/api/games?code=${this.gameId}`)
     
     if (!gameState.game) {
       throw new Error('Game state not accessible')
@@ -162,7 +162,7 @@ class BatteryOptimizationTests {
     // Make a change that should trigger real-time updates
     const werewolfPlayer = this.playerClientIds.find(id => id.includes('player'))
     if (werewolfPlayer) {
-      await this.makeRequest(`${BASE_URL}/api/games/${this.gameId}/actions`, {
+      await this.makeRequest(`${BASE_URL}/api/games/${this.gameUuid}/actions`, {
         method: 'POST',
         body: JSON.stringify({
           action: 'next_phase',
@@ -192,7 +192,7 @@ class BatteryOptimizationTests {
     
     // Perform multiple operations
     for (let i = 0; i < 10; i++) {
-      await this.makeRequest(`${BASE_URL}/api/games?code=${this.gameCode}`)
+      await this.makeRequest(`${BASE_URL}/api/games?code=${this.gameId}`)
       await this.sleep(100)
     }
     
@@ -217,7 +217,7 @@ class BatteryOptimizationTests {
     const requests = []
     for (let i = 0; i < 5; i++) {
       requests.push(
-        this.makeRequest(`${BASE_URL}/api/games?code=${this.gameCode}`)
+        this.makeRequest(`${BASE_URL}/api/games?code=${this.gameId}`)
       )
     }
     

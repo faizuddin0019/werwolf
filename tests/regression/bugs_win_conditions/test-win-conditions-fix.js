@@ -11,7 +11,7 @@ const BASE_URL = process.env.TEST_BASE_URL || 'http://localhost:3001'
 
 class WinConditionsBugTest {
   constructor() {
-    this.gameCode = null
+    this.gameId = null
     this.gameId = null
     this.hostClientId = null
     this.playerClientIds = []
@@ -43,10 +43,9 @@ class WinConditionsBugTest {
       })
     })
     
-    this.gameCode = hostResponse.gameCode
-    this.gameId = hostResponse.game.id
+    this.gameId = hostResponse.gameId     this.gameId = hostResponse.game.id
     this.hostClientId = hostResponse.player.client_id
-    console.log(`✅ Game created: ${this.gameCode}`)
+    console.log(`✅ Game created: ${this.gameId}`)
 
     // Add 6 players
     for (let i = 1; i <= 6; i++) {
@@ -54,7 +53,7 @@ class WinConditionsBugTest {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          gameCode: this.gameCode,
+          gameId: this.gameId,
           playerName: `Player${i}`,
           clientId: `win-conditions-player-${i}-${Date.now()}`
         })
@@ -91,7 +90,7 @@ class WinConditionsBugTest {
     console.log('✅ Game started (lobby -> night_wolf)')
 
     // Step 2: Get game state and find werewolf
-    const gameState = await this.makeRequest(`${BASE_URL}/api/games?code=${this.gameCode}`, {
+    const gameState = await this.makeRequest(`${BASE_URL}/api/games?code=${this.gameId}`, {
       headers: { 'Cookie': `clientId=${this.hostClientId}` }
     })
     
@@ -203,7 +202,7 @@ class WinConditionsBugTest {
 
     // Step 10: Test voting and elimination
     console.log('📝 Step 10: Testing voting and elimination...')
-    const currentState = await this.makeRequest(`${BASE_URL}/api/games?code=${this.gameCode}`, {
+    const currentState = await this.makeRequest(`${BASE_URL}/api/games?code=${this.gameId}`, {
       headers: { 'Cookie': `clientId=${this.hostClientId}` }
     })
     

@@ -38,12 +38,12 @@ async function testDatabaseConnection() {
     
     // Test 2: Check if we can create a game
     console.log('📝 Test 2: Testing game creation...')
-    const gameCode = Math.floor(Math.random() * 1000000).toString().padStart(6, '0')
+    const gameId = Math.floor(Math.random() * 1000000).toString().padStart(6, '0')
     
     const { data: gameData, error: gameError } = await supabase
       .from('games')
       .insert({
-        code: gameCode,
+        code: gameId,
         host_client_id: 'test-client-123',
         phase: 'lobby'
       })

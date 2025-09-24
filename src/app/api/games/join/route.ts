@@ -9,9 +9,9 @@ export async function POST(request: NextRequest) {
       }, { status: 503 })
     }
 
-    const { gameCode, playerName, clientId } = await request.json()
+    const { gameId, playerName, clientId } = await request.json()
     
-    if (!gameCode || !playerName || !clientId) {
+    if (!gameId || !playerName || !clientId) {
       return NextResponse.json({ error: 'Game code, player name, and client ID are required' }, { status: 400 })
     }
     
@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
     const { data: game, error: gameError } = await supabase
       .from('games')
       .select('*')
-      .eq('code', gameCode)
+      .eq('code', gameId)
       .single()
     
     if (gameError || !game) {

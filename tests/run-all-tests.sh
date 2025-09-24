@@ -16,7 +16,7 @@ BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 # Test configuration
-BASE_URL=${TEST_BASE_URL:-"http://localhost:3001"}
+BASE_URL=${TEST_BASE_URL:-"http://localhost:3000"}
 VERCEL_URL=${VERCEL_URL:-""}
 
 # Test results tracking

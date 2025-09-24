@@ -31,7 +31,7 @@ async function testPhaseTimingSecurity() {
     }
     
     const hostData = await hostResponse.json()
-    const gameCode = hostData.game.code
+    const gameId = hostData.game.code
     
     // Join players
     const players = [
@@ -48,7 +48,7 @@ async function testPhaseTimingSecurity() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          gameCode: gameCode,
+          gameId: gameId,
           playerName: player.name,
           clientId: player.clientId
         })
@@ -70,7 +70,7 @@ async function testPhaseTimingSecurity() {
     // Test 2: Verify initial phase_started state
     console.log('📝 Test 2: Verifying initial phase_started state...')
     
-    const initialGameData = await fetch(`${BASE_URL}/api/games?code=${gameCode}`, {
+    const initialGameData = await fetch(`${BASE_URL}/api/games?code=${gameId}`, {
       headers: { 'Cookie': `clientId=host-client-123` }
     }).then(r => r.json())
     
@@ -84,7 +84,7 @@ async function testPhaseTimingSecurity() {
     // Test 3: Verify werewolf cannot act before host starts phase
     console.log('📝 Test 3: Verifying werewolf cannot act before host starts phase...')
     
-    const werewolfGameData = await fetch(`${BASE_URL}/api/games?code=${gameCode}`, {
+    const werewolfGameData = await fetch(`${BASE_URL}/api/games?code=${gameId}`, {
       headers: { 'Cookie': `clientId=host-client-123` }
     }).then(r => r.json())
     
@@ -133,7 +133,7 @@ async function testPhaseTimingSecurity() {
     // Test 5: Verify phase_started is now true
     console.log('📝 Test 5: Verifying phase_started is now true...')
     
-    const updatedGameData = await fetch(`${BASE_URL}/api/games?code=${gameCode}`, {
+    const updatedGameData = await fetch(`${BASE_URL}/api/games?code=${gameId}`, {
       headers: { 'Cookie': `clientId=host-client-123` }
     }).then(r => r.json())
     
@@ -147,7 +147,7 @@ async function testPhaseTimingSecurity() {
     // Test 6: Verify werewolf can now act
     console.log('📝 Test 6: Verifying werewolf can now act...')
     
-    const updatedWerewolfGameData = await fetch(`${BASE_URL}/api/games?code=${gameCode}`, {
+    const updatedWerewolfGameData = await fetch(`${BASE_URL}/api/games?code=${gameId}`, {
       headers: { 'Cookie': `clientId=host-client-123` }
     }).then(r => r.json())
     
@@ -192,7 +192,7 @@ async function testPhaseTimingSecurity() {
     // Test 7: Verify doctor cannot act during werewolf phase
     console.log('📝 Test 7: Verifying doctor cannot act during werewolf phase...')
     
-    const doctorGameData = await fetch(`${BASE_URL}/api/games?code=${gameCode}`, {
+    const doctorGameData = await fetch(`${BASE_URL}/api/games?code=${gameId}`, {
       headers: { 'Cookie': `clientId=player2-client-789` }
     }).then(r => r.json())
     
@@ -218,7 +218,7 @@ async function testPhaseTimingSecurity() {
     // Test 8: Verify police cannot act during werewolf phase
     console.log('📝 Test 8: Verifying police cannot act during werewolf phase...')
     
-    const policeGameData = await fetch(`${BASE_URL}/api/games?code=${gameCode}`, {
+    const policeGameData = await fetch(`${BASE_URL}/api/games?code=${gameId}`, {
       headers: { 'Cookie': `clientId=player3-client-101` }
     }).then(r => r.json())
     

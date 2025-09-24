@@ -2,7 +2,7 @@ const BASE_URL = process.env.BASE_URL || 'http://localhost:3001'
 
 class RevealDeadButtonTest {
   constructor() {
-    this.gameCode = null
+    this.gameId = null
     this.gameId = null
     this.hostClientId = null
     this.werwolfPlayerId = null
@@ -34,10 +34,9 @@ class RevealDeadButtonTest {
         clientId: 'reveal-dead-test-host-' + Date.now()
       })
     })
-    this.gameCode = hostResponse.gameCode
-    this.gameId = hostResponse.game.id
+    this.gameId = hostResponse.gameId     this.gameId = hostResponse.game.id
     this.hostClientId = hostResponse.player.client_id
-    console.log(`✅ Game created: ${this.gameCode}`)
+    console.log(`✅ Game created: ${this.gameId}`)
 
     console.log('📝 Step 2: Adding 6 players...')
     for (let i = 1; i <= 6; i++) {
@@ -45,7 +44,7 @@ class RevealDeadButtonTest {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          gameCode: this.gameCode,
+          gameId: this.gameId,
           playerName: `RevealDeadPlayer${i}`,
           clientId: `reveal-dead-player-${i}-${Date.now()}`
         })
@@ -68,7 +67,7 @@ class RevealDeadButtonTest {
     console.log('✅ Roles assigned')
 
     // Fetch game state to find the players with roles (use host cookie to see all roles)
-    const gameState = await this.makeRequest(`${BASE_URL}/api/games?code=${this.gameCode}`, {
+    const gameState = await this.makeRequest(`${BASE_URL}/api/games?code=${this.gameId}`, {
       headers: { 'Cookie': `clientId=${this.hostClientId}` }
     })
     const werwolfPlayer = gameState.players.find(p => p.role === 'werwolf' || p.role === 'werewolf')
@@ -100,7 +99,7 @@ class RevealDeadButtonTest {
       })
     })
 
-    const gameState = await this.makeRequest(`${BASE_URL}/api/games?code=${this.gameCode}`, {
+    const gameState = await this.makeRequest(`${BASE_URL}/api/games?code=${this.gameId}`, {
       headers: { 'Cookie': `clientId=${this.hostClientId}` }
     })
     const targets = gameState.players.filter(p => p.id !== this.werwolfPlayerId && !p.is_host && p.alive)
@@ -219,7 +218,7 @@ class RevealDeadButtonTest {
     console.log('✅ Reveal Dead action succeeded after police phase')
 
     // Verify game phase changed to reveal
-    const finalGameState = await this.makeRequest(`${BASE_URL}/api/games?code=${this.gameCode}`, {
+    const finalGameState = await this.makeRequest(`${BASE_URL}/api/games?code=${this.gameId}`, {
       headers: { 'Cookie': `clientId=${this.hostClientId}` }
     })
     if (finalGameState.game.phase !== 'reveal') {

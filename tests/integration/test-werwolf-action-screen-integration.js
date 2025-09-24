@@ -120,7 +120,7 @@ async function testWerwolfActionScreenIntegration() {
     
     // Step 6: Check initial state - Werwolf should NOT see action screen
     console.log('🔧 Step 6: Checking initial state...')
-    const initialGameResponse = await fetch(`${TEST_CONFIG.baseUrl}/api/games?code=${hostData.gameCode}`)
+    const initialGameResponse = await fetch(`${TEST_CONFIG.baseUrl}/api/games?code=${hostData.gameId}`)
     const initialGameData = await initialGameResponse.json()
     
     if (initialGameData.game.phase !== 'night_wolf') {
@@ -152,7 +152,7 @@ async function testWerwolfActionScreenIntegration() {
     
     // Step 8: Check that phase_started is now true
     console.log('🔧 Step 8: Verifying phase_started is true...')
-    const afterWakeUpResponse = await fetch(`${TEST_CONFIG.baseUrl}/api/games?code=${hostData.gameCode}`)
+    const afterWakeUpResponse = await fetch(`${TEST_CONFIG.baseUrl}/api/games?code=${hostData.gameId}`)
     const afterWakeUpData = await afterWakeUpResponse.json()
     
     if (!afterWakeUpData.roundState || afterWakeUpData.roundState.phase_started !== true) {

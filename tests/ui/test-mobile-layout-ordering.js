@@ -31,7 +31,7 @@ async function testMobileLayoutOrdering() {
     }
     
     const hostData = await hostResponse.json()
-    const gameCode = hostData.game.code
+    const gameId = hostData.game.code
     
     // Join players
     const players = [
@@ -48,7 +48,7 @@ async function testMobileLayoutOrdering() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          gameCode: gameCode,
+          gameId: gameId,
           playerName: player.name,
           clientId: player.clientId
         })
@@ -70,7 +70,7 @@ async function testMobileLayoutOrdering() {
     // Test 2: Verify initial state (no active action screens)
     console.log('📝 Test 2: Verifying initial state (no active action screens)...')
     
-    const werewolfGameData = await fetch(`${BASE_URL}/api/games?code=${gameCode}`, {
+    const werewolfGameData = await fetch(`${BASE_URL}/api/games?code=${gameId}`, {
       headers: { 'Cookie': `clientId=player1-client-456` }
     }).then(r => r.json())
     
@@ -109,7 +109,7 @@ async function testMobileLayoutOrdering() {
     // Test 4: Verify werewolf can now act
     console.log('📝 Test 4: Verifying werewolf can now act...')
     
-    const updatedWerewolfGameData = await fetch(`${BASE_URL}/api/games?code=${gameCode}`, {
+    const updatedWerewolfGameData = await fetch(`${BASE_URL}/api/games?code=${gameId}`, {
       headers: { 'Cookie': `clientId=player1-client-456` }
     }).then(r => r.json())
     
@@ -144,7 +144,7 @@ async function testMobileLayoutOrdering() {
     // Test 6: Verify villager cannot act during werewolf phase
     console.log('📝 Test 6: Verifying villager cannot act during werewolf phase...')
     
-    const villagerGameData = await fetch(`${BASE_URL}/api/games?code=${gameCode}`, {
+    const villagerGameData = await fetch(`${BASE_URL}/api/games?code=${gameId}`, {
       headers: { 'Cookie': `clientId=player4-client-112` }
     }).then(r => r.json())
     

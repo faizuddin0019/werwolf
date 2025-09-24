@@ -32,7 +32,7 @@ async function testGameScreenLayout() {
     }
     
     const hostData = await hostResponse.json()
-    const gameCode = hostData.game.code
+    const gameId = hostData.game.code
     
     // Join players
     const players = [
@@ -49,7 +49,7 @@ async function testGameScreenLayout() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          gameCode: gameCode,
+          gameId: gameId,
           playerName: player.name,
           clientId: player.clientId
         })
@@ -72,15 +72,15 @@ async function testGameScreenLayout() {
     console.log('📝 Test 2: Verifying role visibility security...')
     
     // Get game data from different player perspectives
-    const hostGameData = await fetch(`${BASE_URL}/api/games?code=${gameCode}`, {
+    const hostGameData = await fetch(`${BASE_URL}/api/games?code=${gameId}`, {
       headers: { 'Cookie': `clientId=host-client-123` }
     }).then(r => r.json())
     
-    const werewolfGameData = await fetch(`${BASE_URL}/api/games?code=${gameCode}`, {
+    const werewolfGameData = await fetch(`${BASE_URL}/api/games?code=${gameId}`, {
       headers: { 'Cookie': `clientId=player1-client-456` }
     }).then(r => r.json())
     
-    const villagerGameData = await fetch(`${BASE_URL}/api/games?code=${gameCode}`, {
+    const villagerGameData = await fetch(`${BASE_URL}/api/games?code=${gameId}`, {
       headers: { 'Cookie': `clientId=player4-client-112` }
     }).then(r => r.json())
     
