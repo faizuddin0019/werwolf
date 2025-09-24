@@ -182,53 +182,85 @@ class RealTimeSyncTests {
   async testHostVotingExclusion() {
     console.log('\n🗳️ Testing host voting exclusion...')
     
-    // Go through full night cycle to reach reveal then day vote phase
-    await this.makeRequest(`${BASE_URL}/api/games/${this.gameUuid}/actions`, {
-      method: 'POST',
-      body: JSON.stringify({
-        action: 'next_phase',
-        clientId: this.hostClientId
-      })
+    // Ensure we reach reveal -> day_vote following canonical flow
+    // 1) Ensure roles assigned and move to night_wolf from lobby if needed
+    let gs = await this.makeRequest(`${BASE_URL}/api/games?code=${this.gameId}`, {
+      headers: { 'Cookie': `clientId=${this.hostClientId}` }
     })
-    await this.sleep(1000)
+    if (gs.game.phase === 'lobby') {
+      await this.makeRequest(`${BASE_URL}/api/games/${this.gameUuid}/actions`, {
+        method: 'POST',
+        body: JSON.stringify({ action: 'next_phase', clientId: this.hostClientId })
+      })
+      await this.sleep(600)
+    }
     
-    await this.makeRequest(`${BASE_URL}/api/games/${this.gameUuid}/actions`, {
-      method: 'POST',
-      body: JSON.stringify({
-        action: 'next_phase',
-        clientId: this.hostClientId
-      })
+    // 2) Wolf selects a target
+    gs = await this.makeRequest(`${BASE_URL}/api/games?code=${this.gameId}`, {
+      headers: { 'Cookie': `clientId=${this.hostClientId}` }
     })
-    await this.sleep(1000)
+    const werewolf = gs.players.find(p => (p.role === 'werewolf' || p.role === 'werwolf') && !p.is_host)
+    const villager = gs.players.find(p => !p.is_host && p.id !== werewolf?.id)
+    if (gs.game.phase === 'night_wolf' && werewolf && villager) {
+      await this.makeRequest(`${BASE_URL}/api/games/${this.gameUuid}/actions`, {
+        method: 'POST',
+        body: JSON.stringify({ action: 'wolf_select', clientId: werewolf.client_id, data: { targetId: villager.id } })
+      })
+    }
     
+    // 3) Advance to night_doctor
     await this.makeRequest(`${BASE_URL}/api/games/${this.gameUuid}/actions`, {
       method: 'POST',
-      body: JSON.stringify({
-        action: 'next_phase',
-        clientId: this.hostClientId
-      })
+      body: JSON.stringify({ action: 'next_phase', clientId: this.hostClientId })
     })
-    await this.sleep(1000)
+    await this.sleep(600)
     
-    // Reveal dead first
-    await this.makeRequest(`${BASE_URL}/api/games/${this.gameUuid}/actions`, {
-      method: 'POST',
-      body: JSON.stringify({
-        action: 'reveal_dead',
-        clientId: this.hostClientId
-      })
+    // 4) Doctor saves (override allowed; choose the same villager)
+    gs = await this.makeRequest(`${BASE_URL}/api/games?code=${this.gameId}`, {
+      headers: { 'Cookie': `clientId=${this.hostClientId}` }
     })
-    await this.sleep(1000)
+    const doctor = gs.players.find(p => p.role === 'doctor' && !p.is_host)
+    if (gs.game.phase === 'night_doctor' && doctor && villager) {
+      await this.makeRequest(`${BASE_URL}/api/games/${this.gameUuid}/actions`, {
+        method: 'POST',
+        body: JSON.stringify({ action: 'doctor_save', clientId: doctor.client_id, data: { targetId: villager.id } })
+      })
+    }
     
-    // Begin voting from reveal
+    // 5) Advance to night_police
     await this.makeRequest(`${BASE_URL}/api/games/${this.gameUuid}/actions`, {
       method: 'POST',
-      body: JSON.stringify({
-        action: 'begin_voting',
-        clientId: this.hostClientId
-      })
+      body: JSON.stringify({ action: 'next_phase', clientId: this.hostClientId })
     })
-    await this.sleep(1000)
+    await this.sleep(600)
+    
+    // 6) Police inspects someone
+    gs = await this.makeRequest(`${BASE_URL}/api/games?code=${this.gameId}`, {
+      headers: { 'Cookie': `clientId=${this.hostClientId}` }
+    })
+    const police = gs.players.find(p => p.role === 'police' && !p.is_host)
+    const inspectTarget = gs.players.find(p => !p.is_host && p.id !== police?.id)
+    if (gs.game.phase === 'night_police' && police && inspectTarget) {
+      await this.makeRequest(`${BASE_URL}/api/games/${this.gameUuid}/actions`, {
+        method: 'POST',
+        body: JSON.stringify({ action: 'police_inspect', clientId: police.client_id, data: { targetId: inspectTarget.id } })
+      })
+    }
+    await this.sleep(400)
+    
+    // 7) Reveal dead (must be in night_police)
+    await this.makeRequest(`${BASE_URL}/api/games/${this.gameUuid}/actions`, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'reveal_dead', clientId: this.hostClientId })
+    })
+    await this.sleep(600)
+    
+    // 8) Begin voting from reveal
+    await this.makeRequest(`${BASE_URL}/api/games/${this.gameUuid}/actions`, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'begin_voting', clientId: this.hostClientId })
+    })
+    await this.sleep(600)
     
     console.log('✅ Advanced to day vote phase')
     
@@ -239,13 +271,14 @@ class RealTimeSyncTests {
     console.log(`Current game phase: ${gameState.game.phase}`)
     
     // Try to have host vote (should fail)
+    const anyTarget = gameState.players.find(p => !p.is_host)?.id
     try {
       await this.makeRequest(`${BASE_URL}/api/games/${this.gameUuid}/actions`, {
         method: 'POST',
         body: JSON.stringify({
           action: 'vote',
           clientId: this.hostClientId,
-          targetPlayerId: this.playerClientIds[0]
+          data: { targetId: anyTarget }
         })
       })
       throw new Error('Host should not be able to vote')
@@ -258,12 +291,14 @@ class RealTimeSyncTests {
     }
     
     // Verify a regular player can vote
+    const voter = gameState.players.find(p => !p.is_host)
+    const target = gameState.players.find(p => !p.is_host && p.id !== voter?.id)
     const playerVote = await this.makeRequest(`${BASE_URL}/api/games/${this.gameUuid}/actions`, {
       method: 'POST',
       body: JSON.stringify({
         action: 'vote',
-        clientId: this.playerClientIds[0],
-        data: { targetId: this.playerClientIds[1] }
+        clientId: voter.client_id,
+        data: { targetId: target.id }
       })
     })
     

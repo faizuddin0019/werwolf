@@ -243,10 +243,38 @@ async function handleAssignRoles(gameId: string, game: Game) {
   
   console.log('✅ Role assignment completed successfully!')
   
-  // Keep game in lobby phase - let host control phase transitions
-  console.log('🔧 Game stays in lobby phase - host must click "Wakeup Werwolf" to start')
+  // Immediately enter first night phase with phase_started=false.
+  // Host will then click "Wake Up Werwolf" (next_phase) to start the phase.
+  console.log('🔧 Entering night_wolf (phase_started=false) after role assignment')
   
-  return NextResponse.json({ success: true })
+  // Ensure round_state exists and is reset for a fresh night
+  const { error: resetRoundStateError } = await supabase!
+    .from('round_state')
+    .upsert({
+      game_id: gameId,
+      phase_started: false,
+      wolf_target_player_id: null,
+      doctor_save_player_id: null,
+      police_inspect_player_id: null,
+      police_inspect_result: null,
+      resolved_death_player_id: null
+    }, { onConflict: 'game_id' })
+  if (resetRoundStateError) {
+    console.error('❌ Error preparing round state for night_wolf:', resetRoundStateError)
+    return NextResponse.json({ error: 'Failed to prepare round state' }, { status: 500 })
+  }
+  
+  // Move game to night_wolf
+  const { error: toNightError } = await supabase!
+    .from('games')
+    .update({ phase: 'night_wolf' })
+    .eq('id', gameId)
+  if (toNightError) {
+    console.error('❌ Error updating game phase to night_wolf:', toNightError)
+    return NextResponse.json({ error: 'Failed to update game phase' }, { status: 500 })
+  }
+  
+  return NextResponse.json({ success: true, phase: 'night_wolf' })
 }
 
 async function handleNextPhase(gameId: string, game: Game, targetPhase?: string) {

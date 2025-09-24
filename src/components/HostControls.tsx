@@ -153,15 +153,7 @@ export default function HostControls({ onEndGame }: HostControlsProps) {
       case 'assign_roles':
         return 'Assign Roles & Start Game'
       case 'next_phase':
-        // After role assignment, game stays in lobby phase and host can start night phases
-        if (gamePhase === 'lobby') {
-          // Check if roles have been assigned (players have roles)
-          const playersWithRoles = (Array.isArray(players) ? players : [])
-            .filter((p: { role: string | null; is_host: boolean }) => p.role && !p.is_host)
-          if (playersWithRoles.length > 0) {
-            return 'Wake Up Werwolf'
-          }
-        }
+        // Lobby no longer used after assign_roles (server moves to night_wolf)
         
         // Show specific phase-based labels for night actions
         if (gamePhase === 'night_wolf') {
@@ -255,7 +247,7 @@ export default function HostControls({ onEndGame }: HostControlsProps) {
   const actions = [
     { action: 'assign_roles', label: 'Start Game' },
     { action: 'next_phase', label: 'Next Phase' },
-    { action: 'reveal_dead', label: 'Reveal Dead' },
+    // reveal_dead is available contextually via button text when in night_police
     { action: 'begin_voting', label: 'Begin Voting' },
     { action: 'final_vote', label: 'Final Vote' },
     { action: 'eliminate_player', label: 'Eliminate' },
@@ -278,6 +270,8 @@ export default function HostControls({ onEndGame }: HostControlsProps) {
                 .filter((p: { role: string | null; is_host: boolean }) => p.role && !p.is_host)
               if (playersWithRoles.length > 0) return false
             }
+            // Hide explicit reveal_dead button; it's handled by next_phase label
+            if (action === 'reveal_dead') return false
             return true
           })
           .map(({ action }) => {

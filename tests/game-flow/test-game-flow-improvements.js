@@ -182,23 +182,19 @@ async function testReorderedNightPhases() {
       players.push({ ...playerData.player, clientId })
     }
     
-    // Assign roles (game should remain in lobby)
+    // Assign roles (server now enters night_wolf with phase_started=false)
     await assignRoles(gameUuid, hostClientId)
     await sleep(600)
     
-    // Verify stays in lobby and roles are assigned
+    // Verify in night_wolf and roles are assigned
     let gameState = await getGameState(gameId, hostClientId)
     const rolesAssigned = gameState.players.filter(p => p.role && !p.is_host).length
-    assert(gameState.game.phase === 'lobby', 'Game should remain in lobby after role assignment')
+    assert(gameState.game.phase === 'night_wolf', 'Game should enter night_wolf after role assignment')
     assert(rolesAssigned === 6, `Expected 6 players with roles, got ${rolesAssigned}`)
-    log('✅ Roles assigned in lobby (PASSED)')
+    log('✅ Roles assigned and entered night_wolf (PASSED)')
     
-    // Host advances to night_wolf
-    await nextPhase(gameUuid, hostClientId)
-    await sleep(600)
-    gameState = await getGameState(gameId, hostClientId)
-    assert(gameState.game.phase === 'night_wolf', 'Game should transition to night_wolf after host clicks next_phase')
-    log('✅ Lobby → Night Wolf via host next_phase (PASSED)')
+    // Already in night_wolf; host next_phase will start phase/advance after wolf target
+    if (gameState.game.phase !== 'night_wolf') throw new Error('Expected night_wolf')
     
     // Test werewolf action - use players from gameState
     const werewolf = gameState.players.find(p => p.role === 'werewolf' || p.role === 'werwolf')
@@ -283,10 +279,8 @@ async function testManualVotingControls() {
       players.push({ ...playerData.player, clientId })
     }
     
-    // Assign roles (still lobby), then move to night_wolf
+    // Assign roles (server enters night_wolf with phase_started=false)
     await assignRoles(gameUuid, hostClientId)
-    await sleep(600)
-    await nextPhase(gameUuid, hostClientId)
     await sleep(600)
     
     // Complete night phases quickly - get updated game state with roles
@@ -571,13 +565,9 @@ async function testWerewolfScreenTimingFix() {
     await assignRoles(gameUuid, hostClientId)
     await sleep(600)
     
-    // Verify stays lobby and then advance to night_wolf
+    // Verify stays night_wolf immediately after assign
     let gameState = await getGameState(gameId, hostClientId)
-    assert(gameState.game.phase === 'lobby', 'Game phase should be lobby after role assignment')
-    await nextPhase(gameUuid, hostClientId)
-    await sleep(600)
-    gameState = await getGameState(gameId, hostClientId)
-    assert(gameState.game.phase === 'night_wolf', 'Game phase should be night_wolf after host next_phase')
+    assert(gameState.game.phase === 'night_wolf', 'Game phase should be night_wolf after role assignment')
     
     // Check that players have roles assigned
     const playersWithRoles = gameState.players.filter(p => p.role)
@@ -612,15 +602,11 @@ async function testHostControlOverNightPhase() {
       await joinGame(gameId, TEST_CONFIG.playerNames[i], clientId)
     }
     
-    // Assign roles -> lobby, then host moves to night_wolf
+    // Assign roles -> server enters night_wolf
     await assignRoles(gameUuid, hostClientId)
     await sleep(600)
     let gameState = await getGameState(gameId, hostClientId)
-    assert(gameState.game.phase === 'lobby', 'Game should stay in lobby after role assignment')
-    await nextPhase(gameUuid, hostClientId)
-    await sleep(600)
-    gameState = await getGameState(gameId, hostClientId)
-    assert(gameState.game.phase === 'night_wolf', 'Game should be in night_wolf after host next_phase')
+    assert(gameState.game.phase === 'night_wolf', 'Game should be in night_wolf after assign_roles')
     
     log('✅ Host control over night phase test passed')
     return { success: true, message: 'Host control over night phase works correctly' }
@@ -649,13 +635,8 @@ async function testGamePhaseTransitions() {
     
     // Test phase transitions
     await assignRoles(gameUuid, hostClientId)
-    let gameState = await getGameState(gameId, hostClientId)
-    assert(gameState.game.phase === 'lobby', 'Should remain in lobby after role assignment')
-    
-    // Extra next_phase to reach night_wolf first
-    await nextPhase(gameUuid, hostClientId)
     gameState = await getGameState(gameId, hostClientId)
-    assert(gameState.game.phase === 'night_wolf', 'Should be in night_wolf after first next_phase')
+    assert(gameState.game.phase === 'night_wolf', 'Should be in night_wolf after role assignment')
   
   // Ensure a wolf target exists before advancing to doctor
   const gamePlayers2 = gameState.players.filter(p => !p.is_host)

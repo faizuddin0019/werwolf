@@ -201,7 +201,7 @@ async function testEndGameLogicWithTwoPlayers() {
     
     // Get initial game state (stays lobby; host must start night)
     let gameState = await getGameState(gameId, hostClientId)
-    assert(gameState.game.phase === 'lobby', 'Game should remain in lobby after role assignment')
+    assert(gameState.game.phase === 'night_wolf', 'Game should enter night_wolf after role assignment')
     
     // Host advances to night_wolf phase
     await nextPhase(gameId, hostClientId) // lobby -> night_wolf
@@ -518,31 +518,67 @@ async function testRealTimeSync() {
     gameState = await getGameState(gameId, hostClientId)
     assert(gameState.game.phase === 'lobby', 'Game should remain in lobby after role assignment')
     
-    // Go through night phases to reach reveal
-    await nextPhase(gameId, hostClientId) // night_doctor
-    await sleep(800)
-    await nextPhase(gameId, hostClientId) // night_police
-    await sleep(800)
-    // Reveal after police
-    {
-      const gs2 = await getGameState(gameId, hostClientId)
-      await makeRequest(`${BASE_URL}/api/games/${gs2.game.id}/actions`, {
+    // Canonical flow: start Wolf → Doctor → Police → Reveal → Begin Voting
+    // 1) Host starts night_wolf from lobby
+    await nextPhase(gameId, hostClientId) // lobby -> night_wolf (phase_started=true)
+    await sleep(400)
+    
+    // 2) Werewolf selects a target
+    gameState = await getGameState(gameId, hostClientId)
+    const werewolf = gameState.players.find(p => (p.role === 'werwolf' || p.role === 'werewolf') && !p.is_host)
+    const wolfTarget = gameState.players.find(p => !p.is_host && p.id !== werewolf?.id)
+    if (gameState.game.phase !== 'night_wolf' || !werewolf || !wolfTarget) throw new Error('Failed to locate wolf or target')
+    await makeRequest(`${BASE_URL}/api/games/${gameState.game.id}/actions`, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'wolf_select', clientId: werewolf.client_id, data: { targetId: wolfTarget.id } })
+    })
+    await sleep(300)
+    
+    // 3) Host advances to night_doctor
+    await nextPhase(gameId, hostClientId)
+    await sleep(400)
+    
+    // 4) Doctor saves (optional)
+    gameState = await getGameState(gameId, hostClientId)
+    const doctor = gameState.players.find(p => p.role === 'doctor' && !p.is_host)
+    if (doctor && wolfTarget) {
+      await makeRequest(`${BASE_URL}/api/games/${gameState.game.id}/actions`, {
         method: 'POST',
-        body: JSON.stringify({ action: 'reveal_dead', clientId: hostClientId })
+        body: JSON.stringify({ action: 'doctor_save', clientId: doctor.client_id, data: { targetId: wolfTarget.id } })
       })
-      await sleep(800)
+      await sleep(300)
     }
     
-    // Begin voting to reach day_vote phase
+    // 5) Host advances to night_police
+    await nextPhase(gameId, hostClientId)
+    await sleep(400)
+    
+    // 6) Police inspects
+    gameState = await getGameState(gameId, hostClientId)
+    const police = gameState.players.find(p => p.role === 'police' && !p.is_host)
+    const inspectTarget = gameState.players.find(p => !p.is_host && p.id !== police?.id)
+    if (police && inspectTarget) {
+      await makeRequest(`${BASE_URL}/api/games/${gameState.game.id}/actions`, {
+        method: 'POST',
+        body: JSON.stringify({ action: 'police_inspect', clientId: police.client_id, data: { targetId: inspectTarget.id } })
+      })
+      await sleep(300)
+    }
+    
+    // 7) Host reveals dead (still in night_police)
+    await makeRequest(`${BASE_URL}/api/games/${gameState.game.id}/actions`, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'reveal_dead', clientId: hostClientId })
+    })
+    await sleep(600)
+    
+    // 8) Host begins voting from reveal
     gameState = await getGameState(gameId, hostClientId)
     await makeRequest(`${BASE_URL}/api/games/${gameState.game.id}/actions`, {
       method: 'POST',
-      body: JSON.stringify({
-        action: 'begin_voting',
-        clientId: hostClientId
-      })
+      body: JSON.stringify({ action: 'begin_voting', clientId: hostClientId })
     })
-    await sleep(1000)
+    await sleep(800)
     
     // Test vote updates using a regular player (not host)
     const voterPlayer = players.find(p => !p.is_host)
@@ -553,7 +589,7 @@ async function testRealTimeSync() {
       body: JSON.stringify({
         action: 'vote',
         clientId: voterPlayer.client_id,
-        targetPlayerId: players[0].id
+        data: { targetId: players[0].id }
       })
     })
     
