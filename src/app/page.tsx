@@ -100,8 +100,8 @@ export default function HomePage() {
       }
       
       setIsLoading(true)
-      const response = await fetch(`/api/games?code=${code}`, {
-        headers: { 'Cookie': `clientId=${clientId}` }
+      const response = await fetch(`/api/games?code=${code}&clientId=${clientId}`, {
+        headers: { 'Cookie': `clientId=${clientId}`, 'x-client-id': clientId }
       })
       
       if (response.ok) {
@@ -243,8 +243,8 @@ export default function HomePage() {
         
         try {
           // Fetch game data by code
-          const gameResponse = await fetch(`/api/games?code=${savedGameCode}`, {
-            headers: { 'Cookie': `clientId=${clientId}` }
+          const gameResponse = await fetch(`/api/games?code=${savedGameCode}&clientId=${clientId}`, {
+            headers: { 'Cookie': `clientId=${clientId}`, 'x-client-id': clientId }
           })
           if (gameResponse.ok) {
             const gameData = await gameResponse.json()
@@ -428,8 +428,8 @@ export default function HomePage() {
       if (!data.gameId || data.gameId === '1' || data.gameId.length < 6) {
         throw new Error('Invalid game code received from server')
       }
-      const gameResponse = await fetch(`/api/games?code=${data.gameId}`, {
-        headers: { 'Cookie': `clientId=${clientId}` }
+      const gameResponse = await fetch(`/api/games?code=${data.gameId}&clientId=${clientId}`, {
+        headers: { 'Cookie': `clientId=${clientId}`, 'x-client-id': clientId }
       })
       if (process.env.NODE_ENV === 'development') {
         console.log('🔧 Game response status:', gameResponse.status, 'ok:', gameResponse.ok)

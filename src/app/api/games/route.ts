@@ -147,8 +147,11 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Failed to fetch players' }, { status: 500 })
     }
 
-    // Get current player from cookie to implement role visibility security
-    const clientId = request.cookies.get('clientId')?.value
+    // Get current player id from cookie or header/query (header/query are fallback for browsers dropping cookies)
+    const headerClientId = request.headers.get('x-client-id') || request.headers.get('X-Client-Id') || undefined
+    const queryClientId = searchParams.get('clientId') || undefined
+    const cookieClientId = request.cookies.get('clientId')?.value
+    const clientId = headerClientId || queryClientId || cookieClientId
     const currentPlayer = players?.find(p => p.client_id === clientId)
     const isHost = currentPlayer?.is_host || false
 
