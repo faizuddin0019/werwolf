@@ -287,7 +287,14 @@ export default function HostControls({ onEndGame }: HostControlsProps) {
                   }
                   return
                 }
-                handleAction(action)
+                // Resolve contextual action for "next_phase"
+                let resolvedAction = action
+                if (action === 'next_phase') {
+                  if (gamePhase === 'night_police' && roundState?.phase_started && roundState?.police_inspect_player_id) {
+                    resolvedAction = 'reveal_dead'
+                  }
+                }
+                handleAction(resolvedAction)
               }}
               disabled={!canPerform || isLoading}
               className={`w-full py-2 px-4 text-white rounded-md transition-colors flex items-center justify-center space-x-2 disabled:bg-gray-300 disabled:cursor-not-allowed ${getButtonColor(action)}`}
