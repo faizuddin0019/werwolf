@@ -76,7 +76,13 @@ async function run() {
   const gameUuid = gs.game.id
   await hostAction(gameUuid, hostClientId, 'assign_roles')
   await sleep(800)
-  gs = await waitPhase(gameCode, hostClientId, 'night_wolf')
+  try {
+    gs = await waitPhase(gameCode, hostClientId, 'night_wolf', 4000)
+  } catch (_) {
+    // Fallback for servers that keep lobby after assign_roles
+    await hostAction(gameUuid, hostClientId, 'next_phase')
+    gs = await waitPhase(gameCode, hostClientId, 'night_wolf', 8000)
+  }
   await hostAction(gameUuid, hostClientId, 'next_phase') // start night (phase_started=true)
   await sleep(200)
 
@@ -121,7 +127,12 @@ async function run() {
   await sleep(600)
 
   // Next night: remaining wolf can still kill
-  gs = await waitPhase(gameCode, hostClientId, 'night_wolf')
+  try {
+    gs = await waitPhase(gameCode, hostClientId, 'night_wolf', 6000)
+  } catch (_) {
+    await hostAction(gameUuid, hostClientId, 'next_phase')
+    gs = await waitPhase(gameCode, hostClientId, 'night_wolf', 6000)
+  }
   await hostAction(gs.game.id, hostClientId, 'next_phase') // start night
   await sleep(200)
   gs = await getState(gameCode, hostClientId)
