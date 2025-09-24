@@ -115,6 +115,16 @@ export default function HostControls({ onEndGame }: HostControlsProps) {
               console.error('Error refreshing game state:', err)
             }
           }, 300)
+        } else if (['reveal_dead','begin_voting','final_vote','eliminate_player','next_phase'].includes(action)) {
+          setTimeout(async () => {
+            try {
+              const res = await fetch(`/api/games?code=${gameId}`)
+              if (res.ok) {
+                const data = await res.json()
+                setGameData(data)
+              }
+            } catch (_) {}
+          }, 150)
         }
       }
     } catch (error) {
@@ -295,7 +305,11 @@ export default function HostControls({ onEndGame }: HostControlsProps) {
                 // Resolve contextual action for "next_phase"
                 let resolvedAction = action
                 if (action === 'next_phase') {
-                  if (gamePhase === 'night_police' && roundState?.phase_started && roundState?.police_inspect_player_id) {
+                  if (
+                    gamePhase === 'night_police' &&
+                    roundState?.phase_started &&
+                    (alivePolice === 0 || !!roundState?.police_inspect_player_id)
+                  ) {
                     resolvedAction = 'reveal_dead'
                   }
                 }
