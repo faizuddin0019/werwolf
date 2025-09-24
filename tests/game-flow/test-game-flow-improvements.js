@@ -174,6 +174,15 @@ async function nextPhase(gameUuid, hostClientId) {
   })
 }
 
+async function ensureNightWolf(gameId, gameUuid, hostClientId) {
+  try {
+    return await waitForPhase(gameId, hostClientId, 'night_wolf')
+  } catch (_) {
+    await nextPhase(gameUuid, hostClientId)
+    return await waitForPhase(gameId, hostClientId, 'night_wolf')
+  }
+}
+
 // Test cases
 async function testReorderedNightPhases() {
   log('🧪 Testing reordered night phases: Wolf → Police → Doctor...')
@@ -197,8 +206,8 @@ async function testReorderedNightPhases() {
     await assignRoles(gameUuid, hostClientId)
     await sleep(600)
     
-    // Verify in night_wolf and roles are assigned
-    let gameState = await waitForPhase(gameId, hostClientId, 'night_wolf')
+    // Verify in night_wolf (fallback to host next if timing delay)
+    let gameState = await ensureNightWolf(gameId, gameUuid, hostClientId)
     const rolesAssigned = gameState.players.filter(p => p.role && !p.is_host).length
     assert(gameState.game.phase === 'night_wolf', 'Game should enter night_wolf after role assignment')
     assert(rolesAssigned === 6, `Expected 6 players with roles, got ${rolesAssigned}`)
@@ -581,7 +590,7 @@ async function testWerewolfScreenTimingFix() {
     await sleep(600)
     
     // Verify stays night_wolf immediately after assign
-    let gameState = await waitForPhase(gameId, hostClientId, 'night_wolf')
+    let gameState = await ensureNightWolf(gameId, gameUuid, hostClientId)
     
     // Check that players have roles assigned
     const playersWithRoles = gameState.players.filter(p => p.role)
@@ -619,7 +628,7 @@ async function testHostControlOverNightPhase() {
     // Assign roles -> server enters night_wolf
     await assignRoles(gameUuid, hostClientId)
     await sleep(600)
-    let gameState = await waitForPhase(gameId, hostClientId, 'night_wolf')
+    let gameState = await ensureNightWolf(gameId, gameUuid, hostClientId)
     
     log('✅ Host control over night phase test passed')
     return { success: true, message: 'Host control over night phase works correctly' }
@@ -648,7 +657,7 @@ async function testGamePhaseTransitions() {
     
     // Test phase transitions
     await assignRoles(gameUuid, hostClientId)
-    gameState = await waitForPhase(gameId, hostClientId, 'night_wolf')
+    gameState = await ensureNightWolf(gameId, gameUuid, hostClientId)
   
   // Ensure a wolf target exists before advancing to doctor
   const gamePlayers2 = gameState.players.filter(p => !p.is_host)

@@ -345,36 +345,7 @@ async function handleNextPhase(gameId: string, game: Game, targetPhase?: string)
   
   // Handle night_wolf: if phase not started, start it and clear any stale selections; otherwise if target chosen, move to doctor
   if (game.phase === 'night_wolf') {
-    // If no alive werewolves, skip to doctor
-    const { data: aliveWolves } = await supabase!
-      .from('players')
-      .select('id')
-      .eq('game_id', gameId)
-      .eq('alive', true)
-      .in('role', ['werwolf', 'werewolf'])
-    if (!aliveWolves || aliveWolves.length === 0) {
-      const { data: updatedGame, error: phaseError } = await supabase!
-        .from('games')
-        .update({ phase: 'night_doctor' })
-        .eq('id', gameId)
-        .eq('phase', 'night_wolf')
-        .select('id, phase')
-        .single()
-      if (phaseError) {
-        console.error('❌ Error skipping to night_doctor (no werewolves alive):', phaseError)
-        return NextResponse.json({ error: 'Failed to update game phase' }, { status: 500 })
-      }
-      if (!updatedGame) {
-        return NextResponse.json({ error: 'State changed; retry next_phase' }, { status: 409 })
-      }
-      // Prepare doctor phase
-      await supabase!
-        .from('round_state')
-        .update({ phase_started: true, doctor_save_player_id: null })
-        .eq('game_id', gameId)
-      console.log('✅ Skipped night_wolf (no wolves alive) -> night_doctor')
-      return NextResponse.json({ success: true, phase: 'night_doctor', action: 'phase_advanced' })
-    }
+    // Do NOT skip wolf phase even if no wolves alive; host will advance manually
     const { data: round } = await supabase!
       .from('round_state')
       .select('phase_started, wolf_target_player_id')
@@ -437,36 +408,7 @@ async function handleNextPhase(gameId: string, game: Game, targetPhase?: string)
   
   // Handle transition from night_doctor to night_police (Wakeup Police)
   if (game.phase === 'night_doctor') {
-    // If no alive doctor, skip directly to night_police
-    const { data: aliveDoctors } = await supabase!
-      .from('players')
-      .select('id')
-      .eq('game_id', gameId)
-      .eq('alive', true)
-      .eq('role', 'doctor')
-    if (!aliveDoctors || aliveDoctors.length === 0) {
-      const { data: updatedGame, error: phaseError } = await supabase!
-        .from('games')
-        .update({ phase: 'night_police' })
-        .eq('id', gameId)
-        .eq('phase', 'night_doctor')
-        .select('id, phase')
-        .single()
-      if (phaseError) {
-        console.error('❌ Error skipping to night_police (no doctor alive):', phaseError)
-        return NextResponse.json({ error: 'Failed to update game phase' }, { status: 500 })
-      }
-      if (!updatedGame) {
-        return NextResponse.json({ error: 'State changed; retry next_phase' }, { status: 409 })
-      }
-      // Prepare police phase
-      await supabase!
-        .from('round_state')
-        .update({ phase_started: true, police_inspect_player_id: null, police_inspect_result: null })
-        .eq('game_id', gameId)
-      console.log('✅ Skipped night_doctor (no doctor alive) -> night_police')
-      return NextResponse.json({ success: true, phase: 'night_police', action: 'phase_advanced' })
-    }
+    // Do NOT skip doctor phase; if doctor dead, host click should advance immediately via existing logic
     console.log('🔧 Host clicked "Wakeup Police" - transitioning to night_police phase')
     
     // Update game phase to night_police
