@@ -51,12 +51,16 @@ export default function HostControls({ onEndGame }: HostControlsProps) {
   }
   // Reset display when a fresh night starts (host hasn’t started the phase yet)
   const isFreshNight = gamePhase === 'night_wolf' && roundState?.phase_started !== true
-  // Multiple wolf targets format: "wolfId:targetId,wolfId2:targetId2"
-  const wolfTargets = isFreshNight || !roundState?.wolf_target_player_id ? [] : String(roundState.wolf_target_player_id).split(',').filter(Boolean)
-  const wolfTargetNames = wolfTargets.map(pair => {
-    const targetId = pair.split(':')[1]
-    return getPlayerName(targetId || null)
-  }).filter(Boolean) as string[]
+  // Multiple wolf targets format: legacy "targetId,targetId2" or map "wolfId:targetId,wolfId2:targetId2"
+  const wolfTargetNames = (() => {
+    if (isFreshNight || !roundState?.wolf_target_player_id) return [] as string[]
+    const raw = String(roundState.wolf_target_player_id)
+    const parts = raw.split(',').filter(Boolean)
+    const targetIds = parts.map(p => (p.includes(':') ? p.split(':')[1] : p)).filter(Boolean)
+    // de-duplicate
+    const unique = Array.from(new Set(targetIds))
+    return unique.map(id => getPlayerName(id)).filter(Boolean) as string[]
+  })()
   const doctorSaveName = isFreshNight ? null : getPlayerName(roundState?.doctor_save_player_id || null)
   const policeInspectName = isFreshNight ? null : getPlayerName(roundState?.police_inspect_player_id || null)
 
