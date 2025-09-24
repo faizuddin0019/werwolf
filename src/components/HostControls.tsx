@@ -55,6 +55,12 @@ export default function HostControls({ onEndGame }: HostControlsProps) {
   const doctorSaveName = isFreshNight ? null : getPlayerName(roundState?.doctor_save_player_id || null)
   const policeInspectName = isFreshNight ? null : getPlayerName(roundState?.police_inspect_player_id || null)
 
+  // Alive role counts for skip-safe controls
+  const aliveNonHostPlayers = (Array.isArray(players) ? players : []).filter((p: any) => !p.is_host && p.alive !== false)
+  const aliveWolves = aliveNonHostPlayers.filter((p: any) => p.role === 'werwolf' || p.role === 'werewolf').length
+  const aliveDoctors = aliveNonHostPlayers.filter((p: any) => p.role === 'doctor').length
+  const alivePolice = aliveNonHostPlayers.filter((p: any) => p.role === 'police').length
+
   const handleAction = async (action: string, data?: unknown) => {
     if (!game || !currentPlayer || isLoading) return
     
@@ -157,29 +163,20 @@ export default function HostControls({ onEndGame }: HostControlsProps) {
         
         // Show specific phase-based labels for night actions
         if (gamePhase === 'night_wolf') {
-          if (!roundState?.phase_started) {
-            return 'Wake Up Werwolf'
-          } else if (roundState?.wolf_target_player_id) {
-            return 'Wake Up Doctor'
-          } else {
-            return 'Wake Up Werwolf (Waiting for selection)'
-          }
+          if (aliveWolves === 0) return 'Wake Up Doctor'
+          if (!roundState?.phase_started) return 'Wake Up Werwolf'
+          if (roundState?.wolf_target_player_id) return 'Wake Up Doctor'
+          return 'Wake Up Werwolf (Waiting for selection)'
         } else if (gamePhase === 'night_doctor') {
-          if (!roundState?.phase_started) {
-            return 'Wake Up Doctor'
-          } else if (roundState?.doctor_save_player_id) {
-            return 'Wake Up Police'
-          } else {
-            return 'Wake Up Doctor (Waiting for save)'
-          }
+          if (aliveDoctors === 0) return 'Wake Up Police'
+          if (!roundState?.phase_started) return 'Wake Up Doctor'
+          if (roundState?.doctor_save_player_id) return 'Wake Up Police'
+          return 'Wake Up Doctor (Waiting for save)'
         } else if (gamePhase === 'night_police') {
-          if (!roundState?.phase_started) {
-            return 'Wake Up Police'
-          } else if (roundState?.police_inspect_player_id) {
-            return 'Reveal the Dead'
-          } else {
-            return 'Wake Up Police (Waiting for inspection)'
-          }
+          if (alivePolice === 0) return 'Reveal the Dead'
+          if (!roundState?.phase_started) return 'Wake Up Police'
+          if (roundState?.police_inspect_player_id) return 'Reveal the Dead'
+          return 'Wake Up Police (Waiting for inspection)'
         }
         return `Go to ${getNextPhase(gamePhase) === 'night_wolf' ? 'Sleep' : getPhaseDisplayName(getNextPhase(gamePhase))}`
       case 'reveal_dead':
@@ -209,7 +206,6 @@ export default function HostControls({ onEndGame }: HostControlsProps) {
       case 'next_phase':
         // After role assignment, game stays in lobby phase and host can start night phases
         if (gamePhase === 'lobby') {
-          // Check if roles have been assigned (players have roles)
           const playersWithRoles = (Array.isArray(players) ? players : [])
             .filter((p: { role: string | null; is_host: boolean }) => p.role && !p.is_host)
           return playersWithRoles.length > 0
@@ -219,14 +215,14 @@ export default function HostControls({ onEndGame }: HostControlsProps) {
         
         // For night phases, check if phase has been started and action completed
         if (gamePhase === 'night_wolf') {
-          // Can start phase if not started yet, or advance if werwolf has selected
-          return !roundState?.phase_started || roundState?.wolf_target_player_id !== null
+          // Start phase, or advance if wolf selected, or skip if no wolves alive
+          return !roundState?.phase_started || roundState?.wolf_target_player_id !== null || aliveWolves === 0
         } else if (gamePhase === 'night_doctor') {
-          // Can start phase if not started yet, or advance if doctor has saved
-          return !roundState?.phase_started || roundState?.doctor_save_player_id !== null
+          // Start phase, or advance if doctor saved, or skip if doctor dead
+          return !roundState?.phase_started || roundState?.doctor_save_player_id !== null || aliveDoctors === 0
         } else if (gamePhase === 'night_police') {
-          // Can start phase if not started yet; do not auto-advance. Reveal handled separately.
-          return !roundState?.phase_started
+          // Start phase, or reveal directly if no police alive, or after inspection
+          return !roundState?.phase_started || roundState?.police_inspect_player_id !== null || alivePolice === 0
         }
         return false
       case 'reveal_dead':
