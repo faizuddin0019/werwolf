@@ -23,6 +23,23 @@ import DemoMode from '@/components/DemoMode'
 declare global {
   interface Window {
     setGameDataFromAPI: (gameId: string) => Promise<void>
+    resetWerwolfState: () => void
+  }
+}
+
+// Make reset available as early as possible (before React mounts)
+if (typeof window !== 'undefined') {
+  if (!window.resetWerwolfState) {
+    window.resetWerwolfState = () => {
+      try {
+        localStorage.removeItem('werwolf-game-state')
+        localStorage.removeItem('werwolf-game-code')
+        localStorage.removeItem('werwolf-player-name')
+        localStorage.removeItem('werwolf-client-id')
+      } catch {}
+      // Soft reload to remount HomePage
+      window.location.replace('/')
+    }
   }
 }
 
@@ -143,8 +160,22 @@ export default function HomePage() {
     }
   }
 
-  // Restore game state on page load
+  // Restore game state on page load (with strict validation and ?reset)
   useEffect(() => {
+    // URL-based one-shot reset for Safari
+    try {
+      const url = new URL(window.location.href)
+      if (url.searchParams.get('reset') === '1') {
+        localStorage.removeItem('werwolf-game-state')
+        localStorage.removeItem('werwolf-game-code')
+        localStorage.removeItem('werwolf-player-name')
+        localStorage.removeItem('werwolf-client-id')
+        window.history.replaceState({}, '', url.pathname)
+        setGameState('welcome')
+        return
+      }
+    } catch {}
+
     const savedState = loadGameState()
     const savedGameCode = localStorage.getItem('werwolf-game-code')
     const savedPlayerName = localStorage.getItem('werwolf-player-name')
@@ -172,7 +203,12 @@ export default function HomePage() {
         setGameState('welcome')
       }
     } else {
-      setGameState(savedState)
+      // Incomplete or stale local storage → force welcome and sanitize
+      localStorage.removeItem('werwolf-game-state')
+      localStorage.removeItem('werwolf-game-code')
+      localStorage.removeItem('werwolf-player-name')
+      localStorage.removeItem('werwolf-client-id')
+      setGameState('welcome')
     }
   }, []) // Only run once on mount
 
@@ -275,6 +311,19 @@ export default function HomePage() {
       window.setGameDataFromAPI = setGameDataFromAPI
     }
   }, [setGameDataFromAPI])
+
+  // Expose a safe reset helper for Safari users with disabled private mode
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      window.resetWerwolfState = () => {
+        localStorage.removeItem('werwolf-game-state')
+        localStorage.removeItem('werwolf-game-code')
+        localStorage.removeItem('werwolf-player-name')
+        localStorage.removeItem('werwolf-client-id')
+        setGameState('welcome')
+      }
+    }
+  }, [])
 
   // Generate browser-specific client ID if not exists
   useEffect(() => {
