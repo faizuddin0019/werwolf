@@ -492,9 +492,10 @@ async function testWinnerDeclarationCloseable() {
     await eliminatePlayer(gameId, hostClientId, targetPlayer.id, voterPlayer.client_id)
     await sleep(1000)
     
-    // Check that game is not ended yet (still have 6 players - doctor saved target)
+    // Check that game is not ended yet (still have 6 players after day elimination)
     gameState = await getGameState(gameId, hostClientId)
-    assert(gameState.game.phase !== 'ended', 'Game should not be ended with 6 players remaining')
+    const aliveNonHost = gameState.players.filter(p => p.alive && !p.is_host)
+    assert(aliveNonHost.length >= 5, 'Game should not be ended prematurely')
     
     // Test that the game state is properly maintained
     assert(gameState.game.phase !== 'ended', 'Game should not be ended with 6 players remaining')

@@ -353,7 +353,7 @@ async function handleNextPhase(gameId: string, game: Game, targetPhase?: string)
     // Do NOT skip wolf phase even if no wolves alive; host will advance manually
     const { data: round } = await supabase!
       .from('round_state')
-      .select('phase_started, wolf_target_player_id')
+      .select('*')
       .eq('game_id', gameId)
       .single()
     
@@ -377,20 +377,8 @@ async function handleNextPhase(gameId: string, game: Game, targetPhase?: string)
       console.log('✅ night_wolf phase started; selections cleared')
       return NextResponse.json({ success: true, phase: 'night_wolf', action: 'phase_started' })
     }
-    // If targets chosen, advance to doctor. With multiple werewolves, require one unique target per alive wolf (stored as CSV in wolf_target_player_id)
-    if (round.wolf_target_player_id) {
-      // Determine alive werewolves count
-      const { data: wolves } = await supabase!
-        .from('players')
-        .select('id')
-        .eq('game_id', gameId)
-        .eq('alive', true)
-        .in('role', ['werwolf','werewolf'])
-      const aliveWolfCount = wolves?.length || 0
-      const targets = String(round.wolf_target_player_id).split(',').filter(Boolean)
-      if (aliveWolfCount > 1 && targets.length < aliveWolfCount) {
-        return NextResponse.json({ success: true, phase: 'night_wolf', action: 'awaiting_additional_wolf_targets' })
-      }
+    // If at least one target chosen, allow advance to doctor
+    if ((round as any).wolf_target_map || round.wolf_target_player_id) {
       const { data: updatedGame, error: phaseError } = await supabase!
         .from('games')
         .update({ phase: 'night_doctor' })
