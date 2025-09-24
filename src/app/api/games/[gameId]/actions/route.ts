@@ -359,6 +359,17 @@ async function handleNextPhase(gameId: string, game: Game, targetPhase?: string)
       if (!updatedGame) {
         return NextResponse.json({ error: 'State changed; retry next_phase' }, { status: 409 })
       }
+      // Ensure doctor gets a fresh turn
+      const { error: clearDoctorErr } = await supabase!
+        .from('round_state')
+        .update({
+          phase_started: true,
+          doctor_save_player_id: null
+        })
+        .eq('game_id', gameId)
+      if (clearDoctorErr) {
+        console.error('❌ Error clearing doctor state for new phase:', clearDoctorErr)
+      }
       console.log('✅ Game phase updated to night_doctor!')
       return NextResponse.json({ success: true, phase: 'night_doctor', action: 'phase_advanced' })
     }
@@ -387,6 +398,18 @@ async function handleNextPhase(gameId: string, game: Game, targetPhase?: string)
       return NextResponse.json({ error: 'State changed; retry next_phase' }, { status: 409 })
     }
     
+    // Ensure police gets a fresh turn
+    const { error: clearPoliceErr } = await supabase!
+      .from('round_state')
+      .update({
+        phase_started: true,
+        police_inspect_player_id: null,
+        police_inspect_result: null
+      })
+      .eq('game_id', gameId)
+    if (clearPoliceErr) {
+      console.error('❌ Error clearing police state for new phase:', clearPoliceErr)
+    }
     console.log('✅ Game phase updated to night_police!')
     return NextResponse.json({ success: true, phase: 'night_police', action: 'phase_advanced' })
   }
@@ -467,10 +490,7 @@ async function handleWolfSelect(gameId: string, player: Player, targetId: string
     return NextResponse.json({ error: 'Phase has not been started by the host yet' }, { status: 400 })
   }
   
-  if (roundState?.wolf_target_player_id) {
-    console.log('🔧 Werwolf already selected, rejecting second action')
-    return NextResponse.json({ error: 'Werwolf has already selected a target for this phase' }, { status: 400 })
-  }
+  // Allow overriding target within the same night_wolf phase (last choice wins until host advances)
   
   const { error: updateError } = await supabase!
     .from('round_state')
@@ -520,10 +540,7 @@ async function handlePoliceInspect(gameId: string, player: Player, targetId: str
     return NextResponse.json({ error: 'Phase has not been started by the host yet' }, { status: 400 })
   }
   
-  if (roundState?.police_inspect_player_id) {
-    console.log('🔧 Police already inspected, rejecting second action')
-    return NextResponse.json({ error: 'Police has already inspected a player for this phase' }, { status: 400 })
-  }
+  // Allow overriding inspect within the same phase until host advances
   
   // Get target player
   const { data: targetPlayer } = await supabase!
@@ -585,10 +602,7 @@ async function handleDoctorSave(gameId: string, player: Player, targetId: string
     return NextResponse.json({ error: 'Phase has not been started by the host yet' }, { status: 400 })
   }
   
-  if (roundState?.doctor_save_player_id) {
-    console.log('🔧 Doctor already saved, rejecting second action')
-    return NextResponse.json({ error: 'Doctor has already saved a player for this phase' }, { status: 400 })
-  }
+  // Allow overriding save within the same phase until host advances
   
   const { error: updateError } = await supabase!
     .from('round_state')
