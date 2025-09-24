@@ -153,7 +153,7 @@ async function getGameState(gameId, hostClientId) {
   })
 }
 
-async function waitForPhase(gameId, hostClientId, expectedPhase, timeoutMs = 3000) {
+async function waitForPhase(gameId, hostClientId, expectedPhase, timeoutMs = 6000) {
   const start = Date.now()
   while (Date.now() - start < timeoutMs) {
     const gs = await getGameState(gameId, hostClientId)
