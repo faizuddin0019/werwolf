@@ -5,7 +5,7 @@
  * Ensures Werwolf action screen appears when host clicks "Wake Up Werwolf"
  */
 
-const BASE_URL = process.env.TEST_URL || 'http://localhost:3001'
+const BASE_URL = process.env.TEST_URL || 'http://localhost:3000'
 
 async function testWerwolfActionScreen() {
   console.log('🐺 Testing Werwolf Action Screen Integration...')

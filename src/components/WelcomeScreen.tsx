@@ -537,7 +537,7 @@ export default function WelcomeScreen({ onStartGame, onJoinGame }: WelcomeScreen
               How This Works
             </h3>
             <div className="text-sm text-gray-300 space-y-2">
-              <p>• <strong className="text-white">6-20 players</strong> required to start</p>
+              <p>• <strong className="text-white">Host + 6 players</strong> required to start</p>
               <p>• <strong className="text-white">No typing during play</strong> - just click!</p>
               <p>• <strong className="text-white">Host controls</strong> the game flow</p>
               <p>• <strong className="text-white">All conversation</strong> happens in your video call</p>

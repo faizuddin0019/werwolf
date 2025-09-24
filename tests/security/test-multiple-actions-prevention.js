@@ -1,4 +1,4 @@
-const BASE_URL = process.env.BASE_URL || 'http://localhost:3001'
+const BASE_URL = process.env.BASE_URL || 'http://localhost:3000'
 
 class MultipleActionsPreventionTest {
   constructor() {
@@ -34,7 +34,8 @@ class MultipleActionsPreventionTest {
         clientId: 'multiple-actions-test-host-' + Date.now()
       })
     })
-    this.gameId = hostResponse.gameId     this.gameId = hostResponse.game.id
+    this.gameId = hostResponse.gameId
+    this.gameUuid = hostResponse.game.id
     this.hostClientId = hostResponse.player.client_id
     console.log(`✅ Game created: ${this.gameId}`)
 
@@ -56,7 +57,7 @@ class MultipleActionsPreventionTest {
 
   async assignRolesAndStart() {
     console.log('📝 Step 3: Assigning roles...')
-    await this.makeRequest(`${BASE_URL}/api/games/${this.gameId}/actions`, {
+    await this.makeRequest(`${BASE_URL}/api/games/${this.gameUuid}/actions`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -89,7 +90,7 @@ class MultipleActionsPreventionTest {
     console.log('\n📝 Step 4: Testing Werwolf Multiple Actions Prevention...')
     
     // Host starts werwolf phase
-    await this.makeRequest(`${BASE_URL}/api/games/${this.gameId}/actions`, {
+    await this.makeRequest(`${BASE_URL}/api/games/${this.gameUuid}/actions`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -111,7 +112,7 @@ class MultipleActionsPreventionTest {
 
     // First action should succeed
     console.log('📝 Testing first werwolf action...')
-    const firstAction = await this.makeRequest(`${BASE_URL}/api/games/${this.gameId}/actions`, {
+    const firstAction = await this.makeRequest(`${BASE_URL}/api/games/${this.gameUuid}/actions`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -129,7 +130,7 @@ class MultipleActionsPreventionTest {
     // Second action should fail
     console.log('📝 Testing second werwolf action (should fail)...')
     try {
-      const secondAction = await this.makeRequest(`${BASE_URL}/api/games/${this.gameId}/actions`, {
+      const secondAction = await this.makeRequest(`${BASE_URL}/api/games/${this.gameUuid}/actions`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -154,7 +155,7 @@ class MultipleActionsPreventionTest {
     console.log('\n📝 Step 5: Testing Doctor Multiple Actions Prevention...')
     
     // Host advances to doctor phase
-    await this.makeRequest(`${BASE_URL}/api/games/${this.gameId}/actions`, {
+    await this.makeRequest(`${BASE_URL}/api/games/${this.gameUuid}/actions`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -176,7 +177,7 @@ class MultipleActionsPreventionTest {
 
     // First action should succeed
     console.log('📝 Testing first doctor action...')
-    const firstAction = await this.makeRequest(`${BASE_URL}/api/games/${this.gameId}/actions`, {
+    const firstAction = await this.makeRequest(`${BASE_URL}/api/games/${this.gameUuid}/actions`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -194,7 +195,7 @@ class MultipleActionsPreventionTest {
     // Second action should fail
     console.log('📝 Testing second doctor action (should fail)...')
     try {
-      const secondAction = await this.makeRequest(`${BASE_URL}/api/games/${this.gameId}/actions`, {
+      const secondAction = await this.makeRequest(`${BASE_URL}/api/games/${this.gameUuid}/actions`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -219,7 +220,7 @@ class MultipleActionsPreventionTest {
     console.log('\n📝 Step 6: Testing Police Multiple Actions Prevention...')
     
     // Host advances to police phase
-    await this.makeRequest(`${BASE_URL}/api/games/${this.gameId}/actions`, {
+    await this.makeRequest(`${BASE_URL}/api/games/${this.gameUuid}/actions`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -241,7 +242,7 @@ class MultipleActionsPreventionTest {
 
     // First action should succeed
     console.log('📝 Testing first police action...')
-    const firstAction = await this.makeRequest(`${BASE_URL}/api/games/${this.gameId}/actions`, {
+    const firstAction = await this.makeRequest(`${BASE_URL}/api/games/${this.gameUuid}/actions`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -259,7 +260,7 @@ class MultipleActionsPreventionTest {
     // Second action should fail
     console.log('📝 Testing second police action (should fail)...')
     try {
-      const secondAction = await this.makeRequest(`${BASE_URL}/api/games/${this.gameId}/actions`, {
+      const secondAction = await this.makeRequest(`${BASE_URL}/api/games/${this.gameUuid}/actions`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

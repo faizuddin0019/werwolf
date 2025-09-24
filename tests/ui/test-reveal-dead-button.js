@@ -1,4 +1,4 @@
-const BASE_URL = process.env.BASE_URL || 'http://localhost:3001'
+const BASE_URL = process.env.BASE_URL || 'http://localhost:3000'
 
 class RevealDeadButtonTest {
   constructor() {
@@ -34,7 +34,8 @@ class RevealDeadButtonTest {
         clientId: 'reveal-dead-test-host-' + Date.now()
       })
     })
-    this.gameId = hostResponse.gameId     this.gameId = hostResponse.game.id
+    this.gameId = hostResponse.gameId
+    this.gameUuid = hostResponse.game.id
     this.hostClientId = hostResponse.player.client_id
     console.log(`✅ Game created: ${this.gameId}`)
 
@@ -56,7 +57,7 @@ class RevealDeadButtonTest {
 
   async assignRolesAndStart() {
     console.log('📝 Step 3: Assigning roles...')
-    await this.makeRequest(`${BASE_URL}/api/games/${this.gameId}/actions`, {
+    await this.makeRequest(`${BASE_URL}/api/games/${this.gameUuid}/actions`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -90,7 +91,7 @@ class RevealDeadButtonTest {
     
     // Step 4a: Werwolf Phase - Reveal Dead should NOT be available
     console.log('📝 Step 4a: Testing Werwolf Phase...')
-    await this.makeRequest(`${BASE_URL}/api/games/${this.gameId}/actions`, {
+    await this.makeRequest(`${BASE_URL}/api/games/${this.gameUuid}/actions`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -105,7 +106,7 @@ class RevealDeadButtonTest {
     const targets = gameState.players.filter(p => p.id !== this.werwolfPlayerId && !p.is_host && p.alive)
 
     // Werwolf eliminates a target
-    await this.makeRequest(`${BASE_URL}/api/games/${this.gameId}/actions`, {
+    await this.makeRequest(`${BASE_URL}/api/games/${this.gameUuid}/actions`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -117,7 +118,7 @@ class RevealDeadButtonTest {
 
     // Check if reveal_dead action is available (should NOT be)
     try {
-      await this.makeRequest(`${BASE_URL}/api/games/${this.gameId}/actions`, {
+      await this.makeRequest(`${BASE_URL}/api/games/${this.gameUuid}/actions`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -136,7 +137,7 @@ class RevealDeadButtonTest {
 
     // Step 4b: Doctor Phase - Reveal Dead should NOT be available
     console.log('📝 Step 4b: Testing Doctor Phase...')
-    await this.makeRequest(`${BASE_URL}/api/games/${this.gameId}/actions`, {
+    await this.makeRequest(`${BASE_URL}/api/games/${this.gameUuid}/actions`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -148,7 +149,7 @@ class RevealDeadButtonTest {
     const doctorTargets = gameState.players.filter(p => p.id !== this.doctorPlayerId && !p.is_host && p.alive)
 
     // Doctor saves a target
-    await this.makeRequest(`${BASE_URL}/api/games/${this.gameId}/actions`, {
+    await this.makeRequest(`${BASE_URL}/api/games/${this.gameUuid}/actions`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -160,7 +161,7 @@ class RevealDeadButtonTest {
 
     // Check if reveal_dead action is available (should NOT be)
     try {
-      await this.makeRequest(`${BASE_URL}/api/games/${this.gameId}/actions`, {
+      await this.makeRequest(`${BASE_URL}/api/games/${this.gameUuid}/actions`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -179,7 +180,7 @@ class RevealDeadButtonTest {
 
     // Step 4c: Police Phase - Reveal Dead should be available AFTER police action
     console.log('📝 Step 4c: Testing Police Phase...')
-    await this.makeRequest(`${BASE_URL}/api/games/${this.gameId}/actions`, {
+    await this.makeRequest(`${BASE_URL}/api/games/${this.gameUuid}/actions`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -191,7 +192,7 @@ class RevealDeadButtonTest {
     const policeTargets = gameState.players.filter(p => p.id !== this.policePlayerId && !p.is_host && p.alive)
 
     // Police inspects a target
-    await this.makeRequest(`${BASE_URL}/api/games/${this.gameId}/actions`, {
+    await this.makeRequest(`${BASE_URL}/api/games/${this.gameUuid}/actions`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -203,7 +204,7 @@ class RevealDeadButtonTest {
 
     // Check if reveal_dead action is available (should BE available)
     console.log('📝 Testing Reveal Dead availability after police action...')
-    const revealResponse = await this.makeRequest(`${BASE_URL}/api/games/${this.gameId}/actions`, {
+    const revealResponse = await this.makeRequest(`${BASE_URL}/api/games/${this.gameUuid}/actions`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

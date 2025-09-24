@@ -7,11 +7,10 @@
  * Bug ID: win-conditions-400-error
  */
 
-const BASE_URL = process.env.TEST_BASE_URL || 'http://localhost:3001'
+const BASE_URL = process.env.TEST_BASE_URL || 'http://localhost:3000'
 
 class WinConditionsBugTest {
   constructor() {
-    this.gameId = null
     this.gameId = null
     this.hostClientId = null
     this.playerClientIds = []
@@ -43,7 +42,7 @@ class WinConditionsBugTest {
       })
     })
     
-    this.gameId = hostResponse.gameId     this.gameId = hostResponse.game.id
+    this.gameId = hostResponse.gameId
     this.hostClientId = hostResponse.player.client_id
     console.log(`✅ Game created: ${this.gameId}`)
 

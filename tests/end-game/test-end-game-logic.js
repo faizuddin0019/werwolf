@@ -123,7 +123,7 @@ async function eliminatePlayer(gameId, hostClientId, targetPlayerId, voterClient
     body: JSON.stringify({
       action: 'vote',
       clientId: voterClientId,
-      targetPlayerId
+      data: { targetId: targetPlayerId }
     })
   })
   
@@ -189,14 +189,14 @@ async function testEndGameLogicWithTwoPlayers() {
     await assignRoles(gameId, hostClientId)
     await sleep(1000)
     
-    // Get initial game state
+    // Get initial game state (stays lobby; host must start night)
     let gameState = await getGameState(gameId, hostClientId)
-    assert(gameState.game.phase === 'night_wolf', 'Game should transition to night_wolf after role assignment')
+    assert(gameState.game.phase === 'lobby', 'Game should remain in lobby after role assignment')
     
     // Host advances to night_wolf phase
-    await nextPhase(gameId, hostClientId)
+    await nextPhase(gameId, hostClientId) // lobby -> night_wolf
     gameState = await getGameState(gameId, hostClientId)
-    assert(gameState.game.phase === 'night_doctor', 'Game should be in night_doctor phase after host advances')
+    assert(gameState.game.phase === 'night_wolf', 'Game should be in night_wolf after host advances')
     
     // Get updated game state with roles
     gameState = await getGameState(gameId, hostClientId)
@@ -206,8 +206,8 @@ async function testEndGameLogicWithTwoPlayers() {
     // Werewolf action is now allowed since we're in night_wolf phase
     
     // Werewolf selects target (only in night_wolf phase)
-    const werewolf = gamePlayers.find(p => p.role === 'werewolf')
-    const target = gamePlayers.find(p => p.role !== 'werewolf')
+    const werewolf = gamePlayers.find(p => p.role === 'werewolf' || p.role === 'werwolf')
+    const target = gamePlayers.find(p => p.role !== 'werewolf' && p.role !== 'werwolf')
     
     // Get fresh game state to check current phase
     let currentGameState = await getGameState(gameId, hostClientId)
@@ -217,7 +217,7 @@ async function testEndGameLogicWithTwoPlayers() {
         body: JSON.stringify({
           action: 'wolf_select',
           clientId: werewolf.client_id,
-          targetPlayerId: target.id
+          data: { targetId: target.id }
         })
       })
     }
@@ -235,7 +235,7 @@ async function testEndGameLogicWithTwoPlayers() {
         body: JSON.stringify({
           action: 'doctor_save',
           clientId: doctor.client_id,
-          targetPlayerId: target.id
+          data: { targetId: target.id }
         })
       })
     }
@@ -253,7 +253,7 @@ async function testEndGameLogicWithTwoPlayers() {
         body: JSON.stringify({
           action: 'police_inspect',
           clientId: police.client_id,
-          targetPlayerId: target.id
+          data: { targetId: target.id }
         })
       })
     }
@@ -281,8 +281,8 @@ async function testEndGameLogicWithTwoPlayers() {
     gameState = await getGameState(gameId, hostClientId)
     const alivePlayers = gameState.players.filter(p => p.alive && !p.is_host)
     
-    assert(alivePlayers.length === 6, `Expected 6 alive players (doctor saved target), got ${alivePlayers.length}`)
-    log('✅ No player elimination (doctor saved target)')
+    assert(alivePlayers.length === 5, `Expected 5 alive players after day elimination, got ${alivePlayers.length}`)
+    log('✅ One player eliminated during day voting')
     
     // Test that the game continues (not ended yet since we still have 6 players)
     assert(gameState.game.phase !== 'ended', 'Game should not be ended with 6 players remaining')
@@ -357,7 +357,7 @@ async function testHostExclusionFromWinConditions() {
     const aliveNonHostPlayers = gameState.players.filter(p => p.alive && !p.is_host)
     const aliveHostPlayers = gameState.players.filter(p => p.alive && p.is_host)
     
-    assert(aliveNonHostPlayers.length === 6, 'Should have 6 non-host players alive (doctor saved target)')
+    assert(aliveNonHostPlayers.length === 5, 'Should have 5 non-host players alive after day elimination')
     assert(aliveHostPlayers.length === 1, 'Host should still be alive')
     assert(gameState.game.phase !== 'ended', 'Game should not be ended with 5 players remaining')
     
@@ -461,7 +461,7 @@ async function testRealTimeSync() {
     await sleep(2000) // Wait for real-time sync
     
     gameState = await getGameState(gameId, hostClientId)
-    assert(gameState.game.phase === 'night_wolf', 'Game should transition to night_wolf after role assignment')
+    assert(gameState.game.phase === 'lobby', 'Game should remain in lobby after role assignment')
     
     // Go through night phases to reach day phase for voting
     await nextPhase(gameId, hostClientId) // night_doctor

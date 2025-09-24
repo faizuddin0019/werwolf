@@ -9,7 +9,7 @@
  * 3. Proper ordering based on hasActiveActionScreen logic
  */
 
-const BASE_URL = process.env.TEST_BASE_URL || 'http://localhost:3001'
+const BASE_URL = process.env.TEST_BASE_URL || 'http://localhost:3000'
 
 async function testMobileLayoutOrdering() {
   console.log('📱 Testing Mobile Layout Ordering...')

@@ -10,7 +10,7 @@
  * 4. Dead players at the end
  */
 
-const BASE_URL = process.env.TEST_BASE_URL || 'http://localhost:3001'
+const BASE_URL = process.env.TEST_BASE_URL || 'http://localhost:3000'
 
 async function testPlayerOrdering() {
   console.log('🎯 Testing Player Ordering Logic...')

@@ -1,0 +1,829 @@
+🚀 Starting Comprehensive Test Suite for Werwolf Game
+==================================================
+[0;34m📋 Test Configuration:[0m
+Base URL: http://localhost:3000
+Vercel URL: 
+Node Version: v24.8.0
+NPM Version: 11.6.0
+
+[1;33m🔍 Checking Local Development server status...[0m
+[0;32m✅ Local Development server is running at http://localhost:3000[0m
+
+[0;34m🧪 Starting Test Execution...[0m
+==================================================
+
+[0;34m🎯 Running Core Game Logic Tests[0m
+
+[0;34m🧪 Running: Core Game Logic Tests[0m
+Test URL: http://localhost:3000
+Test File: tests/core/game-logic.test.js
+🎯 Starting Core Game Logic Tests
+📍 Testing against: http://localhost:3000
+
+🎮 Setting up test game...
+✅ Game created with code: 034670
+✅ Player 1 joined: Player1
+✅ Player 2 joined: Player2
+✅ Player 3 joined: Player3
+✅ Player 4 joined: Player4
+✅ Player 5 joined: Player5
+✅ Player 6 joined: Player6
+✅ Game setup complete with 7 total players
+
+🧪 Running test: Game Creation
+
+🎯 Testing game creation...
+✅ Game creation works correctly
+✅ Game Creation - PASSED
+
+🧪 Running test: Player Joining
+
+👥 Testing player joining...
+✅ Player joining works correctly
+✅ Player Joining - PASSED
+
+🧪 Running test: Role Assignment
+
+🎭 Testing role assignment...
+✅ Role assignment works correctly
+✅ Role Assignment - PASSED
+
+🧪 Running test: Sound Effect Implementation
+🔊 Testing sound effect implementation...
+🔧 Debug: Game phase after role assignment: night_wolf
+✅ Sound effect implementation test passed (manual verification required)
+✅ Sound Effect Implementation - PASSED
+
+🧪 Running test: Win Conditions
+
+🏆 Testing win conditions...
+Current alive players: 7
+🔧 Game state after role assignment: {
+  players: [
+    { name: 'TestHost', role: null, alive: true, is_host: true },
+    { name: 'Player6', role: 'werewolf', alive: true, is_host: false },
+    { name: 'Player2', role: 'police', alive: true, is_host: false },
+    { name: 'Player5', role: 'doctor', alive: true, is_host: false },
+    { name: 'Player1', role: 'villager', alive: true, is_host: false },
+    { name: 'Player3', role: 'villager', alive: true, is_host: false },
+    { name: 'Player4', role: 'villager', alive: true, is_host: false }
+  ]
+}
+✅ Werewolf selected target: Player2
+✅ Doctor saved: Player2
+Current phase before reveal_dead: night_police
+Reveal dead response: { success: true, deadPlayerId: null, winState: null }
+🔧 Getting game state for iteration 1...
+✅ Got game state, phase: day_vote
+🔧 Win condition check: {
+  alivePlayers: 6,
+  aliveWerwolves: 1,
+  werewolfNames: [ 'Player6' ],
+  allPlayers: [
+    { name: 'Player6', role: 'werewolf', alive: true },
+    { name: 'Player2', role: 'police', alive: true },
+    { name: 'Player5', role: 'doctor', alive: true },
+    { name: 'Player1', role: 'villager', alive: true },
+    { name: 'Player3', role: 'villager', alive: true },
+    { name: 'Player4', role: 'villager', alive: true }
+  ]
+}
+🔧 Voting iteration 1: {
+  alivePlayers: 6,
+  werewolf: 'Player6',
+  villagers: [ 'Player2', 'Player5', 'Player1', 'Player3', 'Player4' ],
+  villagersCount: 5
+}
+🎯 Voting to eliminate villager: Player2
+✅ Eliminate response: {
+  success: true,
+  eliminatedPlayerId: '82b05e9c-4e34-4b14-b0f8-6601b4c0615e',
+  wasWerwolf: false,
+  winState: null
+}
+✅ Eliminated player 1/1
+✅ Reached target eliminations, ending test
+📊 Final game state: { alivePlayers: 5, werwolves: 1, phase: 'night_wolf', winState: null }
+✅ Test passed - werewolf survived elimination of 1 villager
+✅ Final alive players: 5 (werewolf + 4 villagers)
+✅ Werewolf: Player6
+✅ Win Conditions - PASSED
+
+📊 Core Game Logic Test Results:
+==================================================
+✅ Game Creation: PASSED
+✅ Player Joining: PASSED
+✅ Role Assignment: PASSED
+✅ Sound Effect Implementation: PASSED
+✅ Win Conditions: PASSED
+==================================================
+Total: 5 | Passed: 5 | Failed: 0
+🎉 All core game logic tests passed!
+[0;32m✅ Core Game Logic Tests: PASSED[0m
+
+[0;34m🧪 Running: Player Ordering Tests[0m
+Test URL: http://localhost:3000
+Test File: tests/core/test-player-ordering.js
+🎯 Testing Player Ordering Logic...
+📝 Test 1: Creating game as host...
+✅ Game created with code: 087534
+📝 Test 2: Joining as multiple players...
+✅ All players joined successfully
+📝 Test 3: Assigning roles...
+✅ Roles assigned successfully
+📝 Test 4: Verifying player ordering...
+✅ Host is first in the list
+✅ Current player is second in the list
+📝 Test 5: Testing dead player ordering...
+🔧 Simulating death of player: Player5
+✅ Dead players are properly placed at the end
+🎉 All player ordering tests passed!
+[0;32m✅ Player Ordering Tests: PASSED[0m
+
+[0;34m🔒 Running Security Tests[0m
+
+[0;34m🧪 Running: Role Visibility Security Tests[0m
+Test URL: http://localhost:3000
+Test File: tests/security/test-role-visibility.js
+🔒 Testing Role Visibility Security...
+📝 Test 1: Creating game as host...
+✅ Game created with code: 810964
+📝 Test 2: Joining as player 1...
+📝 Test 3: Joining as player 2...
+📝 Test 4: Joining as player 3...
+📝 Test 5: Joining as player 4...
+📝 Test 6: Joining as player 5...
+📝 Test 7: Joining as player 6...
+📝 Test 8: Assigning roles as host...
+✅ Roles assigned successfully
+📝 Test 9: Verifying role visibility security...
+✅ Host can see all roles correctly
+✅ Player 1 can only see their own role
+✅ Player 2 can only see their own role
+🎉 All role visibility security tests passed!
+[0;32m✅ Role Visibility Security Tests: PASSED[0m
+
+[0;34m🧪 Running: Phase Timing Security Tests[0m
+Test URL: http://localhost:3000
+Test File: tests/security/test-phase-timing-security.js
+🔒 Testing Phase Timing Security...
+📝 Test 1: Setting up game with players...
+✅ Game setup completed
+📝 Test 2: Verifying initial phase_started state...
+✅ phase_started is false initially
+📝 Test 3: Verifying werewolf cannot act before host starts phase...
+✅ Werewolf cannot act before host starts phase
+📝 Test 4: Host starting werewolf phase...
+✅ Werewolf phase started by host
+📝 Test 5: Verifying phase_started is now true...
+✅ phase_started is true after host starts phase
+📝 Test 6: Verifying werewolf can now act...
+🔧 Debug: All players and their roles:
+  - HostPlayer (host-client-123): no role (HOST)
+  - VillagerPlayer3 (player6-client-114): werewolf 
+  - DoctorPlayer (player2-client-789): police 
+  - VillagerPlayer2 (player5-client-113): doctor 
+  - WerewolfPlayer (player1-client-456): villager 
+  - VillagerPlayer1 (player4-client-112): villager 
+  - PolicePlayer (player3-client-101): villager 
+🔧 Debug: Werewolf player: {
+  name: 'VillagerPlayer3',
+  role: 'werewolf',
+  clientId: 'player6-client-114'
+}
+🔧 Debug: Target player: {
+  name: 'DoctorPlayer',
+  role: 'police',
+  clientId: 'player2-client-789'
+}
+✅ Werewolf can act after host starts phase
+📝 Test 7: Verifying doctor cannot act during werewolf phase...
+✅ Doctor cannot act during werewolf phase
+📝 Test 8: Verifying police cannot act during werewolf phase...
+✅ Police cannot act during werewolf phase
+🎉 All phase timing security tests passed!
+[0;32m✅ Phase Timing Security Tests: PASSED[0m
+
+[0;34m🧪 Running: Multiple Actions Prevention Tests[0m
+Test URL: http://localhost:3000
+Test File: tests/security/test-multiple-actions-prevention.js
+/Users/fshaik/wearwolf/tests/security/test-multiple-actions-prevention.js:37
+    this.gameId = hostResponse.gameId     this.gameId = hostResponse.game.id
+                                          ^^^^
+
+SyntaxError: Unexpected token 'this'
+    at wrapSafe (node:internal/modules/cjs/loader:1691:18)
+    at Module._compile (node:internal/modules/cjs/loader:1734:20)
+    at Object..js (node:internal/modules/cjs/loader:1893:10)
+    at Module.load (node:internal/modules/cjs/loader:1480:32)
+    at Module._load (node:internal/modules/cjs/loader:1299:12)
+    at TracingChannel.traceSync (node:diagnostics_channel:322:14)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:244:24)
+    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)
+    at node:internal/main/run_main_module:33:47
+
+Node.js v24.8.0
+[0;31m❌ Multiple Actions Prevention Tests: FAILED[0m
+
+[0;34m🎨 Running UI Tests[0m
+
+[0;34m🧪 Running: Game Screen Layout Tests[0m
+Test URL: http://localhost:3000
+Test File: tests/ui/test-game-screen-layout.js
+🎨 Testing Game Screen Layout and Styling...
+📝 Test 1: Setting up game with players...
+✅ Game setup completed
+📝 Test 2: Verifying role visibility security...
+✅ Host can see all roles correctly
+✅ Werewolf can only see their own role
+✅ Villager can only see their own role
+📝 Test 3: Verifying player ordering...
+✅ Host is first in the list
+✅ Current player is second in the list
+📝 Test 4: Verifying game phase transition...
+✅ Game phase is correctly set to lobby (ready for host to start)
+📝 Test 5: Verifying action screen timing...
+✅ Phase is not started until host action
+🎉 All game screen layout tests passed!
+[0;32m✅ Game Screen Layout Tests: PASSED[0m
+
+[0;34m🧪 Running: Mobile Layout Ordering Tests[0m
+Test URL: http://localhost:3000
+Test File: tests/ui/test-mobile-layout-ordering.js
+📱 Testing Mobile Layout Ordering...
+📝 Test 1: Setting up game with players...
+✅ Game setup completed
+📝 Test 2: Verifying initial state (no active action screens)...
+✅ Werewolf cannot act before host starts phase
+📝 Test 3: Host starting werewolf phase...
+✅ Werewolf phase started by host
+📝 Test 4: Verifying werewolf can now act...
+✅ Werewolf can now act after host starts phase
+📝 Test 5: Verifying mobile layout ordering logic...
+✅ hasActiveActionScreen logic works correctly
+📝 Test 6: Verifying villager cannot act during werewolf phase...
+✅ Villager cannot act during werewolf phase
+📝 Test 7: Verifying villager has no active action screen...
+✅ Villager has no active action screen during werewolf phase
+🎉 All mobile layout ordering tests passed!
+[0;32m✅ Mobile Layout Ordering Tests: PASSED[0m
+
+[0;34m🧪 Running: Reveal Dead Button Tests[0m
+Test URL: http://localhost:3000
+Test File: tests/ui/test-reveal-dead-button.js
+/Users/fshaik/wearwolf/tests/ui/test-reveal-dead-button.js:37
+    this.gameId = hostResponse.gameId     this.gameId = hostResponse.game.id
+                                          ^^^^
+
+SyntaxError: Unexpected token 'this'
+    at wrapSafe (node:internal/modules/cjs/loader:1691:18)
+    at Module._compile (node:internal/modules/cjs/loader:1734:20)
+    at Object..js (node:internal/modules/cjs/loader:1893:10)
+    at Module.load (node:internal/modules/cjs/loader:1480:32)
+    at Module._load (node:internal/modules/cjs/loader:1299:12)
+    at TracingChannel.traceSync (node:diagnostics_channel:322:14)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:244:24)
+    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)
+    at node:internal/main/run_main_module:33:47
+
+Node.js v24.8.0
+[0;31m❌ Reveal Dead Button Tests: FAILED[0m
+
+[0;34m🧪 Running: Action Visibility Tests[0m
+Test URL: http://localhost:3000
+Test File: tests/ui/test-action-visibility.js
+🧪 Testing Action Visibility...
+
+📝 Step 1: Creating game...
+✅ Game created: 069642
+📝 Step 2: Adding 6 players...
+✅ 6 players added
+📝 Step 3: Assigning roles...
+❌ Action Visibility Test Failed: HTTP 404: {"error":"Game not found"}
+[0;31m❌ Action Visibility Tests: FAILED[0m
+
+[0;34m🔗 Running Integration Tests[0m
+
+[0;34m🧪 Running: Real-time Sync Tests[0m
+Test URL: http://localhost:3000
+Test File: tests/integration/real-time-sync.test.js
+🔧 Starting Real-time Sync Integration Tests
+📍 Testing against: http://localhost:3000
+
+🎮 Setting up test game...
+✅ Game created with code: 402949
+✅ Player 1 joined: Player1
+✅ Player 2 joined: Player2
+✅ Player 3 joined: Player3
+✅ Player 4 joined: Player4
+✅ Player 5 joined: Player5
+✅ Player 6 joined: Player6
+✅ Game setup complete with 7 total players
+
+🧪 Running test: Real-time Events for Host
+
+🔧 Testing real-time events for host...
+✅ Roles assigned successfully
+✅ Game started successfully
+✅ Round state created for real-time tracking
+Available players: [
+  { name: 'TestHost', role: null, is_host: true },
+  { name: 'Player1', role: 'werewolf', is_host: false },
+  { name: 'Player6', role: 'police', is_host: false },
+  { name: 'Player4', role: 'doctor', is_host: false },
+  { name: 'Player3', role: 'villager', is_host: false },
+  { name: 'Player5', role: 'villager', is_host: false },
+  { name: 'Player2', role: 'villager', is_host: false }
+]
+✅ Werewolf action completed
+✅ Real-time round state update verified
+✅ Real-time Events for Host - PASSED
+
+🧪 Running test: Host Voting Exclusion
+
+🗳️ Testing host voting exclusion...
+✅ Advanced to day vote phase
+Current game phase: day_vote
+✅ Host correctly prevented from voting
+✅ Regular player voting works correctly
+✅ Host Voting Exclusion - PASSED
+
+🧪 Running test: Player Management
+
+👥 Testing player management...
+🔍 Looking for player with client_id: test-player-1-1758676503030
+🔍 Available players: test-host-1758676502163, test-player-1-1758676503030, test-player-6-1758676509084, test-player-4-1758676507006, test-player-3-1758676505808, test-player-5-1758676508072, test-player-2-1758676504569
+🔍 Player to remove ID: 71bcd13d-6d34-4f94-80f2-2e9a81620716
+🔍 Player to remove name: Player1
+✅ Player removal works correctly
+✅ Player removal verified
+✅ Player Management - PASSED
+
+🧪 Running test: Leave Request System
+
+🚪 Testing leave request system...
+✅ Leave request created
+✅ Leave request approved
+✅ Leave request system works correctly
+✅ Leave Request System - PASSED
+
+🧪 Running test: Mobile UI Layout
+📱 Testing mobile UI layout...
+⚠️ Not enough players (4/6) to assign roles, skipping role assignment
+✅ Mobile UI layout test passed
+✅ Mobile UI Layout - PASSED
+
+🧪 Running test: Host Redirect Prevention
+
+🚫 Testing host redirect prevention...
+🔍 Game found with phase: night_wolf
+✅ Game ended successfully
+✅ Game ended and cleaned up successfully
+✅ Host Redirect Prevention - PASSED
+
+📊 Real-time Sync Integration Test Results:
+==================================================
+✅ Real-time Events for Host: PASSED
+✅ Host Voting Exclusion: PASSED
+✅ Player Management: PASSED
+✅ Leave Request System: PASSED
+✅ Mobile UI Layout: PASSED
+✅ Host Redirect Prevention: PASSED
+==================================================
+Total: 6 | Passed: 6 | Failed: 0
+🎉 All real-time sync integration tests passed!
+[0;32m✅ Real-time Sync Tests: PASSED[0m
+
+[0;34m🏁 Running End Game Tests[0m
+
+[0;34m🧪 Running: End Game Logic Tests[0m
+Test URL: http://localhost:3000
+Test File: tests/end-game/test-end-game-logic.js
+🔧 [2025-09-24T01:15:43.411Z] 🚀 Starting end game logic tests...
+🔧 [2025-09-24T01:15:43.416Z] 
+🧪 Running: End Game Logic with Two Players
+🔧 [2025-09-24T01:15:43.416Z] 🧪 Testing end game logic when only 2 players remain...
+🔧 [2025-09-24T01:15:43.416Z] Creating test game...
+🔧 [2025-09-24T01:15:44.223Z] Game created with code: 037188
+🔧 [2025-09-24T01:15:44.223Z] Player Player1 joining game 037188...
+🔧 [2025-09-24T01:15:45.193Z] Player Player1 joined successfully
+🔧 [2025-09-24T01:15:45.193Z] Player Player2 joining game 037188...
+🔧 [2025-09-24T01:15:46.243Z] Player Player2 joined successfully
+🔧 [2025-09-24T01:15:46.243Z] Player Player3 joining game 037188...
+🔧 [2025-09-24T01:15:47.421Z] Player Player3 joined successfully
+🔧 [2025-09-24T01:15:47.421Z] Player Player4 joining game 037188...
+🔧 [2025-09-24T01:15:48.484Z] Player Player4 joined successfully
+🔧 [2025-09-24T01:15:48.484Z] Player Player5 joining game 037188...
+🔧 [2025-09-24T01:15:49.526Z] Player Player5 joined successfully
+🔧 [2025-09-24T01:15:49.526Z] Player Player6 joining game 037188...
+🔧 [2025-09-24T01:15:50.573Z] Player Player6 joined successfully
+🔧 [2025-09-24T01:15:50.573Z] Assigning roles to players...
+🔧 [2025-09-24T01:15:53.533Z] Roles assigned successfully
+❌ [2025-09-24T01:15:55.719Z] ❌ End game logic test failed: Game should transition to night_wolf after role assignment
+❌ [2025-09-24T01:15:55.719Z] ❌ End Game Logic with Two Players: FAILED
+🔧 [2025-09-24T01:15:57.721Z] 
+🧪 Running: Host Exclusion from Win Conditions
+🔧 [2025-09-24T01:15:57.722Z] 🧪 Testing host exclusion from win conditions...
+🔧 [2025-09-24T01:15:57.722Z] Creating test game...
+🔧 [2025-09-24T01:15:58.649Z] Game created with code: 409691
+🔧 [2025-09-24T01:15:58.649Z] Player Player1 joining game 409691...
+🔧 [2025-09-24T01:15:59.910Z] Player Player1 joined successfully
+🔧 [2025-09-24T01:15:59.910Z] Player Player2 joining game 409691...
+🔧 [2025-09-24T01:16:00.970Z] Player Player2 joined successfully
+🔧 [2025-09-24T01:16:00.970Z] Player Player3 joining game 409691...
+🔧 [2025-09-24T01:16:02.197Z] Player Player3 joined successfully
+🔧 [2025-09-24T01:16:02.197Z] Player Player4 joining game 409691...
+🔧 [2025-09-24T01:16:03.379Z] Player Player4 joined successfully
+🔧 [2025-09-24T01:16:03.379Z] Player Player5 joining game 409691...
+🔧 [2025-09-24T01:16:04.421Z] Player Player5 joined successfully
+🔧 [2025-09-24T01:16:04.421Z] Player Player6 joining game 409691...
+🔧 [2025-09-24T01:16:05.507Z] Player Player6 joined successfully
+🔧 [2025-09-24T01:16:05.507Z] Assigning roles to players...
+🔧 [2025-09-24T01:16:08.625Z] Roles assigned successfully
+🔧 [2025-09-24T01:16:24.078Z] Eliminating player 624ea0ca-bb1b-473c-b2ad-d60c4179e2dd...
+🔧 [2025-09-24T01:16:28.182Z] Player 624ea0ca-bb1b-473c-b2ad-d60c4179e2dd eliminated successfully
+🔧 [2025-09-24T01:16:30.201Z] ✅ Host exclusion test passed
+✅ [2025-09-24T01:16:30.202Z] ✅ Host Exclusion from Win Conditions: PASSED
+🔧 [2025-09-24T01:16:32.202Z] 
+🧪 Running: Winner Declaration Closeable
+🔧 [2025-09-24T01:16:32.203Z] 🧪 Testing winner declaration closeable functionality...
+🔧 [2025-09-24T01:16:32.203Z] Creating test game...
+🔧 [2025-09-24T01:16:33.155Z] Game created with code: 247828
+🔧 [2025-09-24T01:16:33.155Z] Player Player1 joining game 247828...
+🔧 [2025-09-24T01:16:34.246Z] Player Player1 joined successfully
+🔧 [2025-09-24T01:16:34.246Z] Player Player2 joining game 247828...
+🔧 [2025-09-24T01:16:35.250Z] Player Player2 joined successfully
+🔧 [2025-09-24T01:16:35.250Z] Player Player3 joining game 247828...
+🔧 [2025-09-24T01:16:36.300Z] Player Player3 joined successfully
+🔧 [2025-09-24T01:16:36.300Z] Player Player4 joining game 247828...
+🔧 [2025-09-24T01:16:37.541Z] Player Player4 joined successfully
+🔧 [2025-09-24T01:16:37.541Z] Player Player5 joining game 247828...
+🔧 [2025-09-24T01:16:38.922Z] Player Player5 joined successfully
+🔧 [2025-09-24T01:16:38.923Z] Player Player6 joining game 247828...
+🔧 [2025-09-24T01:16:39.864Z] Player Player6 joined successfully
+🔧 [2025-09-24T01:16:39.864Z] Assigning roles to players...
+🔧 [2025-09-24T01:16:43.181Z] Roles assigned successfully
+🔧 [2025-09-24T01:16:58.526Z] Eliminating player 63a7903f-15e4-4bc9-825d-16f449c3b908...
+🔧 [2025-09-24T01:17:02.395Z] Player 63a7903f-15e4-4bc9-825d-16f449c3b908 eliminated successfully
+🔧 [2025-09-24T01:17:04.598Z] ✅ Game state properly maintained
+🔧 [2025-09-24T01:17:04.598Z] ✅ Winner declaration closeable test passed
+✅ [2025-09-24T01:17:04.598Z] ✅ Winner Declaration Closeable: PASSED
+🔧 [2025-09-24T01:17:06.599Z] 
+🧪 Running: Real-time Sync and Frame Refresh
+🔧 [2025-09-24T01:17:06.599Z] 🧪 Testing real-time sync and frame refresh...
+🔧 [2025-09-24T01:17:06.599Z] Creating test game...
+🔧 [2025-09-24T01:17:07.521Z] Game created with code: 638282
+🔧 [2025-09-24T01:17:07.521Z] Player Player1 joining game 638282...
+🔧 [2025-09-24T01:17:08.657Z] Player Player1 joined successfully
+🔧 [2025-09-24T01:17:08.657Z] Player Player2 joining game 638282...
+🔧 [2025-09-24T01:17:09.818Z] Player Player2 joined successfully
+🔧 [2025-09-24T01:17:09.818Z] Player Player3 joining game 638282...
+🔧 [2025-09-24T01:17:10.868Z] Player Player3 joined successfully
+🔧 [2025-09-24T01:17:10.868Z] Player Player4 joining game 638282...
+🔧 [2025-09-24T01:17:11.928Z] Player Player4 joined successfully
+🔧 [2025-09-24T01:17:11.928Z] Player Player5 joining game 638282...
+🔧 [2025-09-24T01:17:12.993Z] Player Player5 joined successfully
+🔧 [2025-09-24T01:17:12.993Z] Player Player6 joining game 638282...
+🔧 [2025-09-24T01:17:14.215Z] Player Player6 joined successfully
+🔧 [2025-09-24T01:17:15.450Z] Assigning roles to players...
+🔧 [2025-09-24T01:17:19.122Z] Roles assigned successfully
+❌ [2025-09-24T01:17:22.305Z] ❌ Real-time sync test failed: Game should transition to night_wolf after role assignment
+❌ [2025-09-24T01:17:22.305Z] ❌ Real-time Sync and Frame Refresh: FAILED
+🔧 [2025-09-24T01:17:24.306Z] 
+📊 Test Results Summary:
+🔧 [2025-09-24T01:17:24.306Z] Total Tests: 4
+✅ [2025-09-24T01:17:24.306Z] Passed: 2
+❌ [2025-09-24T01:17:24.306Z] Failed: 2
+🔧 [2025-09-24T01:17:24.306Z] 
+📋 Detailed Results:
+🔧 [2025-09-24T01:17:24.306Z] ❌ End Game Logic with Two Players: Game should transition to night_wolf after role assignment
+🔧 [2025-09-24T01:17:24.306Z] ✅ Host Exclusion from Win Conditions: Host properly excluded from win conditions
+🔧 [2025-09-24T01:17:24.306Z] ✅ Winner Declaration Closeable: Winner declaration is properly closeable
+🔧 [2025-09-24T01:17:24.306Z] ❌ Real-time Sync and Frame Refresh: Game should transition to night_wolf after role assignment
+❌ [2025-09-24T01:17:24.306Z] 
+❌ Some tests failed. Please check the implementation.
+[0;31m❌ End Game Logic Tests: FAILED[0m
+
+[0;34m🎮 Running Game Flow Tests[0m
+
+[0;34m🧪 Running: Game Flow Improvement Tests[0m
+Test URL: http://localhost:3000
+Test File: tests/game-flow/test-game-flow-improvements.js
+🔧 [2025-09-24T01:17:24.349Z] 🚀 Starting game flow improvement tests...
+🔧 [2025-09-24T01:17:24.352Z] 
+🧪 Running: Reordered Night Phases (Wolf → Police → Doctor)
+🔧 [2025-09-24T01:17:24.353Z] 🧪 Testing reordered night phases: Wolf → Police → Doctor...
+🔧 [2025-09-24T01:17:24.353Z] Creating test game...
+🔧 [2025-09-24T01:17:25.369Z] Game created with code: 311791
+🔧 [2025-09-24T01:17:25.369Z] Player Player1 joining game 311791...
+🔧 [2025-09-24T01:17:26.309Z] Player Player1 joined successfully
+🔧 [2025-09-24T01:17:26.309Z] Player Player2 joining game 311791...
+🔧 [2025-09-24T01:17:27.329Z] Player Player2 joined successfully
+🔧 [2025-09-24T01:17:27.329Z] Player Player3 joining game 311791...
+🔧 [2025-09-24T01:17:28.326Z] Player Player3 joined successfully
+🔧 [2025-09-24T01:17:28.327Z] Player Player4 joining game 311791...
+🔧 [2025-09-24T01:17:29.225Z] Player Player4 joined successfully
+🔧 [2025-09-24T01:17:29.225Z] Player Player5 joining game 311791...
+🔧 [2025-09-24T01:17:30.104Z] Player Player5 joined successfully
+🔧 [2025-09-24T01:17:30.104Z] Player Player6 joining game 311791...
+🔧 [2025-09-24T01:17:31.014Z] Player Player6 joined successfully
+🔧 [2025-09-24T01:17:31.015Z] Assigning roles to players...
+🔧 [2025-09-24T01:17:33.183Z] Roles assigned successfully
+🔧 [2025-09-24T01:17:34.947Z] ✅ Roles assigned in lobby (PASSED)
+🔧 [2025-09-24T01:17:37.902Z] ✅ Lobby → Night Wolf via host next_phase (PASSED)
+🔧 [2025-09-24T01:17:37.902Z] Player performing action: wolf_select on a2fdcf09-d80d-481f-922c-de67963c9b98
+🔧 [2025-09-24T01:17:39.111Z] Player action wolf_select completed successfully
+🔧 [2025-09-24T01:17:40.113Z] Host performing action: next_phase
+🔧 [2025-09-24T01:17:40.841Z] Host action next_phase completed successfully
+🔧 [2025-09-24T01:17:43.060Z] ✅ Phase 3: Night Wolf → Night Doctor (PASSED)
+🔧 [2025-09-24T01:17:43.062Z] Player performing action: doctor_save on a1849b18-cc2a-40d9-8330-e42580ae8634
+🔧 [2025-09-24T01:17:44.040Z] Player action doctor_save completed successfully
+🔧 [2025-09-24T01:17:45.041Z] Host performing action: next_phase
+🔧 [2025-09-24T01:17:45.689Z] Host action next_phase completed successfully
+🔧 [2025-09-24T01:17:47.620Z] ✅ Phase 4: Night Doctor → Night Police (PASSED)
+🔧 [2025-09-24T01:17:47.621Z] Player performing action: police_inspect on a1849b18-cc2a-40d9-8330-e42580ae8634
+🔧 [2025-09-24T01:17:48.646Z] Player action police_inspect completed successfully
+🔧 [2025-09-24T01:17:49.646Z] Host performing action: next_phase
+🔧 [2025-09-24T01:17:50.270Z] Host action next_phase completed successfully
+🔧 [2025-09-24T01:17:52.263Z] ✅ Phase 5: Night Police → Reveal (PASSED)
+🔧 [2025-09-24T01:17:52.263Z] ✅ Reordered night phases test passed
+✅ [2025-09-24T01:17:52.263Z] ✅ Reordered Night Phases (Wolf → Police → Doctor): PASSED
+🔧 [2025-09-24T01:17:54.264Z] 
+🧪 Running: Manual Voting Controls
+🔧 [2025-09-24T01:17:54.264Z] 🧪 Testing manual voting controls...
+🔧 [2025-09-24T01:17:54.264Z] Creating test game...
+🔧 [2025-09-24T01:17:55.121Z] Game created with code: 009556
+🔧 [2025-09-24T01:17:55.121Z] Player Player1 joining game 009556...
+🔧 [2025-09-24T01:17:56.215Z] Player Player1 joined successfully
+🔧 [2025-09-24T01:17:56.215Z] Player Player2 joining game 009556...
+🔧 [2025-09-24T01:17:57.190Z] Player Player2 joined successfully
+🔧 [2025-09-24T01:17:57.190Z] Player Player3 joining game 009556...
+🔧 [2025-09-24T01:17:58.126Z] Player Player3 joined successfully
+🔧 [2025-09-24T01:17:58.127Z] Player Player4 joining game 009556...
+🔧 [2025-09-24T01:17:59.143Z] Player Player4 joined successfully
+🔧 [2025-09-24T01:17:59.143Z] Player Player5 joining game 009556...
+🔧 [2025-09-24T01:18:00.220Z] Player Player5 joined successfully
+🔧 [2025-09-24T01:18:00.220Z] Player Player6 joining game 009556...
+🔧 [2025-09-24T01:18:01.316Z] Player Player6 joined successfully
+🔧 [2025-09-24T01:18:01.316Z] Assigning roles to players...
+🔧 [2025-09-24T01:18:03.855Z] Roles assigned successfully
+🔧 [2025-09-24T01:18:07.430Z] Player performing action: wolf_select on a4ab074a-c0ed-4052-8c2a-55e9a8c2847c
+🔧 [2025-09-24T01:18:08.286Z] Player action wolf_select completed successfully
+🔧 [2025-09-24T01:18:08.286Z] Host performing action: next_phase
+🔧 [2025-09-24T01:18:08.955Z] Host action next_phase completed successfully
+🔧 [2025-09-24T01:18:09.956Z] Player performing action: doctor_save on a4ab074a-c0ed-4052-8c2a-55e9a8c2847c
+🔧 [2025-09-24T01:18:10.878Z] Player action doctor_save completed successfully
+🔧 [2025-09-24T01:18:10.878Z] Host performing action: next_phase
+🔧 [2025-09-24T01:18:11.545Z] Host action next_phase completed successfully
+🔧 [2025-09-24T01:18:12.546Z] Player performing action: police_inspect on a4ab074a-c0ed-4052-8c2a-55e9a8c2847c
+🔧 [2025-09-24T01:18:13.683Z] Player action police_inspect completed successfully
+🔧 [2025-09-24T01:18:13.683Z] Host performing action: next_phase
+🔧 [2025-09-24T01:18:14.326Z] Host action next_phase completed successfully
+🔧 [2025-09-24T01:18:16.454Z] ✅ Reached reveal phase successfully
+🔧 [2025-09-24T01:18:19.602Z] ✅ No automatic voting transition (PASSED)
+🔧 [2025-09-24T01:18:19.602Z] Host performing action: begin_voting
+🔧 [2025-09-24T01:18:20.543Z] Host action begin_voting completed successfully
+🔧 [2025-09-24T01:18:22.746Z] ✅ Manual begin voting works (PASSED)
+🔧 [2025-09-24T01:18:23.845Z] Player performing action: vote on a4ab074a-c0ed-4052-8c2a-55e9a8c2847c
+🔧 [2025-09-24T01:18:24.571Z] Player action vote completed successfully
+🔧 [2025-09-24T01:18:25.572Z] Host performing action: final_vote
+🔧 [2025-09-24T01:18:26.643Z] Host action final_vote completed successfully
+🔧 [2025-09-24T01:18:28.628Z] ✅ Manual final vote works (PASSED)
+🔧 [2025-09-24T01:18:28.628Z] ✅ Manual voting controls test passed
+✅ [2025-09-24T01:18:28.629Z] ✅ Manual Voting Controls: PASSED
+🔧 [2025-09-24T01:18:30.630Z] 
+🧪 Running: Host Button Labels and Visibility
+🔧 [2025-09-24T01:18:30.630Z] 🧪 Testing host button labels and visibility...
+🔧 [2025-09-24T01:18:30.631Z] Creating test game...
+🔧 [2025-09-24T01:18:31.447Z] Game created with code: 021729
+🔧 [2025-09-24T01:18:31.447Z] Player Player1 joining game 021729...
+🔧 [2025-09-24T01:18:32.479Z] Player Player1 joined successfully
+🔧 [2025-09-24T01:18:32.480Z] Player Player2 joining game 021729...
+🔧 [2025-09-24T01:18:33.465Z] Player Player2 joined successfully
+🔧 [2025-09-24T01:18:33.465Z] Player Player3 joining game 021729...
+🔧 [2025-09-24T01:18:34.439Z] Player Player3 joined successfully
+🔧 [2025-09-24T01:18:34.439Z] Player Player4 joining game 021729...
+🔧 [2025-09-24T01:18:35.408Z] Player Player4 joined successfully
+🔧 [2025-09-24T01:18:35.408Z] Player Player5 joining game 021729...
+🔧 [2025-09-24T01:18:36.373Z] Player Player5 joined successfully
+🔧 [2025-09-24T01:18:36.373Z] Player Player6 joining game 021729...
+🔧 [2025-09-24T01:18:37.448Z] Player Player6 joined successfully
+🔧 [2025-09-24T01:18:38.935Z] ✅ Lobby phase: Assign Roles button should be visible
+🔧 [2025-09-24T01:18:38.936Z] Assigning roles to players...
+🔧 [2025-09-24T01:18:40.585Z] Roles assigned successfully
+🔧 [2025-09-24T01:18:45.289Z] ✅ Night Wolf phase: Wake Up Police button should be visible
+🔧 [2025-09-24T01:18:46.340Z] Player performing action: wolf_select on 8608b945-95e5-4fe0-af10-87d4d4249e57
+🔧 [2025-09-24T01:18:47.384Z] Player action wolf_select completed successfully
+🔧 [2025-09-24T01:18:47.385Z] Host performing action: next_phase
+🔧 [2025-09-24T01:18:48.249Z] Host action next_phase completed successfully
+🔧 [2025-09-24T01:18:50.329Z] ✅ Night Doctor phase: Wake Up Police button should be visible
+🔧 [2025-09-24T01:18:50.329Z] Player performing action: doctor_save on 8608b945-95e5-4fe0-af10-87d4d4249e57
+🔧 [2025-09-24T01:18:51.420Z] Player action doctor_save completed successfully
+🔧 [2025-09-24T01:18:51.420Z] Host performing action: next_phase
+🔧 [2025-09-24T01:18:52.292Z] Host action next_phase completed successfully
+🔧 [2025-09-24T01:18:54.405Z] ✅ Night Police phase: Reveal the Dead button should be visible
+🔧 [2025-09-24T01:18:54.406Z] Player performing action: police_inspect on 8608b945-95e5-4fe0-af10-87d4d4249e57
+🔧 [2025-09-24T01:18:55.621Z] Player action police_inspect completed successfully
+🔧 [2025-09-24T01:18:55.621Z] Host performing action: next_phase
+🔧 [2025-09-24T01:18:56.287Z] Host action next_phase completed successfully
+🔧 [2025-09-24T01:18:58.248Z] ✅ Reveal phase: Begin Initial Voting button should be visible
+🔧 [2025-09-24T01:18:58.248Z] Host performing action: begin_voting
+🔧 [2025-09-24T01:18:59.056Z] Host action begin_voting completed successfully
+🔧 [2025-09-24T01:19:01.151Z] ✅ Day Vote phase: Final Vote button should be visible
+🔧 [2025-09-24T01:19:01.151Z] ✅ Host button labels test passed
+✅ [2025-09-24T01:19:01.151Z] ✅ Host Button Labels and Visibility: PASSED
+🔧 [2025-09-24T01:19:03.152Z] 
+🧪 Running: Complete Game Flow with New Controls
+🔧 [2025-09-24T01:19:03.152Z] 🧪 Testing complete game flow with new controls...
+🔧 [2025-09-24T01:19:03.152Z] Creating test game...
+🔧 [2025-09-24T01:19:04.100Z] Game created with code: 737734
+🔧 [2025-09-24T01:19:04.101Z] Player Player1 joining game 737734...
+🔧 [2025-09-24T01:19:05.260Z] Player Player1 joined successfully
+🔧 [2025-09-24T01:19:05.260Z] Player Player2 joining game 737734...
+🔧 [2025-09-24T01:19:06.395Z] Player Player2 joined successfully
+🔧 [2025-09-24T01:19:06.395Z] Player Player3 joining game 737734...
+🔧 [2025-09-24T01:19:07.404Z] Player Player3 joined successfully
+🔧 [2025-09-24T01:19:07.404Z] Player Player4 joining game 737734...
+🔧 [2025-09-24T01:19:08.372Z] Player Player4 joined successfully
+🔧 [2025-09-24T01:19:08.372Z] Player Player5 joining game 737734...
+🔧 [2025-09-24T01:19:09.453Z] Player Player5 joined successfully
+🔧 [2025-09-24T01:19:09.453Z] Player Player6 joining game 737734...
+🔧 [2025-09-24T01:19:10.602Z] Player Player6 joined successfully
+🔧 [2025-09-24T01:19:10.602Z] Starting complete game flow test...
+🔧 [2025-09-24T01:19:10.602Z] Assigning roles to players...
+🔧 [2025-09-24T01:19:12.401Z] Roles assigned successfully
+🔧 [2025-09-24T01:19:16.835Z] Player performing action: wolf_select on f235f8d4-db7f-4df2-afe5-c5661625f441
+🔧 [2025-09-24T01:19:18.020Z] Player action wolf_select completed successfully
+🔧 [2025-09-24T01:19:18.020Z] Host performing action: next_phase
+🔧 [2025-09-24T01:19:18.739Z] Host action next_phase completed successfully
+🔧 [2025-09-24T01:19:19.741Z] Player performing action: doctor_save on f235f8d4-db7f-4df2-afe5-c5661625f441
+🔧 [2025-09-24T01:19:20.846Z] Player action doctor_save completed successfully
+🔧 [2025-09-24T01:19:20.846Z] Host performing action: next_phase
+🔧 [2025-09-24T01:19:21.556Z] Host action next_phase completed successfully
+🔧 [2025-09-24T01:19:22.556Z] Player performing action: police_inspect on f235f8d4-db7f-4df2-afe5-c5661625f441
+🔧 [2025-09-24T01:19:23.779Z] Player action police_inspect completed successfully
+🔧 [2025-09-24T01:19:23.779Z] Host performing action: next_phase
+🔧 [2025-09-24T01:19:24.490Z] Host action next_phase completed successfully
+🔧 [2025-09-24T01:19:25.491Z] Host performing action: begin_voting
+🔧 [2025-09-24T01:19:26.143Z] Host action begin_voting completed successfully
+🔧 [2025-09-24T01:19:28.878Z] Player performing action: vote on f235f8d4-db7f-4df2-afe5-c5661625f441
+🔧 [2025-09-24T01:19:29.510Z] Player action vote completed successfully
+🔧 [2025-09-24T01:19:29.510Z] Host performing action: final_vote
+🔧 [2025-09-24T01:19:30.280Z] Host action final_vote completed successfully
+🔧 [2025-09-24T01:19:31.280Z] Host performing action: eliminate_player
+🔧 [2025-09-24T01:19:32.812Z] Host action eliminate_player completed successfully
+🔧 [2025-09-24T01:19:34.574Z] ✅ No player eliminated (doctor saved target)
+🔧 [2025-09-24T01:19:34.574Z] ✅ Game cycles back to night_wolf
+🔧 [2025-09-24T01:19:34.574Z] ✅ Complete game flow test passed
+✅ [2025-09-24T01:19:34.574Z] ✅ Complete Game Flow with New Controls: PASSED
+🔧 [2025-09-24T01:19:36.575Z] 
+🧪 Running: Werewolf Screen Timing Fix
+🔧 [2025-09-24T01:19:36.575Z] 🧪 Testing Werewolf Screen Timing Fix
+🔧 [2025-09-24T01:19:36.575Z] Creating test game...
+🔧 [2025-09-24T01:19:37.531Z] Game created with code: 807600
+🔧 [2025-09-24T01:19:37.531Z] Player Player1 joining game 807600...
+🔧 [2025-09-24T01:19:38.562Z] Player Player1 joined successfully
+🔧 [2025-09-24T01:19:38.563Z] Player Player2 joining game 807600...
+🔧 [2025-09-24T01:19:39.606Z] Player Player2 joined successfully
+🔧 [2025-09-24T01:19:39.606Z] Player Player3 joining game 807600...
+🔧 [2025-09-24T01:19:40.588Z] Player Player3 joined successfully
+🔧 [2025-09-24T01:19:40.588Z] Player Player4 joining game 807600...
+🔧 [2025-09-24T01:19:41.479Z] Player Player4 joined successfully
+🔧 [2025-09-24T01:19:41.479Z] Player Player5 joining game 807600...
+🔧 [2025-09-24T01:19:42.444Z] Player Player5 joined successfully
+🔧 [2025-09-24T01:19:42.444Z] Player Player6 joining game 807600...
+🔧 [2025-09-24T01:19:43.353Z] Player Player6 joined successfully
+🔧 [2025-09-24T01:19:43.353Z] Assigning roles to players...
+🔧 [2025-09-24T01:19:45.686Z] Roles assigned successfully
+🔧 [2025-09-24T01:19:49.688Z] ✅ Werewolf screen timing fix test passed
+✅ [2025-09-24T01:19:49.688Z] ✅ Werewolf Screen Timing Fix: PASSED
+🔧 [2025-09-24T01:19:51.689Z] 
+🧪 Running: Host Control Over Night Phase
+🔧 [2025-09-24T01:19:51.690Z] 🧪 Testing Host Control Over Night Phase
+🔧 [2025-09-24T01:19:51.690Z] Creating test game...
+🔧 [2025-09-24T01:19:52.613Z] Game created with code: 342439
+🔧 [2025-09-24T01:19:52.614Z] Player Player1 joining game 342439...
+🔧 [2025-09-24T01:19:53.496Z] Player Player1 joined successfully
+🔧 [2025-09-24T01:19:53.496Z] Player Player2 joining game 342439...
+🔧 [2025-09-24T01:19:54.424Z] Player Player2 joined successfully
+🔧 [2025-09-24T01:19:54.425Z] Player Player3 joining game 342439...
+🔧 [2025-09-24T01:19:55.345Z] Player Player3 joined successfully
+🔧 [2025-09-24T01:19:55.345Z] Player Player4 joining game 342439...
+🔧 [2025-09-24T01:19:56.432Z] Player Player4 joined successfully
+🔧 [2025-09-24T01:19:56.432Z] Player Player5 joining game 342439...
+🔧 [2025-09-24T01:19:57.360Z] Player Player5 joined successfully
+🔧 [2025-09-24T01:19:57.360Z] Player Player6 joining game 342439...
+🔧 [2025-09-24T01:19:58.317Z] Player Player6 joined successfully
+🔧 [2025-09-24T01:19:58.317Z] Assigning roles to players...
+🔧 [2025-09-24T01:20:00.072Z] Roles assigned successfully
+🔧 [2025-09-24T01:20:04.195Z] ✅ Host control over night phase test passed
+✅ [2025-09-24T01:20:04.195Z] ✅ Host Control Over Night Phase: PASSED
+🔧 [2025-09-24T01:20:06.195Z] 
+🧪 Running: Game Phase Transitions
+🔧 [2025-09-24T01:20:06.196Z] 🧪 Testing Game Phase Transitions
+🔧 [2025-09-24T01:20:06.196Z] Creating test game...
+🔧 [2025-09-24T01:20:06.999Z] Game created with code: 030879
+🔧 [2025-09-24T01:20:06.999Z] Player Player1 joining game 030879...
+🔧 [2025-09-24T01:20:07.944Z] Player Player1 joined successfully
+🔧 [2025-09-24T01:20:07.944Z] Player Player2 joining game 030879...
+🔧 [2025-09-24T01:20:08.949Z] Player Player2 joined successfully
+🔧 [2025-09-24T01:20:08.949Z] Player Player3 joining game 030879...
+🔧 [2025-09-24T01:20:09.927Z] Player Player3 joined successfully
+🔧 [2025-09-24T01:20:09.927Z] Player Player4 joining game 030879...
+🔧 [2025-09-24T01:20:10.892Z] Player Player4 joined successfully
+🔧 [2025-09-24T01:20:10.892Z] Player Player5 joining game 030879...
+🔧 [2025-09-24T01:20:11.851Z] Player Player5 joined successfully
+🔧 [2025-09-24T01:20:11.851Z] Player Player6 joining game 030879...
+🔧 [2025-09-24T01:20:12.911Z] Player Player6 joined successfully
+🔧 [2025-09-24T01:20:12.911Z] Assigning roles to players...
+🔧 [2025-09-24T01:20:16.287Z] Roles assigned successfully
+🔧 [2025-09-24T01:20:24.448Z] ✅ Game phase transitions test passed
+✅ [2025-09-24T01:20:24.448Z] ✅ Game Phase Transitions: PASSED
+🔧 [2025-09-24T01:20:26.449Z] 
+📊 Test Results Summary:
+🔧 [2025-09-24T01:20:26.449Z] Total Tests: 7
+✅ [2025-09-24T01:20:26.449Z] Passed: 7
+✅ [2025-09-24T01:20:26.449Z] Failed: 0
+🔧 [2025-09-24T01:20:26.449Z] 
+📋 Detailed Results:
+🔧 [2025-09-24T01:20:26.449Z] ✅ Reordered Night Phases (Wolf → Police → Doctor): Night phases follow correct order: Wolf → Police → Doctor
+🔧 [2025-09-24T01:20:26.449Z] ✅ Manual Voting Controls: Manual voting controls work correctly
+🔧 [2025-09-24T01:20:26.449Z] ✅ Host Button Labels and Visibility: Host button labels and visibility work correctly
+🔧 [2025-09-24T01:20:26.449Z] ✅ Complete Game Flow with New Controls: Complete game flow with new controls works correctly
+🔧 [2025-09-24T01:20:26.449Z] ✅ Werewolf Screen Timing Fix: Werewolf screen timing fix works correctly
+🔧 [2025-09-24T01:20:26.449Z] ✅ Host Control Over Night Phase: Host control over night phase works correctly
+🔧 [2025-09-24T01:20:26.449Z] ✅ Game Phase Transitions: Game phase transitions work correctly
+✅ [2025-09-24T01:20:26.449Z] 
+🎉 All tests passed! Game flow improvements are working correctly.
+[0;32m✅ Game Flow Improvement Tests: PASSED[0m
+
+[0;34m⚡ Running Performance Tests[0m
+
+[0;34m🧪 Running: Battery Optimization Tests[0m
+Test URL: http://localhost:3000
+Test File: tests/performance/battery-optimization.test.js
+⚡ Starting Battery Optimization Performance Tests
+📍 Testing against: http://localhost:3000
+
+🎮 Setting up test game...
+✅ Game created with code: 890497
+✅ Player 1 joined: Player1
+✅ Player 2 joined: Player2
+✅ Player 3 joined: Player3
+✅ Player 4 joined: Player4
+✅ Player 5 joined: Player5
+✅ Player 6 joined: Player6
+✅ Game setup complete with 7 total players
+
+🧪 Running test: Debounced Updates
+
+⚡ Testing debounced updates...
+✅ Game started successfully
+✅ Debounced updates working efficiently
+✅ Debounced Updates - PASSED
+
+🧪 Running test: Console Logging Optimization
+
+📝 Testing console logging optimization...
+✅ Running in development mode - full console logging enabled
+✅ Console logging optimization verified
+✅ Console Logging Optimization - PASSED
+
+🧪 Running test: Real-time Efficiency
+
+🔄 Testing real-time efficiency...
+✅ Real-time sync is efficient
+✅ Real-time Efficiency - PASSED
+
+🧪 Running test: Memory Usage
+
+💾 Testing memory usage...
+✅ Memory usage is efficient (increase: 165.484375KB)
+✅ Memory Usage - PASSED
+
+🧪 Running test: Network Efficiency
+
+🌐 Testing network efficiency...
+✅ Network efficiency is good (244ms average)
+✅ Network Efficiency - PASSED
+
+📊 Battery Optimization Performance Test Results:
+==================================================
+✅ Debounced Updates: PASSED
+✅ Console Logging Optimization: PASSED
+✅ Real-time Efficiency: PASSED
+✅ Memory Usage: PASSED
+✅ Network Efficiency: PASSED
+==================================================
+Total: 5 | Passed: 5 | Failed: 0
+🎉 All battery optimization performance tests passed!
+[0;32m✅ Battery Optimization Tests: PASSED[0m
+
+[0;34m📊 Test Results Summary[0m
+==================================================
+Total Tests: [0;34m13[0m
+Passed: [0;32m9[0m
+Failed: [0;31m4[0m
+Success Rate: [0;34m69%[0m
+
+[0;31m❌ Some tests failed. Please check the implementation.[0m

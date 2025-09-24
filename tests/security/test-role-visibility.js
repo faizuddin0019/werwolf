@@ -9,7 +9,7 @@
  * 3. Other players should only see "Villager" for non-host players
  */
 
-const BASE_URL = process.env.TEST_BASE_URL || 'http://localhost:3001'
+const BASE_URL = process.env.TEST_BASE_URL || 'http://localhost:3000'
 
 async function testRoleVisibility() {
   console.log('🔒 Testing Role Visibility Security...')

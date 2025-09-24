@@ -10,7 +10,7 @@
  * 4. Role visibility security
  */
 
-const BASE_URL = process.env.TEST_BASE_URL || 'http://localhost:3001'
+const BASE_URL = process.env.TEST_BASE_URL || 'http://localhost:3000'
 
 async function testGameScreenLayout() {
   console.log('🎨 Testing Game Screen Layout and Styling...')

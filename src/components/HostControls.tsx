@@ -1,15 +1,18 @@
 'use client'
 
 import { useState } from 'react'
-import { useAtom } from 'jotai'
+import { useAtom, useSetAtom } from 'jotai'
 import { 
   gameAtom, 
+  playersAtom,
   currentPlayerAtom,
   gamePhaseAtom,
   isNightPhaseAtom,
   isDayPhaseAtom,
   highestVotedPlayerAtom,
-  roundStateAtom
+  roundStateAtom,
+  gameIdAtom,
+  setGameDataAtom
 } from '@/lib/game-store'
 import { getNextPhase, getPhaseDisplayName } from '@/lib/game-utils'
 import { 
@@ -28,12 +31,15 @@ interface HostControlsProps {
 
 export default function HostControls({ onEndGame }: HostControlsProps) {
   const [game] = useAtom(gameAtom)
+  const [players] = useAtom(playersAtom)
   const [currentPlayer] = useAtom(currentPlayerAtom)
   const [gamePhase] = useAtom(gamePhaseAtom)
   const [isNightPhase] = useAtom(isNightPhaseAtom)
   const [isDayPhase] = useAtom(isDayPhaseAtom)
   const [highestVotedPlayer] = useAtom(highestVotedPlayerAtom)
   const [roundState] = useAtom(roundStateAtom)
+  const [gameId] = useAtom(gameIdAtom)
+  const setGameData = useSetAtom(setGameDataAtom)
   
   const [isLoading, setIsLoading] = useState(false)
 
@@ -66,6 +72,23 @@ export default function HostControls({ onEndGame }: HostControlsProps) {
           errorMessage = `HTTP ${response.status}: ${response.statusText}`
         }
         alert(`Action failed: ${errorMessage}`)
+      } else {
+        // Force refresh game state after successful action
+        if (action === 'assign_roles') {
+          console.log('🔧 Role assignment successful - refreshing state')
+          setTimeout(async () => {
+            try {
+              const res = await fetch(`/api/games?code=${gameId}`)
+              if (res.ok) {
+                const data = await res.json()
+                console.log('🔧 Refetched - players with roles:', data.players.filter((p: { role: string | null }) => p.role).length)
+                setGameData(data)
+              }
+            } catch (err) {
+              console.error('Error refreshing game state:', err)
+            }
+          }, 300)
+        }
       }
     } catch (error) {
       console.error('Error performing action:', error)
@@ -121,7 +144,8 @@ export default function HostControls({ onEndGame }: HostControlsProps) {
         // After role assignment, game stays in lobby phase and host can start night phases
         if (gamePhase === 'lobby') {
           // Check if roles have been assigned (players have roles)
-          const playersWithRoles = game?.players?.filter(p => p.role && !p.is_host) || []
+          const playersWithRoles = (Array.isArray(players) ? players : [])
+            .filter((p: { role: string | null; is_host: boolean }) => p.role && !p.is_host)
           if (playersWithRoles.length > 0) {
             return 'Wake Up Werwolf'
           }
@@ -172,12 +196,18 @@ export default function HostControls({ onEndGame }: HostControlsProps) {
   const canPerformAction = (action: string) => {
     switch (action) {
       case 'assign_roles':
-        return gamePhase === 'lobby'
+        {
+          const playersWithRoles = (Array.isArray(players) ? players : [])
+            .filter((p: { role: string | null; is_host: boolean }) => p.role && !p.is_host)
+          // Disable assign_roles once roles are assigned
+          return gamePhase === 'lobby' && playersWithRoles.length === 0
+        }
       case 'next_phase':
         // After role assignment, game stays in lobby phase and host can start night phases
         if (gamePhase === 'lobby') {
           // Check if roles have been assigned (players have roles)
-          const playersWithRoles = game?.players?.filter(p => p.role && !p.is_host) || []
+          const playersWithRoles = (Array.isArray(players) ? players : [])
+            .filter((p: { role: string | null; is_host: boolean }) => p.role && !p.is_host)
           return playersWithRoles.length > 0
         }
         
@@ -229,10 +259,12 @@ export default function HostControls({ onEndGame }: HostControlsProps) {
       <div className="space-y-3">
         {actions
           .filter(({ action }) => {
-            // Hide assign_roles button when not in lobby phase
-            if (action === 'assign_roles' && gamePhase !== 'lobby') {
-              console.log('🔧 Hiding assign_roles button, current phase:', gamePhase)
-              return false
+            // Hide assign_roles when not in lobby or when roles are already assigned
+            if (action === 'assign_roles') {
+              if (gamePhase !== 'lobby') return false
+              const playersWithRoles = (Array.isArray(players) ? players : [])
+                .filter((p: { role: string | null; is_host: boolean }) => p.role && !p.is_host)
+              if (playersWithRoles.length > 0) return false
             }
             return true
           })

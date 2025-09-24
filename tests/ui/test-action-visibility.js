@@ -3,6 +3,7 @@ const BASE_URL = process.env.BASE_URL || 'http://localhost:3000'
 class ActionVisibilityTest {
   constructor() {
     this.gameId = null
+    this.gameUuid = null
     this.hostClientId = null
     this.werwolfPlayerId = null
     this.doctorPlayerId = null
@@ -34,6 +35,7 @@ class ActionVisibilityTest {
       })
     })
     this.gameId = hostResponse.gameId
+    this.gameUuid = hostResponse.game.id
     this.hostClientId = hostResponse.player.client_id
     console.log(`✅ Game created: ${this.gameId}`)
 
@@ -55,7 +57,7 @@ class ActionVisibilityTest {
 
   async assignRolesAndStart() {
     console.log('📝 Step 3: Assigning roles...')
-    await this.makeRequest(`${BASE_URL}/api/games/${this.gameId}/actions`, {
+    await this.makeRequest(`${BASE_URL}/api/games/${this.gameUuid}/actions`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -89,7 +91,7 @@ class ActionVisibilityTest {
     
     // Step 4a: Werwolf Phase - Host should see werwolf action
     console.log('📝 Step 4a: Testing Werwolf Action Visibility...')
-    await this.makeRequest(`${BASE_URL}/api/games/${this.gameId}/actions`, {
+    await this.makeRequest(`${BASE_URL}/api/games/${this.gameUuid}/actions`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -105,7 +107,7 @@ class ActionVisibilityTest {
 
     // Werwolf eliminates a target
     const werwolfTarget = targets[0]
-    await this.makeRequest(`${BASE_URL}/api/games/${this.gameId}/actions`, {
+    await this.makeRequest(`${BASE_URL}/api/games/${this.gameUuid}/actions`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -127,7 +129,7 @@ class ActionVisibilityTest {
 
     // Step 4b: Doctor Phase - Host should see doctor action
     console.log('📝 Step 4b: Testing Doctor Action Visibility...')
-    await this.makeRequest(`${BASE_URL}/api/games/${this.gameId}/actions`, {
+    await this.makeRequest(`${BASE_URL}/api/games/${this.gameUuid}/actions`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -140,7 +142,7 @@ class ActionVisibilityTest {
 
     // Doctor saves a target
     const doctorTarget = doctorTargets[0]
-    await this.makeRequest(`${BASE_URL}/api/games/${this.gameId}/actions`, {
+    await this.makeRequest(`${BASE_URL}/api/games/${this.gameUuid}/actions`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -162,7 +164,7 @@ class ActionVisibilityTest {
 
     // Step 4c: Police Phase - Host should see police action
     console.log('📝 Step 4c: Testing Police Action Visibility...')
-    await this.makeRequest(`${BASE_URL}/api/games/${this.gameId}/actions`, {
+    await this.makeRequest(`${BASE_URL}/api/games/${this.gameUuid}/actions`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -175,7 +177,7 @@ class ActionVisibilityTest {
 
     // Police inspects a target
     const policeTarget = policeTargets[0]
-    await this.makeRequest(`${BASE_URL}/api/games/${this.gameId}/actions`, {
+    await this.makeRequest(`${BASE_URL}/api/games/${this.gameUuid}/actions`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

@@ -99,7 +99,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       game,
       player: hostPlayer,
-      gameId
+      gameId,
+      gameUuid: game.id
     })
     
   } catch (error) {
@@ -213,6 +214,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       game,
       players: sortedPlayers,
+      currentPlayer,
       roundState,
       votes: votes || [],
       leaveRequests: leaveRequests || []

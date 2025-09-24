@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
     }
     
     // Get game
-    const { data: game, error: gameError } = await supabase
+    const { data: game, error: gameError } = await supabase!
       .from('games')
       .select('*')
       .eq('code', gameId)
@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
     }
     
     // Check player count limits
-    const { data: players, error: playersError } = await supabase
+    const { data: players, error: playersError } = await supabase!
       .from('players')
       .select('id')
       .eq('game_id', game.id)
@@ -49,7 +49,7 @@ export async function POST(request: NextRequest) {
     
     // Check if client already exists in this game
     // Note: clientId is browser-specific, so this prevents the same browser from joining twice
-    const { data: existingPlayer, error: existingError } = await supabase
+    const { data: existingPlayer, error: existingError } = await supabase!
       .from('players')
       .select('id')
       .eq('game_id', game.id)
@@ -66,7 +66,7 @@ export async function POST(request: NextRequest) {
     }
     
     // Create player
-    const { data: newPlayer, error: playerError } = await supabase
+    const { data: newPlayer, error: playerError } = await supabase!
       .from('players')
       .insert({
         game_id: game.id,
@@ -83,7 +83,7 @@ export async function POST(request: NextRequest) {
     }
     
     // Get all players in the game to return complete list
-    const { data: allPlayers, error: allPlayersError } = await supabase
+    const { data: allPlayers, error: allPlayersError } = await supabase!
       .from('players')
       .select('*')
       .eq('game_id', game.id)

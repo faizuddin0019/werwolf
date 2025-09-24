@@ -13,7 +13,37 @@ export function getWerwolfCount(playerCount: number): number {
 }
 
 // Assign roles to players (excluding host)
-export function assignRoles(players: Player[]): Player[] {
+// Deterministic seeded shuffle using xorshift32 seeded from a string (e.g., game UUID)
+function seededShuffle<T>(arr: T[], seedStr: string): T[] {
+  // Convert seed string to 32-bit int
+  let seed = 0
+  for (let i = 0; i < seedStr.length; i++) {
+    seed = (seed ^ seedStr.charCodeAt(i)) >>> 0
+    // xorshift scramble during accumulation for better diffusion
+    seed ^= seed << 13
+    seed ^= seed >>> 17
+    seed ^= seed << 5
+    seed >>>= 0
+  }
+  // PRNG
+  const rand = () => {
+    seed ^= seed << 13
+    seed ^= seed >>> 17
+    seed ^= seed << 5
+    seed >>>= 0
+    return (seed & 0xffffffff) / 0x100000000
+  }
+  const a = [...arr]
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(rand() * (i + 1))
+    const t = a[i]
+    a[i] = a[j]
+    a[j] = t
+  }
+  return a
+}
+
+export function assignRoles(players: Player[], seed?: string): Player[] {
   // Filter out the host - host should not have a role
   const nonHostPlayers = players.filter(p => !p.is_host)
   
@@ -21,7 +51,7 @@ export function assignRoles(players: Player[]): Player[] {
     throw new Error('Need at least 6 non-host players to assign roles')
   }
   
-  const shuffled = [...nonHostPlayers].sort(() => Math.random() - 0.5)
+  const shuffled = seed ? seededShuffle(nonHostPlayers, seed) : [...nonHostPlayers].sort(() => Math.random() - 0.5)
   const werwolfCount = getWerwolfCount(nonHostPlayers.length)
   
   // Assign roles to non-host players
@@ -29,7 +59,7 @@ export function assignRoles(players: Player[]): Player[] {
     let role: PlayerRole = 'villager'
     
     if (index < werwolfCount) {
-      role = 'werewolf' // Temporarily use 'werewolf' until database is migrated
+      role = 'werwolf' // Match database enum
     } else if (index === werwolfCount) {
       role = 'doctor'
     } else if (index === werwolfCount + 1) {
@@ -74,11 +104,7 @@ export function checkWinCondition(game: Game, players: Player[]): 'villagers' | 
     return 'villagers'
   }
   
-  // Villagers win if all werwolves are eliminated (even with more than 2 players)
-  if (aliveWerwolves.length === 0) {
-    console.log('🔧 Win condition: villagers win (all werewolves dead)')
-    return 'villagers'
-  }
+  // Do not end early when all werewolves are dead; defer win check until 2 players remain
   
   console.log('🔧 Win condition: no win yet')
   return null

@@ -7,7 +7,7 @@ const config = {
   // Test environments
   environments: {
     local: {
-      baseUrl: 'http://localhost:3001',
+      baseUrl: 'http://localhost:3000',
       timeout: 30000,
       retries: 3
     },

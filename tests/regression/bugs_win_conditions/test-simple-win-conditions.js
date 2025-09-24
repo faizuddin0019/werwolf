@@ -5,11 +5,10 @@
  * Tests the basic win condition logic without complex game flow
  */
 
-const BASE_URL = process.env.TEST_BASE_URL || 'http://localhost:3001'
+const BASE_URL = process.env.TEST_BASE_URL || 'http://localhost:3000'
 
 class SimpleWinConditionsTest {
   constructor() {
-    this.gameId = null
     this.gameId = null
     this.hostClientId = null
   }
@@ -36,7 +35,7 @@ class SimpleWinConditionsTest {
       })
     })
     
-    this.gameId = hostResponse.gameId     this.gameId = hostResponse.game.id
+    this.gameId = hostResponse.gameId
     this.hostClientId = hostResponse.player.client_id
     console.log(`✅ Game created: ${this.gameId}`)
 

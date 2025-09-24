@@ -20,6 +20,12 @@ import GameLobby from '@/components/GameLobby'
 import GameScreen from '@/components/GameScreen'
 import DemoMode from '@/components/DemoMode'
 
+declare global {
+  interface Window {
+    setGameDataFromAPI: (gameId: string) => Promise<void>
+  }
+}
+
 type GameState = 'welcome' | 'lobby' | 'playing' | 'ended'
 
 export default function HomePage() {
@@ -69,7 +75,9 @@ export default function HomePage() {
       }
       
       setIsLoading(true)
-      const response = await fetch(`/api/games?code=${code}`)
+      const response = await fetch(`/api/games?code=${code}`, {
+        headers: { 'Cookie': `clientId=${clientId}` }
+      })
       
       if (response.ok) {
         const gameData = await response.json()
@@ -191,7 +199,9 @@ export default function HomePage() {
         
         try {
           // Fetch game data by code
-          const gameResponse = await fetch(`/api/games?code=${savedGameCode}`)
+          const gameResponse = await fetch(`/api/games?code=${savedGameCode}`, {
+            headers: { 'Cookie': `clientId=${clientId}` }
+          })
           if (gameResponse.ok) {
             const gameData = await gameResponse.json()
             console.log('🔧 Auto-fetched game data:', gameData)
@@ -232,7 +242,9 @@ export default function HomePage() {
       console.log('🔧 setGameDataFromAPI called with gameId:', gameId)
       
       // Fetch game data by code
-      const gameResponse = await fetch(`/api/games?code=${gameId}`)
+      const gameResponse = await fetch(`/api/games?code=${gameId}`, {
+        headers: { 'Cookie': `clientId=${clientId}` }
+      })
       if (gameResponse.ok) {
         const gameData = await gameResponse.json()
         console.log('🔧 API Game data fetched:', gameData)
@@ -260,7 +272,7 @@ export default function HomePage() {
   // Make setGameDataFromAPI available globally (for testing)
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      (window as any).setGameDataFromAPI = setGameDataFromAPI
+      window.setGameDataFromAPI = setGameDataFromAPI
     }
   }, [setGameDataFromAPI])
 
@@ -346,7 +358,9 @@ export default function HomePage() {
       if (!data.gameId || data.gameId === '1' || data.gameId.length < 6) {
         throw new Error('Invalid game code received from server')
       }
-      const gameResponse = await fetch(`/api/games?code=${data.gameId}`)
+      const gameResponse = await fetch(`/api/games?code=${data.gameId}`, {
+        headers: { 'Cookie': `clientId=${clientId}` }
+      })
       if (process.env.NODE_ENV === 'development') {
         console.log('🔧 Game response status:', gameResponse.status, 'ok:', gameResponse.ok)
       }

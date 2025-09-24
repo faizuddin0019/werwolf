@@ -122,7 +122,7 @@ export const resetGameAtom = atom(null, (get, set) => {
   set(roundStateAtom, null)
   set(votesAtom, [])
   set(leaveRequestsAtom, [])
-  set(currentPlayerAtom, null)
+  set(currentPlayerAtom, null) // Only clear currentPlayer when explicitly resetting
   // isHostAtom is now a derived atom, so it will automatically update
   set(gameIdAtom, '')
   set(playerNameAtom, '')
@@ -264,8 +264,10 @@ export const setGameDataAtom = atom(null, (get, set, data: {
       set(playerNameAtom, data.currentPlayer.name)
       // isHostAtom is now a derived atom, so it will automatically update
     } else {
-      if (process.env.NODE_ENV === 'development') console.log('🔧 No current player, clearing currentPlayerAtom')
-      set(currentPlayerAtom, null)
+      // Only clear currentPlayer if we're explicitly resetting the game
+      // Don't clear it just because currentPlayer is undefined in the response
+      if (process.env.NODE_ENV === 'development') console.log('🔧 No current player in response, keeping existing currentPlayer')
+      // Don't set currentPlayerAtom to null here - keep the existing value
     }
   }
   

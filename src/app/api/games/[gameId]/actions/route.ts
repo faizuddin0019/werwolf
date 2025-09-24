@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase, Game, Player, isSupabaseConfigured } from '@/lib/supabase'
-import { assignRoles, getNextPhase, checkWinCondition } from '@/lib/game-utils'
+import { assignRoles, getNextPhase, checkWinCondition, getWerwolfCount } from '@/lib/game-utils'
 
 export async function POST(
   request: NextRequest,
@@ -139,7 +139,7 @@ async function handleAssignRoles(gameId: string, game: Game) {
   // Get all players
   const { data: players, error: playersError } = await supabase!
     .from('players')
-    .select('*')
+    .select('id, game_id, client_id, name, role, alive, is_host')
     .eq('game_id', gameId)
   
   if (playersError || !players) {
@@ -158,32 +158,44 @@ async function handleAssignRoles(gameId: string, game: Game) {
     return NextResponse.json({ error: 'Need at least 6 non-host players to start' }, { status: 400 })
   }
   
-  // Assign roles (excluding host)
-  let playersWithRoles: Player[]
-  try {
-    playersWithRoles = assignRoles(players)
-    console.log('🔧 Roles assigned successfully:', playersWithRoles.map(p => ({ name: p.name, role: p.role, is_host: p.is_host })))
-  } catch (error) {
-    console.error('❌ Error assigning roles:', error)
-    return NextResponse.json({ error: error instanceof Error ? error.message : 'Failed to assign roles' }, { status: 400 })
-  }
+  // Assign roles deterministically by player id order (host excluded)
+  const nonHostSorted = [...nonHostPlayers].sort((a, b) => a.id.localeCompare(b.id))
+  const werCount = getWerwolfCount(nonHostSorted.length)
+  const roleById = new Map<string, string>()
+  nonHostSorted.forEach((p, idx) => {
+    let role: string = 'villager'
+    if (idx < werCount) role = 'werwolf'
+    else if (idx === werCount) role = 'doctor'
+    else if (idx === werCount + 1) role = 'police'
+    roleById.set(p.id, role)
+  })
+  console.log('🔧 Roles assigned (by id):', nonHostSorted.map(p => ({ name: p.name, id: p.id, role: roleById.get(p.id) })))
   
-  // Update players with roles (only non-host players)
+  // Update players with roles (only non-host players) using original player ids
   console.log('🔧 Updating player roles in database...')
-  for (const player of playersWithRoles) {
-    if (!player.is_host && player.role) {
-      console.log('🔧 Updating player:', player.name, 'to role:', player.role)
-      const { error: updateError } = await supabase!
-        .from('players')
-        .update({ role: player.role })
-        .eq('id', player.id)
-      
-      if (updateError) {
-        console.error('❌ Error updating player role:', updateError)
-        return NextResponse.json({ error: 'Failed to update player roles' }, { status: 500 })
-      }
+  const updates = nonHostPlayers.map(p => ({ client_id: p.client_id, role: roleById.get(p.id)! }))
+  if (updates.some(u => !u.role)) {
+    console.error('❌ Missing role for some players (by client_id)', { updates })
+    return NextResponse.json({ error: 'Failed to assign all roles' }, { status: 500 })
+  }
+  for (const u of updates) {
+    const { error } = await supabase!
+      .from('players')
+      .update({ role: u.role })
+      .eq('game_id', gameId)
+      .eq('client_id', u.client_id)
+    if (error) {
+      console.error('❌ Role update failed for player (by client_id)', u, error)
+      return NextResponse.json({ error: 'Failed to update player roles', details: error }, { status: 500 })
     }
   }
+
+  // Verify and log assigned roles
+  const { data: verifyPlayers } = await supabase!
+    .from('players')
+    .select('name, role, is_host')
+    .eq('game_id', gameId)
+  console.log('🔧 Assigned roles verification:', verifyPlayers)
   
   // Check if round state already exists, if not create it
   console.log('🔧 Checking if round state exists...')
@@ -245,14 +257,21 @@ async function handleNextPhase(gameId: string, game: Game, targetPhase?: string)
     console.log('🔧 Host clicked "Wakeup Werwolf" - transitioning to night_wolf phase')
     
     // Update game phase to night_wolf
-    const { error: phaseError } = await supabase!
+    // Optimistic concurrency guard: only advance if still lobby
+    const { data: updatedGame, error: phaseError } = await supabase!
       .from('games')
       .update({ phase: 'night_wolf' })
       .eq('id', gameId)
+      .eq('phase', 'lobby')
+      .select('id, phase')
+      .single()
     
     if (phaseError) {
       console.error('❌ Error updating game phase to night_wolf:', phaseError)
       return NextResponse.json({ error: 'Failed to update game phase' }, { status: 500 })
+    }
+    if (!updatedGame) {
+      return NextResponse.json({ error: 'State changed; retry next_phase' }, { status: 409 })
     }
     
     // Create or update round state to start the phase
@@ -301,14 +320,20 @@ async function handleNextPhase(gameId: string, game: Game, targetPhase?: string)
     console.log('🔧 Host clicked "Wakeup Doctor" - transitioning to night_doctor phase')
     
     // Update game phase to night_doctor
-    const { error: phaseError } = await supabase!
+    const { data: updatedGame, error: phaseError } = await supabase!
       .from('games')
       .update({ phase: 'night_doctor' })
       .eq('id', gameId)
+      .eq('phase', 'night_wolf')
+      .select('id, phase')
+      .single()
     
     if (phaseError) {
       console.error('❌ Error updating game phase to night_doctor:', phaseError)
       return NextResponse.json({ error: 'Failed to update game phase' }, { status: 500 })
+    }
+    if (!updatedGame) {
+      return NextResponse.json({ error: 'State changed; retry next_phase' }, { status: 409 })
     }
     
     console.log('✅ Game phase updated to night_doctor!')
@@ -320,14 +345,20 @@ async function handleNextPhase(gameId: string, game: Game, targetPhase?: string)
     console.log('🔧 Host clicked "Wakeup Police" - transitioning to night_police phase')
     
     // Update game phase to night_police
-    const { error: phaseError } = await supabase!
+    const { data: updatedGame, error: phaseError } = await supabase!
       .from('games')
       .update({ phase: 'night_police' })
       .eq('id', gameId)
+      .eq('phase', 'night_doctor')
+      .select('id, phase')
+      .single()
     
     if (phaseError) {
       console.error('❌ Error updating game phase to night_police:', phaseError)
       return NextResponse.json({ error: 'Failed to update game phase' }, { status: 500 })
+    }
+    if (!updatedGame) {
+      return NextResponse.json({ error: 'State changed; retry next_phase' }, { status: 409 })
     }
     
     console.log('✅ Game phase updated to night_police!')
@@ -339,14 +370,20 @@ async function handleNextPhase(gameId: string, game: Game, targetPhase?: string)
     console.log('🔧 Host clicked "Reveal the Dead" - transitioning to reveal phase')
     
     // Update game phase to reveal
-    const { error: phaseError } = await supabase!
+    const { data: updatedGame, error: phaseError } = await supabase!
       .from('games')
       .update({ phase: 'reveal' })
       .eq('id', gameId)
+      .eq('phase', 'night_police')
+      .select('id, phase')
+      .single()
     
     if (phaseError) {
       console.error('❌ Error updating game phase to reveal:', phaseError)
       return NextResponse.json({ error: 'Failed to update game phase' }, { status: 500 })
+    }
+    if (!updatedGame) {
+      return NextResponse.json({ error: 'State changed; retry next_phase' }, { status: 409 })
     }
     
     console.log('✅ Game phase updated to reveal!')

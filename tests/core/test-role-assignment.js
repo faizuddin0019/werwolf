@@ -5,7 +5,7 @@
  * Ensures proper role distribution including Werwolf assignment
  */
 
-const BASE_URL = process.env.TEST_URL || 'http://localhost:3001'
+const BASE_URL = process.env.TEST_URL || 'http://localhost:3000'
 
 async function testRoleAssignment() {
   console.log('🎯 Testing Role Assignment Logic...')
@@ -163,6 +163,17 @@ async function testRoleAssignment() {
     }
     
     console.log('✅ Werwolf player can see their role:', werwolfCurrentPlayer.role)
+
+    // Determinism check: role snapshot stable for given game
+    const snap1 = playersWithRoles.map(p => ({ id: p.id, role: p.role })).sort((a,b)=>a.id.localeCompare(b.id))
+    const gameStateResponse2 = await fetch(`${BASE_URL}/api/games?code=${gameData.game.code}`, {
+      headers: { 'Cookie': `clientId=${hostClientId}` }
+    })
+    const gameState2 = await gameStateResponse2.json()
+    const snap2 = gameState2.players.filter(p => !p.is_host).map(p => ({ id: p.id, role: p.role })).sort((a,b)=>a.id.localeCompare(b.id))
+    if (JSON.stringify(snap1) !== JSON.stringify(snap2)) {
+      throw new Error('❌ Role assignment not deterministic across reads')
+    }
     
     console.log('🎉 All role assignment tests passed!')
     return true

@@ -177,7 +177,7 @@ class GameLogicTests {
     
     // Check for required roles
     const roles = playersWithRoles.map(p => p.role)
-    const hasWerewolf = roles.includes('werewolf')
+    const hasWerewolf = roles.some(r => r === 'werewolf' || r === 'werwolf')
     const hasDoctor = roles.includes('doctor')
     const hasPolice = roles.includes('police')
     

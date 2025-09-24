@@ -41,11 +41,11 @@ export function useRealtimeSync(gameCode: string | null, onGameEnded?: () => voi
   // All hooks must be called in the same order on every render
   
   const subscriptionRef = useRef<{
-    game: any
-    players: any
-    roundState: any
-    votes: any
-    leaveRequests: any
+    game: unknown
+    players: unknown
+    roundState: unknown
+    votes: unknown
+    leaveRequests: unknown
   } | null>(null)
   
   // Use refs to get current values without causing dependency issues
@@ -72,13 +72,14 @@ export function useRealtimeSync(gameCode: string | null, onGameEnded?: () => voi
     log('🔧 useRealtimeSync: Setting up real-time sync for gameCode:', gameCode)
 
     // Subscribe to game changes
-    const gameSubscription = supabase
+    const gameSubscription = supabase!
       .channel(`game:${gameCode}`)
       .on('postgres_changes', 
         { event: '*', schema: 'public', table: 'games', filter: `code=eq.${gameCode}` },
         (payload) => {
           log('🔧 Game updated:', payload.new)
           const updatedGame = payload.new as Game
+          log('🔧 Game phase changed from', gameRef.current?.phase, 'to', updatedGame.phase)
           
           // Preserve current player during game phase transitions
           const currentPlayer = currentPlayerRef.current
@@ -128,7 +129,7 @@ export function useRealtimeSync(gameCode: string | null, onGameEnded?: () => voi
     // Debounced function to refetch players (reduced delay for faster updates)
     const debouncedRefetchPlayers = debounce(async () => {
       log('🔧 Refetching players after debounce')
-      const { data: updatedPlayers } = await supabase!!
+      const { data: updatedPlayers } = await supabase!
         .from('players')
         .select('*')
         .eq('game_id', game?.id)
@@ -184,7 +185,7 @@ export function useRealtimeSync(gameCode: string | null, onGameEnded?: () => voi
     }, 50) // 50ms debounce for near real-time updates
 
     // Subscribe to player changes
-    const playersSubscription = supabase
+    const playersSubscription = supabase!
       .channel(`players:${gameCode}`)
       .on('postgres_changes',
         { event: '*', schema: 'public', table: 'players', filter: `game_id=eq.${game?.id}` },
@@ -196,7 +197,7 @@ export function useRealtimeSync(gameCode: string | null, onGameEnded?: () => voi
       .subscribe()
 
     // Subscribe to round state changes
-    const roundStateSubscription = supabase
+    const roundStateSubscription = supabase!
       .channel(`round_state:${gameCode}`)
       .on('postgres_changes',
         { event: '*', schema: 'public', table: 'round_state', filter: `game_id=eq.${game?.id}` },
@@ -240,14 +241,14 @@ export function useRealtimeSync(gameCode: string | null, onGameEnded?: () => voi
       .subscribe()
 
     // Subscribe to vote changes for real-time voting updates
-    const votesSubscription = supabase
+    const votesSubscription = supabase!
       .channel(`votes:${gameCode}`)
       .on('postgres_changes',
         { event: '*', schema: 'public', table: 'votes', filter: `game_id=eq.${game?.id}` },
         async () => {
           log('🔧 Vote change detected, refetching votes')
           // Refetch all votes for this game
-          const { data: updatedVotes } = await supabase!!
+          const { data: updatedVotes } = await supabase!
             .from('votes')
             .select('*')
             .eq('game_id', game?.id)
@@ -321,7 +322,7 @@ export function useRealtimeSync(gameCode: string | null, onGameEnded?: () => voi
     }, 50) // 50ms debounce for near real-time updates
 
     // Subscribe to leave request changes
-    const leaveRequestsSubscription = supabase
+    const leaveRequestsSubscription = supabase!
       .channel(`leave_requests:${gameCode}`)
       .on('postgres_changes',
         { event: '*', schema: 'public', table: 'leave_requests', filter: `game_id=eq.${game?.id}` },
@@ -353,11 +354,11 @@ export function useRealtimeSync(gameCode: string | null, onGameEnded?: () => voi
 
     // Store subscription references for cleanup
     subscriptionRef.current = {
-      game: gameSubscription,
-      players: playersSubscription,
-      roundState: roundStateSubscription,
-      votes: votesSubscription,
-      leaveRequests: leaveRequestsSubscription
+      game: gameSubscription as unknown,
+      players: playersSubscription as unknown,
+      roundState: roundStateSubscription as unknown,
+      votes: votesSubscription as unknown,
+      leaveRequests: leaveRequestsSubscription as unknown
     }
     
     log('🔧 Real-time subscriptions created for game:', gameCode)
@@ -365,11 +366,11 @@ export function useRealtimeSync(gameCode: string | null, onGameEnded?: () => voi
     return () => {
       // Cleanup subscriptions
       if (subscriptionRef.current && supabase) {
-        if (subscriptionRef.current.game) supabase.removeChannel(subscriptionRef.current.game)
-        if (subscriptionRef.current.players) supabase.removeChannel(subscriptionRef.current.players)
-        if (subscriptionRef.current.roundState) supabase.removeChannel(subscriptionRef.current.roundState)
-        if (subscriptionRef.current.votes) supabase.removeChannel(subscriptionRef.current.votes)
-        if (subscriptionRef.current.leaveRequests) supabase.removeChannel(subscriptionRef.current.leaveRequests)
+        if (subscriptionRef.current.game) supabase.removeChannel(subscriptionRef.current.game as any)
+        if (subscriptionRef.current.players) supabase.removeChannel(subscriptionRef.current.players as any)
+        if (subscriptionRef.current.roundState) supabase.removeChannel(subscriptionRef.current.roundState as any)
+        if (subscriptionRef.current.votes) supabase.removeChannel(subscriptionRef.current.votes as any)
+        if (subscriptionRef.current.leaveRequests) supabase.removeChannel(subscriptionRef.current.leaveRequests as any)
       }
     }
   }, [gameCode])

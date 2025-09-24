@@ -26,7 +26,7 @@ A web-based companion app for playing Werwolf remotely while keeping all convers
 - **🚫 Zero typing during play** - Players only click buttons
 - **⚡ Real-time synchronization** - All players see updates instantly
 - **📱 Mobile-friendly** - Works on phones, tablets, and desktops
-- **👥 6-20 players** - Supports games from 6 to 20 players
+- **👥 Host + 6 players (7 total)** - Supports games from 7 to 20 players
 - **🔢 Unique game codes** - 6-digit codes that never repeat within the same day
 - **🎭 Role-based interactions** - Werewolves, Doctor, Police, and Villagers
 - **🎨 Visual feedback** - Color-coded actions and vote counts
@@ -86,7 +86,7 @@ Add these files to `public/sounds/`:
 
 1. **Start a Game**: Enter your name, check "I'm the host", and click "Start Game"
 2. **Share Code**: Share the 6-digit game code with players
-3. **Wait for Players**: Need 6-20 players to start
+3. **Wait for Players**: Need Host + 6 players to start
 4. **Assign Roles**: Click "Assign Roles & Start" to begin
 5. **Control Phases**: Use host controls to manage night/day phases
 6. **Reveal Results**: Show who died, who was saved, etc.
@@ -104,7 +104,7 @@ Add these files to `public/sounds/`:
 
 ### 👥 Player Requirements
 
-- **Minimum Players**: 6 players (1 host + 5 game players)
+- **Minimum Players**: Host + 6 players (7 total)
 - **Maximum Players**: 20 players (1 host + 19 game players)
 - **Host Role**: Always alive, manages game phases, excluded from win conditions
 - **Game Players**: Participate in gameplay, included in win conditions
@@ -154,7 +154,7 @@ Add these files to `public/sounds/`:
 
 #### **1. Lobby Phase**
 - Players join using the 6-digit game code
-- Host waits for 6-20 players to join
+- Host waits for Host + 6 players to join
 - Host assigns roles to all non-host players
 - Game begins when host clicks "Assign Roles & Start"
 
