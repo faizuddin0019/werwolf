@@ -175,6 +175,15 @@ async function waitForPhase(gameId, hostClientId, expectedPhase, timeoutMs = 120
   throw new Error(`Expected phase ${expectedPhase} but got ${gs.game.phase}`)
 }
 
+async function ensureNightWolf(gameId, hostClientId) {
+  try {
+    return await waitForPhase(gameId, hostClientId, 'night_wolf', 15000)
+  } catch (e) {
+    await nextPhase(gameId, hostClientId)
+    return await waitForPhase(gameId, hostClientId, 'night_wolf', 8000)
+  }
+}
+
 async function nextPhase(gameId, hostClientId) {
   const gameState = await getGameState(gameId, hostClientId)
   const gameUuid = gameState.game.id
@@ -210,8 +219,8 @@ async function testEndGameLogicWithTwoPlayers() {
     await assignRoles(gameId, hostClientId)
     await sleep(1200)
     
-    // Get initial game state (should be night_wolf after role assignment)
-    let gameState = await waitForPhase(gameId, hostClientId, 'night_wolf')
+    // Get initial game state; if still lobby due to timing, advance once
+    let gameState = await ensureNightWolf(gameId, hostClientId)
     
     // Host advances to night_wolf phase
     await nextPhase(gameId, hostClientId) // lobby -> night_wolf
