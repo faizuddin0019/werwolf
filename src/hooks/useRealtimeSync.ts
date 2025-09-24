@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
+import type { RealtimeChannel } from '@supabase/supabase-js'
 import { useAtom } from 'jotai'
 import { supabase, Game, RoundState, isSupabaseConfigured } from '@/lib/supabase'
 import { 
@@ -366,11 +367,11 @@ export function useRealtimeSync(gameCode: string | null, onGameEnded?: () => voi
     return () => {
       // Cleanup subscriptions
       if (subscriptionRef.current && supabase) {
-        if (subscriptionRef.current.game) supabase.removeChannel(subscriptionRef.current.game as any)
-        if (subscriptionRef.current.players) supabase.removeChannel(subscriptionRef.current.players as any)
-        if (subscriptionRef.current.roundState) supabase.removeChannel(subscriptionRef.current.roundState as any)
-        if (subscriptionRef.current.votes) supabase.removeChannel(subscriptionRef.current.votes as any)
-        if (subscriptionRef.current.leaveRequests) supabase.removeChannel(subscriptionRef.current.leaveRequests as any)
+        try { if (subscriptionRef.current.game) supabase.removeChannel(subscriptionRef.current.game as unknown as RealtimeChannel) } catch {}
+        try { if (subscriptionRef.current.players) supabase.removeChannel(subscriptionRef.current.players as unknown as RealtimeChannel) } catch {}
+        try { if (subscriptionRef.current.roundState) supabase.removeChannel(subscriptionRef.current.roundState as unknown as RealtimeChannel) } catch {}
+        try { if (subscriptionRef.current.votes) supabase.removeChannel(subscriptionRef.current.votes as unknown as RealtimeChannel) } catch {}
+        try { if (subscriptionRef.current.leaveRequests) supabase.removeChannel(subscriptionRef.current.leaveRequests as unknown as RealtimeChannel) } catch {}
       }
     }
   }, [gameCode])

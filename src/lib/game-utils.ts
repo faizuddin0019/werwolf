@@ -92,6 +92,12 @@ export function checkWinCondition(game: Game, players: Player[]): 'villagers' | 
     aliveWerwolfRoles: aliveWerwolves.map(p => ({ name: p.name, role: p.role }))
   })
   
+  // Early villagers win if all werewolves are dead (per canon)
+  if (aliveWerwolves.length === 0) {
+    console.log('🔧 Win condition: villagers win (all werewolves dead)')
+    return 'villagers'
+  }
+
   // Game ends when there are only 2 non-host players left
   if (alivePlayers.length <= 2) {
     // If any werewolves are still alive, they win
@@ -103,9 +109,7 @@ export function checkWinCondition(game: Game, players: Player[]): 'villagers' | 
     console.log('🔧 Win condition: villagers win (2 players left)')
     return 'villagers'
   }
-  
-  // Do not end early when all werewolves are dead; defer win check until 2 players remain
-  
+
   console.log('🔧 Win condition: no win yet')
   return null
 }
