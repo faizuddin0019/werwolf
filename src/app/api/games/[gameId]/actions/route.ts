@@ -769,8 +769,9 @@ async function handleRevealDead(gameId: string, game: Game) {
         .map((sel) => (sel.includes(':') ? sel.split(':')[1] : sel))
         .filter(Boolean)
       const uniqueTargets = Array.from(new Set(targets))
-      // Doctor saves one target if matches
-      deadPlayerIds = uniqueTargets.filter(t => t !== roundState.doctor_save_player_id)
+      // Doctor saves one target if matches)
+      const saveId = roundState.doctor_save_player_id || null
+      deadPlayerIds = uniqueTargets.filter(t => t !== saveId)
     }
     
     console.log('🔧 Dead players determined:', deadPlayerIds)
@@ -786,15 +787,16 @@ async function handleRevealDead(gameId: string, game: Game) {
       return NextResponse.json({ error: `Failed to update round state: ${updateRoundStateError.message}` }, { status: 500 })
     }
     
-    // Mark players as dead if they died
-    for (const pid of deadPlayerIds) {
-      const { error: updatePlayerError } = await supabase!
+    // Mark players as dead if they died (atomic, scoped to this game)
+    if (deadPlayerIds.length > 0) {
+      const { error: bulkUpdateErr } = await supabase!
         .from('players')
         .update({ alive: false })
-        .eq('id', pid)
-      if (updatePlayerError) {
-        console.error('Error updating player alive status:', updatePlayerError)
-        return NextResponse.json({ error: `Failed to update player status: ${updatePlayerError.message}` }, { status: 500 })
+        .eq('game_id', gameId)
+        .in('id', deadPlayerIds)
+      if (bulkUpdateErr) {
+        console.error('Error bulk-updating player alive status:', bulkUpdateErr)
+        return NextResponse.json({ error: `Failed to update player status: ${bulkUpdateErr.message}` }, { status: 500 })
       }
     }
     
