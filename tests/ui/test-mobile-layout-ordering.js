@@ -11,6 +11,24 @@
 
 const BASE_URL = process.env.TEST_BASE_URL || 'http://localhost:3000'
 
+async function sleep(ms) { return new Promise(r => setTimeout(r, ms)) }
+
+async function getGameView(gameCode, clientId, attempts = 15, delayMs = 300) {
+  let lastErr
+  for (let i = 0; i < attempts; i++) {
+    try {
+      const res = await fetch(`${BASE_URL}/api/games?code=${gameCode}`, {
+        headers: { 'Cookie': `clientId=${clientId}` }
+      })
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      const data = await res.json()
+      if (data && Array.isArray(data.players) && data.game) return data
+    } catch (e) { lastErr = e }
+    await sleep(delayMs)
+  }
+  throw new Error(`Failed to fetch stable game view: ${lastErr?.message || 'unknown'}`)
+}
+
 async function testMobileLayoutOrdering() {
   console.log('📱 Testing Mobile Layout Ordering...')
   
@@ -70,9 +88,7 @@ async function testMobileLayoutOrdering() {
     // Test 2: Verify initial state (no active action screens)
     console.log('📝 Test 2: Verifying initial state (no active action screens)...')
     
-    const werewolfGameData = await fetch(`${BASE_URL}/api/games?code=${gameId}`, {
-      headers: { 'Cookie': `clientId=player1-client-456` }
-    }).then(r => r.json())
+    const werewolfGameData = await getGameView(gameId, 'player1-client-456')
     
     const werewolfPlayer = werewolfGameData.players.find(p => p.client_id === 'player1-client-456')
     const roundState = werewolfGameData.roundState
@@ -109,9 +125,7 @@ async function testMobileLayoutOrdering() {
     // Test 4: Verify werewolf can now act
     console.log('📝 Test 4: Verifying werewolf can now act...')
     
-    const updatedWerewolfGameData = await fetch(`${BASE_URL}/api/games?code=${gameId}`, {
-      headers: { 'Cookie': `clientId=player1-client-456` }
-    }).then(r => r.json())
+    const updatedWerewolfGameData = await getGameView(gameId, 'player1-client-456')
     
     const updatedWerewolfPlayer = updatedWerewolfGameData.players.find(p => p.client_id === 'player1-client-456')
     const updatedRoundState = updatedWerewolfGameData.roundState
@@ -144,9 +158,7 @@ async function testMobileLayoutOrdering() {
     // Test 6: Verify villager cannot act during werewolf phase
     console.log('📝 Test 6: Verifying villager cannot act during werewolf phase...')
     
-    const villagerGameData = await fetch(`${BASE_URL}/api/games?code=${gameId}`, {
-      headers: { 'Cookie': `clientId=player4-client-112` }
-    }).then(r => r.json())
+    const villagerGameData = await getGameView(gameId, 'player4-client-112')
     
     const villagerPlayer = villagerGameData.players.find(p => p.client_id === 'player4-client-112')
     const villagerRoundState = villagerGameData.roundState
