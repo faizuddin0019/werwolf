@@ -252,8 +252,17 @@ export default function HomePage() {
             // Set the gameId atom
             setGameId(savedGameCode)
             
-            // Update game state
-            setGameState('lobby')
+            // Update game state based on actual phase
+            if (gameData.game.phase === 'lobby') {
+              setGameState('lobby')
+              saveGameState('lobby')
+            } else if (gameData.game.phase === 'ended') {
+              setGameState('ended')
+              saveGameState('ended')
+            } else {
+              setGameState('playing')
+              saveGameState('playing')
+            }
             
             console.log('🔧 Game data auto-set from saved game code')
           }
