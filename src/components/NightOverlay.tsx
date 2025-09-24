@@ -31,7 +31,10 @@ export default function NightOverlay() {
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error', message: string } | null>(null)
 
   const alivePlayers = players.filter(p => p.alive && p.id !== currentPlayer?.id && !p.is_host)
-  const canAct = currentPlayer && roundState && canPlayerAct(currentPlayer, gamePhase, currentPlayer.is_host, roundState)
+  const canActRaw = currentPlayer && roundState && canPlayerAct(currentPlayer, gamePhase, currentPlayer.is_host, roundState)
+  const canAct = !!(canActRaw || (
+    gamePhase === 'night_wolf' && currentPlayer && (currentPlayer.role === 'werwolf' || currentPlayer.role === 'werewolf')
+  ))
   
   // Debug logging
   console.log('🔧 NightOverlay Debug:', {

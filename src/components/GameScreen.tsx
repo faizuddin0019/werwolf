@@ -114,9 +114,15 @@ export default function GameScreen({ onEndGame, onRemovePlayer, onChangeRole }: 
   const alivePlayers = sortedPlayers.filter(p => p.alive)
   const deadPlayers = sortedPlayers.filter(p => !p.alive)
   
+  // Compute if the player can act now, with a safe fallback for werewolf turn
+  const canActNight = currentPlayer ? (
+    canPlayerAct(currentPlayer, gamePhase, currentPlayer.is_host, roundState || undefined) ||
+    (gamePhase === 'night_wolf' && (currentPlayer.role === 'werwolf' || currentPlayer.role === 'werewolf'))
+  ) : false
+
   // Check if current player has an active action screen (only after component is loaded)
   const hasActiveActionScreen = isLoaded && currentPlayer && (
-    (isNightPhase && canPlayerAct(currentPlayer, gamePhase, currentPlayer.is_host, roundState || undefined)) ||
+    (isNightPhase && canActNight) ||
     (isDayPhase && currentPlayer.alive)
   )
   
@@ -395,7 +401,7 @@ export default function GameScreen({ onEndGame, onRemovePlayer, onChangeRole }: 
               </div>
 
               {/* Night Overlay - Only show when it's the player's turn and they can act */}
-              {isNightPhase && currentPlayer && canPlayerAct(currentPlayer, gamePhase, currentPlayer.is_host, roundState || undefined) && (
+              {isNightPhase && currentPlayer && canActNight && (
                 <NightOverlay />
               )}
               
