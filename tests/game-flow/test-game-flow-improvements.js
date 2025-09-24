@@ -311,7 +311,9 @@ async function testManualVotingControls() {
   const doctor = gamePlayers.find(p => p.role === 'doctor')
     const target = gamePlayers.find(p => p.role !== 'werewolf')
     
-    // Werewolf phase (game is already in night_wolf after role assignment)
+    // Werewolf phase (ensure phase_started true by host first)
+    await performHostAction(gameUuid, hostClientId, 'next_phase')
+    await sleep(300)
     await performPlayerAction(gameUuid, werewolf.client_id, 'wolf_select', target.id)
     await performHostAction(gameUuid, hostClientId, 'next_phase')
     await sleep(1000)

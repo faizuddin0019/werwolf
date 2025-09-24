@@ -344,6 +344,7 @@ class RealTimeSyncTests {
         })
       })
     } catch (e) {
+      const sleep = (ms) => new Promise(r => setTimeout(r, ms))
       await sleep(400)
       removeResponse = await this.makeRequest(`${BASE_URL}/api/games/${this.gameUuid}/actions`, {
         method: 'POST',
