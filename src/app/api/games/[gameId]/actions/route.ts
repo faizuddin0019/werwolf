@@ -835,6 +835,25 @@ async function handleEliminatePlayer(gameId: string, game: Game) {
     .update(updates)
     .eq('id', gameId)
   
+  // Reset round state for the new night cycle when continuing the game
+  if (!winState) {
+    const { error: resetRoundStateError } = await supabase!
+      .from('round_state')
+      .update({
+        wolf_target_player_id: null,
+        doctor_save_player_id: null,
+        police_inspect_player_id: null,
+        police_inspect_result: null,
+        resolved_death_player_id: null,
+        phase_started: false
+      })
+      .eq('game_id', gameId)
+    if (resetRoundStateError) {
+      console.error('❌ Error resetting round state for new night:', resetRoundStateError)
+      // Non-fatal: keep going; UI can still proceed but will show stale action status otherwise
+    }
+  }
+
   return NextResponse.json({ 
     success: true, 
     eliminatedPlayerId,
