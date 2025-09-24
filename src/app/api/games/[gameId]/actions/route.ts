@@ -503,7 +503,7 @@ async function handleNextPhase(gameId: string, game: Game, targetPhase?: string)
   }
   
   // Handle night_police: only start the phase; do NOT auto-advance.
-  // After police acts, host must "Reveal the Dead" explicitly via reveal_dead.
+  // After police acts OR if no police alive, host must "Reveal the Dead" explicitly via reveal_dead.
   if (game.phase === 'night_police') {
     // If no alive police, allow host to proceed to reveal directly on next_phase
     const { data: alivePolice } = await supabase!
@@ -513,6 +513,11 @@ async function handleNextPhase(gameId: string, game: Game, targetPhase?: string)
       .eq('alive', true)
       .eq('role', 'police')
     if (!alivePolice || alivePolice.length === 0) {
+      // Ensure phase_started is set so UI allows Reveal
+      await supabase!
+        .from('round_state')
+        .update({ phase_started: true })
+        .eq('game_id', gameId)
       console.log('🔧 No police alive - awaiting reveal_dead directly')
       return NextResponse.json({ success: true, phase: 'night_police', action: 'awaiting_reveal' })
     }
