@@ -173,6 +173,7 @@ main() {
                 echo -e "\n${BLUE}🔗 Running Integration Tests${NC}"
                 run_test "Real-time Sync Tests" "tests/integration/real-time-sync.test.js" "$TEST_URL"
                 run_test "Multi-Werwolf Reveal Tests" "tests/integration/multi-werewolf-reveal.test.js" "$TEST_URL"
+                run_test "Multi-Werwolf Edge Cases" "tests/integration/multi-werewolf-edgecases.test.js" "$TEST_URL"
                 ;;
             *)
                 # Run all test suites organized by functionality
@@ -194,6 +195,7 @@ main() {
                 echo -e "\n${BLUE}🔗 Running Integration Tests${NC}"
                 run_test "Real-time Sync Tests" "tests/integration/real-time-sync.test.js" "$TEST_URL"
                 run_test "Multi-Werwolf Reveal Tests" "tests/integration/multi-werewolf-reveal.test.js" "$TEST_URL"
+                run_test "Multi-Werwolf Edge Cases" "tests/integration/multi-werewolf-edgecases.test.js" "$TEST_URL"
                 
                 echo -e "\n${BLUE}🏁 Running End Game Tests${NC}"
                 run_test "End Game Logic Tests" "tests/end-game/test-end-game-logic.js" "$TEST_URL"
