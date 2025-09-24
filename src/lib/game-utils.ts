@@ -147,15 +147,11 @@ export function canPlayerAct(
 ): boolean {
   if (!player.alive) return false
   
-  // For night phases, check if the phase has been started by the host
+  // For night phases, require the host to start the phase
   const isNightPhase = ['night_wolf', 'night_police', 'night_doctor'].includes(phase)
   if (isNightPhase && (!roundState || roundState.phase_started === false)) {
-    // Allow werewolf UI to render immediately on night_wolf so they can pick a target
-    if (phase === 'night_wolf' && (player.role === 'werwolf' || player.role === 'werewolf')) {
-      return true
-    }
     console.log('🔧 canPlayerAct: Phase not started yet', { player: player.name, phase, roundState })
-    return false // Phase not started yet
+    return false
   }
   
   console.log('🔧 canPlayerAct Debug:', {

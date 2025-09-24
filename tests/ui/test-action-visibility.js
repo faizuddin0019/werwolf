@@ -215,7 +215,7 @@ class ActionVisibilityTest {
     }
 
     console.log('✅ All actions are visible to host:')
-    console.log(`  - Werwolf selected: ${roundState.wolf_target_player_id}`)
+    console.log(`  - Werwolf selected: ${roundState.wolf_target_player_id}`) // may be CSV of wolfId:targetId pairs
     console.log(`  - Doctor saved: ${roundState.doctor_save_player_id}`)
     console.log(`  - Police inspected: ${roundState.police_inspect_player_id}`)
   }

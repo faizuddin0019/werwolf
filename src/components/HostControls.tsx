@@ -51,7 +51,12 @@ export default function HostControls({ onEndGame }: HostControlsProps) {
   }
   // Reset display when a fresh night starts (host hasn’t started the phase yet)
   const isFreshNight = gamePhase === 'night_wolf' && roundState?.phase_started !== true
-  const wolfTargetName = isFreshNight ? null : getPlayerName(roundState?.wolf_target_player_id || null)
+  // Multiple wolf targets format: "wolfId:targetId,wolfId2:targetId2"
+  const wolfTargets = isFreshNight || !roundState?.wolf_target_player_id ? [] : String(roundState.wolf_target_player_id).split(',').filter(Boolean)
+  const wolfTargetNames = wolfTargets.map(pair => {
+    const targetId = pair.split(':')[1]
+    return getPlayerName(targetId || null)
+  }).filter(Boolean) as string[]
   const doctorSaveName = isFreshNight ? null : getPlayerName(roundState?.doctor_save_player_id || null)
   const policeInspectName = isFreshNight ? null : getPlayerName(roundState?.police_inspect_player_id || null)
 
@@ -317,7 +322,7 @@ export default function HostControls({ onEndGame }: HostControlsProps) {
             <div className="flex justify-between">
               <span>Werwolf:</span>
               <span className={roundState?.wolf_target_player_id ? 'text-green-600' : 'text-gray-400'}>
-                {roundState?.wolf_target_player_id ? (wolfTargetName || 'Target Selected') : 'Waiting'}
+                {roundState?.wolf_target_player_id ? (wolfTargetNames.length ? wolfTargetNames.join(', ') : 'Target(s) Selected') : 'Waiting'}
               </span>
             </div>
             <div className="flex justify-between">

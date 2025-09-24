@@ -122,8 +122,7 @@ export default function GameScreen({ onEndGame, onRemovePlayer, onChangeRole }: 
   
   // Compute if the player can act now, with a safe fallback for werewolf turn
   const canActNight = currentPlayer ? (
-    canPlayerAct(currentPlayer, gamePhase, currentPlayer.is_host, roundState || undefined) ||
-    (gamePhase === 'night_wolf' && (currentPlayer.role === 'werwolf' || currentPlayer.role === 'werewolf'))
+    canPlayerAct(currentPlayer, gamePhase, currentPlayer.is_host, roundState || undefined)
   ) : false
 
   // Check if current player has an active action screen (only after component is loaded)

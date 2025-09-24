@@ -348,7 +348,7 @@ async function handleNextPhase(gameId: string, game: Game, targetPhase?: string)
     return NextResponse.json({ success: true, phase: 'night_wolf', action: 'phase_advanced' })
   }
   
-  // Handle night_wolf: if phase not started, start it and clear any stale selections; otherwise if target chosen, move to doctor
+  // Handle night_wolf: if phase not started, start it and clear any stale selections; otherwise if targets chosen by all alive wolves, move to doctor
   if (game.phase === 'night_wolf') {
     // Do NOT skip wolf phase even if no wolves alive; host will advance manually
     const { data: round } = await supabase!
@@ -377,8 +377,20 @@ async function handleNextPhase(gameId: string, game: Game, targetPhase?: string)
       console.log('✅ night_wolf phase started; selections cleared')
       return NextResponse.json({ success: true, phase: 'night_wolf', action: 'phase_started' })
     }
-    // If target chosen, advance to doctor
+    // If targets chosen, advance to doctor. With multiple werewolves, require one unique target per alive wolf (stored as CSV in wolf_target_player_id)
     if (round.wolf_target_player_id) {
+      // Determine alive werewolves count
+      const { data: wolves } = await supabase!
+        .from('players')
+        .select('id')
+        .eq('game_id', gameId)
+        .eq('alive', true)
+        .in('role', ['werwolf','werewolf'])
+      const aliveWolfCount = wolves?.length || 0
+      const targets = String(round.wolf_target_player_id).split(',').filter(Boolean)
+      if (aliveWolfCount > 1 && targets.length < aliveWolfCount) {
+        return NextResponse.json({ success: true, phase: 'night_wolf', action: 'awaiting_additional_wolf_targets' })
+      }
       const { data: updatedGame, error: phaseError } = await supabase!
         .from('games')
         .update({ phase: 'night_doctor' })
@@ -545,11 +557,20 @@ async function handleWolfSelect(gameId: string, player: Player, targetId: string
     return NextResponse.json({ error: 'Phase has not been started by the host yet' }, { status: 400 })
   }
   
-  // Allow overriding target within the same night_wolf phase (last choice wins until host advances)
-  
+  // Multiple wolves: accumulate unique targets as CSV keyed by wolf id; last choice per wolf overrides
+  const { data: round } = await supabase!
+    .from('round_state')
+    .select('wolf_target_player_id')
+    .eq('game_id', gameId)
+    .single()
+  const existing = round?.wolf_target_player_id ? String(round.wolf_target_player_id) : ''
+  const parts = existing.split(',').filter(Boolean)
+  // Remove any prior selection by this wolf (encoded as wolfId:targetId)
+  const filtered = parts.filter(p => !p.startsWith(player.id + ':'))
+  const next = [...filtered, `${player.id}:${targetId}`]
   const { error: updateError } = await supabase!
     .from('round_state')
-    .update({ wolf_target_player_id: targetId })
+    .update({ wolf_target_player_id: next.join(',') })
     .eq('game_id', gameId)
   
   if (updateError) {
@@ -557,7 +578,7 @@ async function handleWolfSelect(gameId: string, player: Player, targetId: string
     return NextResponse.json({ error: 'Failed to update werwolf selection' }, { status: 500 })
   }
   
-  console.log('🔧 Werwolf select update successful:', { targetId })
+  console.log('🔧 Werwolf select update successful:', { wolf: player.id, targetId, encoded: next.join(',') })
   
   // Don't automatically advance phase - let host control it
   return NextResponse.json({ success: true })
@@ -708,19 +729,22 @@ async function handleRevealDead(gameId: string, game: Game) {
       doctor_save: roundState.doctor_save_player_id
     })
     
-    // Check if doctor saved the werwolf target
-    let deadPlayerId = null
-    if (roundState.wolf_target_player_id && 
-        roundState.doctor_save_player_id !== roundState.wolf_target_player_id) {
-      deadPlayerId = roundState.wolf_target_player_id
+    // Determine deaths: with multiple wolves, decode selections and apply doctor save to one saved target only
+    let deadPlayerIds: string[] = []
+    if (roundState.wolf_target_player_id) {
+      const selections = String(roundState.wolf_target_player_id).split(',').filter(Boolean)
+      const targets = selections.map(s => s.split(':')[1]).filter(Boolean)
+      const uniqueTargets = Array.from(new Set(targets))
+      // Doctor saves one target if matches
+      deadPlayerIds = uniqueTargets.filter(t => t !== roundState.doctor_save_player_id)
     }
     
     console.log('🔧 Dead player determined:', deadPlayerId)
     
-    // Update round state with resolved death
+    // Update round state with resolved death(s)
     const { error: updateRoundStateError } = await supabase!
       .from('round_state')
-      .update({ resolved_death_player_id: deadPlayerId })
+      .update({ resolved_death_player_id: deadPlayerIds.join(',') || null })
       .eq('game_id', gameId)
     
     if (updateRoundStateError) {
@@ -728,13 +752,12 @@ async function handleRevealDead(gameId: string, game: Game) {
       return NextResponse.json({ error: `Failed to update round state: ${updateRoundStateError.message}` }, { status: 500 })
     }
     
-    // Mark player as dead if they died
-    if (deadPlayerId) {
+    // Mark players as dead if they died
+    for (const pid of deadPlayerIds) {
       const { error: updatePlayerError } = await supabase!
         .from('players')
         .update({ alive: false })
-        .eq('id', deadPlayerId)
-      
+        .eq('id', pid)
       if (updatePlayerError) {
         console.error('Error updating player alive status:', updatePlayerError)
         return NextResponse.json({ error: `Failed to update player status: ${updatePlayerError.message}` }, { status: 500 })
@@ -777,7 +800,7 @@ async function handleRevealDead(gameId: string, game: Game) {
     }
     
     console.log('🔧 Reveal dead completed successfully')
-    return NextResponse.json({ success: true, deadPlayerId, winState })
+    return NextResponse.json({ success: true, deadPlayerIds, winState })
     
   } catch (error) {
     console.error('Unexpected error in handleRevealDead:', error)
