@@ -47,6 +47,7 @@ export default function GameLobby({
 
   // Loading state for leave requests
   const [isLoading, setIsLoading] = useState(false)
+  const [isPhaseLoading, setIsPhaseLoading] = useState(false)
 
   // Debug logging for players
   console.log('🔧 GameLobby Debug:', {
@@ -71,6 +72,30 @@ export default function GameLobby({
   // const alivePlayers = sortedPlayers.filter(p => p.alive)
   const playerCount = sortedPlayers.length
   const nonHostPlayerCount = sortedPlayers.filter(p => !p.is_host).length
+  const rolesAssigned = players.filter(p => !p.is_host && p.role).length > 0
+
+  const handleWakeUpWerwolf = async () => {
+    if (!game || !currentPlayer || isPhaseLoading) return
+    setIsPhaseLoading(true)
+    try {
+      const res = await fetch(`/api/games/${game.id}/actions`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'next_phase', clientId: currentPlayer.client_id })
+      })
+      if (!res.ok) {
+        try {
+          const err = await res.json()
+          console.error('Wake Up Werwolf failed:', err)
+          alert(err.error || 'Failed to start night phase')
+        } catch {}
+      }
+    } catch (e) {
+      console.error('Wake Up Werwolf error:', e)
+    } finally {
+      setIsPhaseLoading(false)
+    }
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800 relative overflow-hidden">
@@ -290,17 +315,30 @@ export default function GameLobby({
                   Host Controls
                 </h3>
                 
-                <button
-                  onClick={() => {
-                    console.log('🔧 GameLobby: Assign roles button clicked', { canStartGame, isHost, playerCount, nonHostPlayerCount })
-                    onAssignRoles()
-                  }}
-                  disabled={!canStartGame}
-                  className="w-full py-3 px-4 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:bg-gray-700 disabled:cursor-not-allowed transition-colors flex items-center justify-center space-x-2 font-medium mb-3"
-                >
-                  <Play className="w-5 h-5" />
-                  <span>Assign Roles & Start</span>
-                </button>
+                {!rolesAssigned && (
+                  <button
+                    onClick={() => {
+                      console.log('🔧 GameLobby: Assign roles button clicked', { canStartGame, isHost, playerCount, nonHostPlayerCount })
+                      onAssignRoles()
+                    }}
+                    disabled={!canStartGame}
+                    className="w-full py-3 px-4 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:bg-gray-700 disabled:cursor-not-allowed transition-colors flex items-center justify-center space-x-2 font-medium mb-3"
+                  >
+                    <Play className="w-5 h-5" />
+                    <span>Assign Roles & Start</span>
+                  </button>
+                )}
+
+                {rolesAssigned && (
+                  <button
+                    onClick={handleWakeUpWerwolf}
+                    disabled={isPhaseLoading}
+                    className="w-full py-3 px-4 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-700 disabled:cursor-not-allowed transition-colors flex items-center justify-center space-x-2 font-medium mb-3"
+                  >
+                    <Play className="w-5 h-5" />
+                    <span>Wake Up Werwolf</span>
+                  </button>
+                )}
                 
                 <button
                   onClick={onEndGame}
