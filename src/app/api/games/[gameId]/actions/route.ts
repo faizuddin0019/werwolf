@@ -736,7 +736,7 @@ async function handleRevealDead(gameId: string, game: Game) {
       deadPlayerIds = uniqueTargets.filter(t => t !== roundState.doctor_save_player_id)
     }
     
-    console.log('🔧 Dead player determined:', deadPlayerId)
+    console.log('🔧 Dead players determined:', deadPlayerIds)
     
     // Update round state with resolved death(s)
     const { error: updateRoundStateError } = await supabase!
