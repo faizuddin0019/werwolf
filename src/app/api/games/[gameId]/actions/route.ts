@@ -568,15 +568,21 @@ async function handleWolfSelect(gameId: string, player: Player, targetId: string
     }
     console.log('🔧 Werwolf select update (map+uuid):', { wolf: player.id, targetId, encoded: nextEncoded })
   } else {
+    // Use uuid column for last target and maintain a text buffer in resolved_death_player_id with wolfId:targetId pairs
+    const buffer: string = round?.resolved_death_player_id ? String(round.resolved_death_player_id) : ''
+    const parts = buffer.split(',').filter(Boolean)
+    const filtered = parts.filter((p: string) => !p.startsWith(player.id + ':'))
+    const next = [...filtered, `${player.id}:${targetId}`]
+    const nextEncoded = next.join(',')
     const { error: updErr } = await supabase!
       .from('round_state')
-      .update({ wolf_target_player_id: targetId })
+      .update({ wolf_target_player_id: targetId, resolved_death_player_id: nextEncoded })
       .eq('game_id', gameId)
     if (updErr) {
       console.error('🔧 Werwolf select uuid update error:', updErr)
       return NextResponse.json({ error: 'Failed to update werwolf selection' }, { status: 500 })
     }
-    console.log('🔧 Werwolf select update (uuid only):', { wolf: player.id, targetId })
+    console.log('🔧 Werwolf select update (uuid+buffer):', { wolf: player.id, targetId, buffer: nextEncoded })
   }
   
   // Don't automatically advance phase - let host control it
@@ -731,7 +737,7 @@ async function handleRevealDead(gameId: string, game: Game) {
     // Determine deaths: with multiple wolves, decode selections and apply doctor save to one saved target only
     let deadPlayerIds: string[] = []
     if (roundState.wolf_target_player_id) {
-      const mapString = (roundState as any).wolf_target_map as string | undefined
+      const mapString = ((roundState as any).wolf_target_map as string | undefined) || ((roundState as any).resolved_death_player_id as string | undefined)
       const source = mapString && mapString.length > 0 ? mapString : String(roundState.wolf_target_player_id)
       const selections = source.split(',').filter(Boolean)
       // Support both formats: "wolfId:targetId" and legacy "targetId"
