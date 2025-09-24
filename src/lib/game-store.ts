@@ -194,7 +194,9 @@ export const setGameDataAtom = atom(null, (get, set, data: {
   const currentPlayerChanged = !currentPlayer !== !data.currentPlayer ||
     (currentPlayer && data.currentPlayer && 
      (currentPlayer.id !== data.currentPlayer.id || 
-      currentPlayer.is_host !== data.currentPlayer.is_host))
+      currentPlayer.is_host !== data.currentPlayer.is_host ||
+      currentPlayer.role !== data.currentPlayer.role ||
+      currentPlayer.alive !== data.currentPlayer.alive))
   
   if (gameChanged) {
     if (process.env.NODE_ENV === 'development') {

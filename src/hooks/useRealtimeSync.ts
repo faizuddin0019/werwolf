@@ -96,7 +96,7 @@ export function useRealtimeSync(gameCode: string | null, onGameEnded?: () => voi
             roundState: roundStateRef.current || undefined,
             votes: votesRef.current || [],
             leaveRequests: leaveRequestsRef.current || [],
-            currentPlayer: currentPlayer || undefined || undefined
+            currentPlayer: currentPlayer || undefined
           })
           
           // If game ended, redirect to welcome page (but not for host)
