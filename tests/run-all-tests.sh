@@ -37,8 +37,9 @@ run_test() {
     TOTAL_TESTS=$((TOTAL_TESTS + 1))
     
     if [ -f "$test_file" ]; then
-        # Set the test URL for this test
+        # Set the test URL for this test (support both env names)
         export TEST_BASE_URL="$test_url"
+        export TEST_URL="$test_url"
         
         if node "$test_file"; then
             echo -e "${GREEN}✅ $test_name: PASSED${NC}"
@@ -171,6 +172,7 @@ main() {
             "integration")
                 echo -e "\n${BLUE}🔗 Running Integration Tests${NC}"
                 run_test "Real-time Sync Tests" "tests/integration/real-time-sync.test.js" "$TEST_URL"
+                run_test "Multi-Werwolf Reveal Tests" "tests/integration/multi-werewolf-reveal.test.js" "$TEST_URL"
                 ;;
             *)
                 # Run all test suites organized by functionality
@@ -191,6 +193,7 @@ main() {
                 
                 echo -e "\n${BLUE}🔗 Running Integration Tests${NC}"
                 run_test "Real-time Sync Tests" "tests/integration/real-time-sync.test.js" "$TEST_URL"
+                run_test "Multi-Werwolf Reveal Tests" "tests/integration/multi-werewolf-reveal.test.js" "$TEST_URL"
                 
                 echo -e "\n${BLUE}🏁 Running End Game Tests${NC}"
                 run_test "End Game Logic Tests" "tests/end-game/test-end-game-logic.js" "$TEST_URL"
