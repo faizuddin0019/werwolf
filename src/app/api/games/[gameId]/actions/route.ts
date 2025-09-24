@@ -414,29 +414,33 @@ async function handleNextPhase(gameId: string, game: Game, targetPhase?: string)
     return NextResponse.json({ success: true, phase: 'night_police', action: 'phase_advanced' })
   }
   
-  // Handle transition from night_police to begin voting
+  // Handle night_police: only start the phase; do NOT auto-advance.
+  // After police acts, host must "Reveal the Dead" explicitly via reveal_dead.
   if (game.phase === 'night_police') {
-    console.log('🔧 Host clicked "Begin Initial Voting" - transitioning to day_vote phase')
-    
-    // Move game to day_vote
-    const { data: updatedGame, error: phaseError } = await supabase!
-      .from('games')
-      .update({ phase: 'day_vote' })
-      .eq('id', gameId)
-      .eq('phase', 'night_police')
-      .select('id, phase')
+    // Ensure phase_started is true; otherwise start it
+    const { data: round } = await supabase!
+      .from('round_state')
+      .select('phase_started, police_inspect_player_id')
+      .eq('game_id', gameId)
       .single()
-    
-    if (phaseError) {
-      console.error('❌ Error updating game phase to day_vote:', phaseError)
-      return NextResponse.json({ error: 'Failed to update game phase' }, { status: 500 })
+
+    if (!round || round.phase_started !== true) {
+      const { error: startErr } = await supabase!
+        .from('round_state')
+        .update({ phase_started: true })
+        .eq('game_id', gameId)
+      if (startErr) {
+        console.error('❌ Error starting night_police phase:', startErr)
+        return NextResponse.json({ error: 'Failed to start police phase' }, { status: 500 })
+      }
+      console.log('✅ night_police phase started')
+      return NextResponse.json({ success: true, phase: 'night_police', action: 'phase_started' })
     }
-    if (!updatedGame) {
-      return NextResponse.json({ error: 'State changed; retry next_phase' }, { status: 409 })
-    }
-    
-    console.log('✅ Game phase updated to day_vote!')
-    return NextResponse.json({ success: true, phase: 'day_vote', action: 'phase_advanced' })
+
+    // If already started, remain in night_police awaiting reveal_dead
+    const awaiting = round?.police_inspect_player_id ? 'awaiting_reveal' : 'awaiting_inspection'
+    console.log(`🔧 night_police ongoing - ${awaiting}`)
+    return NextResponse.json({ success: true, phase: 'night_police', action: awaiting })
   }
   
   // Handle other phase transitions (day phases, etc.)
@@ -732,6 +736,16 @@ async function handleRevealDead(gameId: string, game: Game) {
 
 async function handleBeginVoting(gameId: string) {
   console.log('🔧 handleBeginVoting called for game:', gameId)
+  
+  // Ensure we're in reveal phase before beginning voting
+  const { data: game } = await supabase!
+    .from('games')
+    .select('phase')
+    .eq('id', gameId)
+    .single()
+  if (!game || game.phase !== 'reveal') {
+    return NextResponse.json({ error: 'Begin voting allowed only in reveal phase' }, { status: 400 })
+  }
   
   // Update game phase to day_vote
   const { error: updateError } = await supabase!

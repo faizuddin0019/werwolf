@@ -182,7 +182,7 @@ class RealTimeSyncTests {
   async testHostVotingExclusion() {
     console.log('\n🗳️ Testing host voting exclusion...')
     
-    // Go through full night cycle to reach day vote phase
+    // Go through full night cycle to reach reveal then day vote phase
     await this.makeRequest(`${BASE_URL}/api/games/${this.gameUuid}/actions`, {
       method: 'POST',
       body: JSON.stringify({
@@ -210,16 +210,17 @@ class RealTimeSyncTests {
     })
     await this.sleep(1000)
     
+    // Reveal dead first
     await this.makeRequest(`${BASE_URL}/api/games/${this.gameUuid}/actions`, {
       method: 'POST',
       body: JSON.stringify({
-        action: 'next_phase',
+        action: 'reveal_dead',
         clientId: this.hostClientId
       })
     })
     await this.sleep(1000)
     
-    // Begin voting
+    // Begin voting from reveal
     await this.makeRequest(`${BASE_URL}/api/games/${this.gameUuid}/actions`, {
       method: 'POST',
       body: JSON.stringify({

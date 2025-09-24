@@ -136,6 +136,16 @@ async function eliminatePlayer(gameId, hostClientId, targetPlayerId, voterClient
     })
   })
   
+  // Cast at least one final-round vote (votes from day_vote were cleared)
+  await makeRequest(`${BASE_URL}/api/games/${gameUuid}/actions`, {
+    method: 'POST',
+    body: JSON.stringify({
+      action: 'vote',
+      clientId: voterClientId,
+      data: { targetId: targetPlayerId }
+    })
+  })
+
   // Then eliminate the player (host can do this)
   await makeRequest(`${BASE_URL}/api/games/${gameUuid}/actions`, {
     method: 'POST',
@@ -212,6 +222,15 @@ async function testEndGameLogicWithTwoPlayers() {
     // Get fresh game state to check current phase
     let currentGameState = await getGameState(gameId, hostClientId)
     if (currentGameState.game.phase === 'night_wolf') {
+      // Ensure phase_started is true by host starting the phase
+      await makeRequest(`${BASE_URL}/api/games/${currentGameState.game.id}/actions`, {
+        method: 'POST',
+        body: JSON.stringify({
+          action: 'next_phase',
+          clientId: hostClientId
+        })
+      })
+      await sleep(300)
       await makeRequest(`${BASE_URL}/api/games/${currentGameState.game.id}/actions`, {
         method: 'POST',
         body: JSON.stringify({
@@ -258,11 +277,15 @@ async function testEndGameLogicWithTwoPlayers() {
       })
     }
     
-    // Host clicks "Reveal the Dead"
-    await nextPhase(gameId, hostClientId)
-    await sleep(1000) // Wait for phase to advance
-    
-    // Begin voting
+    // Host reveals the dead after police, then begins voting
+    await makeRequest(`${BASE_URL}/api/games/${gameState.game.id}/actions`, {
+      method: 'POST',
+      body: JSON.stringify({
+        action: 'reveal_dead',
+        clientId: hostClientId
+      })
+    })
+    await sleep(800)
     await makeRequest(`${BASE_URL}/api/games/${gameState.game.id}/actions`, {
       method: 'POST',
       body: JSON.stringify({
@@ -270,9 +293,12 @@ async function testEndGameLogicWithTwoPlayers() {
         clientId: hostClientId
       })
     })
+    await sleep(800)
     
     // Eliminate one player to test the win condition logic
-    const targetPlayer = gamePlayers[0]
+    // Choose a villager to avoid prematurely ending by killing the only werewolf
+    const villagerCandidates = gamePlayers.filter(p => p.role !== 'werwolf' && p.role !== 'werewolf')
+    const targetPlayer = villagerCandidates[0]
     const voterPlayer = gamePlayers.find(p => p.id !== targetPlayer.id)
     await eliminatePlayer(gameId, hostClientId, targetPlayer.id, voterPlayer.client_id)
     await sleep(1000)
@@ -326,15 +352,42 @@ async function testHostExclusionFromWinConditions() {
     assert(hostPlayer, 'Host player should exist')
     assert(nonHostPlayers.length === 6, 'Should have 6 non-host players')
     
-    // Go through night phases to reach day phase for voting
-    await nextPhase(gameId, hostClientId) // night_wolf
-    await sleep(1000)
-    await nextPhase(gameId, hostClientId) // night_doctor
-    await sleep(1000)
-    await nextPhase(gameId, hostClientId) // night_police
-    await sleep(1000)
-    await nextPhase(gameId, hostClientId) // reveal
-    await sleep(1000)
+    // Advance to night_wolf and perform required actions to progress
+    await nextPhase(gameId, hostClientId) // lobby -> night_wolf
+    await sleep(600)
+    let gs1 = await getGameState(gameId, hostClientId)
+    const werewolf = gs1.players.find(p => (p.role === 'werwolf' || p.role === 'werewolf') && !p.is_host)
+    const wwTarget = gs1.players.find(p => !p.is_host && p.id !== werewolf.id)
+    // Start phase and select target
+    await makeRequest(`${BASE_URL}/api/games/${gs1.game.id}/actions`, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'next_phase', clientId: hostClientId })
+    })
+    await sleep(300)
+    await makeRequest(`${BASE_URL}/api/games/${gs1.game.id}/actions`, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'wolf_select', clientId: werewolf.client_id, data: { targetId: wwTarget.id } })
+    })
+    // Move to night_doctor
+    await nextPhase(gameId, hostClientId)
+    await sleep(600)
+    // Doctor save to enable police
+    let gs2 = await getGameState(gameId, hostClientId)
+    const doctor = gs2.players.find(p => p.role === 'doctor')
+    await makeRequest(`${BASE_URL}/api/games/${gs2.game.id}/actions`, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'doctor_save', clientId: doctor.client_id, data: { targetId: wwTarget.id } })
+    })
+    // Move to night_police
+    await nextPhase(gameId, hostClientId)
+    await sleep(600)
+    // Reveal to enter reveal phase
+    let gs3 = await getGameState(gameId, hostClientId)
+    await makeRequest(`${BASE_URL}/api/games/${gs3.game.id}/actions`, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'reveal_dead', clientId: hostClientId })
+    })
+    await sleep(600)
     
     // Begin voting
     await makeRequest(`${BASE_URL}/api/games/${gameState.game.id}/actions`, {
@@ -346,8 +399,9 @@ async function testHostExclusionFromWinConditions() {
     })
     await sleep(1000)
     
-    // Eliminate one player to test the logic
-    const targetPlayer = nonHostPlayers[0]
+    // Choose a villager to avoid ending the game early
+    const villagerCandidates2 = nonHostPlayers.filter(p => p.role !== 'werwolf' && p.role !== 'werewolf')
+    const targetPlayer = villagerCandidates2[0]
     const voterPlayer = nonHostPlayers.find(p => p.id !== targetPlayer.id)
     await eliminatePlayer(gameId, hostClientId, targetPlayer.id, voterPlayer.client_id)
     await sleep(1000)
@@ -412,8 +466,9 @@ async function testWinnerDeclarationCloseable() {
     })
     await sleep(1000)
     
-    // Eliminate one player to test the logic
-    const targetPlayer = players[0]
+    // Eliminate a villager to avoid ending the game early
+    const villagerCandidates = players.filter(p => p.role !== 'werwolf' && p.role !== 'werewolf')
+    const targetPlayer = villagerCandidates[0]
     const voterPlayer = players.find(p => p.id !== targetPlayer.id)
     await eliminatePlayer(gameId, hostClientId, targetPlayer.id, voterPlayer.client_id)
     await sleep(1000)
@@ -463,13 +518,20 @@ async function testRealTimeSync() {
     gameState = await getGameState(gameId, hostClientId)
     assert(gameState.game.phase === 'lobby', 'Game should remain in lobby after role assignment')
     
-    // Go through night phases to reach day phase for voting
+    // Go through night phases to reach reveal
     await nextPhase(gameId, hostClientId) // night_doctor
-    await sleep(1000)
+    await sleep(800)
     await nextPhase(gameId, hostClientId) // night_police
-    await sleep(1000)
-    await nextPhase(gameId, hostClientId) // reveal
-    await sleep(1000)
+    await sleep(800)
+    // Reveal after police
+    {
+      const gs2 = await getGameState(gameId, hostClientId)
+      await makeRequest(`${BASE_URL}/api/games/${gs2.game.id}/actions`, {
+        method: 'POST',
+        body: JSON.stringify({ action: 'reveal_dead', clientId: hostClientId })
+      })
+      await sleep(800)
+    }
     
     // Begin voting to reach day_vote phase
     gameState = await getGameState(gameId, hostClientId)

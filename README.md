@@ -177,7 +177,7 @@ Add these files to `public/sounds/`:
 #### **3. Reveal Phase**
 - Host reveals who died (if not saved by Doctor)
 - Shows werewolf target, doctor save, and police results
-- Game advances to day phase
+- Host must click "Reveal the Dead" after Police. Game then advances to day.
 
 #### **4. Day Phase**
 **Day Vote:**

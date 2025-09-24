@@ -1,4 +1,4 @@
-const BASE_URL = process.env.BASE_URL || 'http://localhost:3000'
+const BASE_URL = process.env.TEST_BASE_URL || process.env.BASE_URL || 'http://localhost:3000'
 
 class MultipleActionsPreventionTest {
   constructor() {
@@ -127,28 +127,22 @@ class MultipleActionsPreventionTest {
     }
     console.log('✅ First werwolf action succeeded')
 
-    // Second action should fail
-    console.log('📝 Testing second werwolf action (should fail)...')
-    try {
-      const secondAction = await this.makeRequest(`${BASE_URL}/api/games/${this.gameUuid}/actions`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action: 'wolf_select',
-          clientId: this.werwolfPlayerId,
-          data: { targetId: targets[1].id }
-        })
+    // Second action should now override the first (allowed within same phase)
+    console.log('📝 Testing second werwolf action (should override within same phase)...')
+    const secondAction = await this.makeRequest(`${BASE_URL}/api/games/${this.gameUuid}/actions`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'wolf_select',
+        clientId: this.werwolfPlayerId,
+        data: { targetId: targets[1].id }
       })
-      
-      // If we get here, the test failed
-      throw new Error('Second werwolf action should have failed but succeeded')
-    } catch (error) {
-      if (error.message.includes('already selected')) {
-        console.log('✅ Second werwolf action correctly rejected')
-      } else {
-        throw error
-      }
+    })
+
+    if (!secondAction.success) {
+      throw new Error('Second werwolf action should override previous selection within same phase')
     }
+    console.log('✅ Second werwolf action correctly overridden within same phase')
   }
 
   async testDoctorMultipleActions() {
@@ -192,28 +186,22 @@ class MultipleActionsPreventionTest {
     }
     console.log('✅ First doctor action succeeded')
 
-    // Second action should fail
-    console.log('📝 Testing second doctor action (should fail)...')
-    try {
-      const secondAction = await this.makeRequest(`${BASE_URL}/api/games/${this.gameUuid}/actions`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action: 'doctor_save',
-          clientId: this.doctorPlayerId,
-          data: { targetId: targets[1].id }
-        })
+    // Second action should override within the same phase (last choice wins)
+    console.log('📝 Testing second doctor action (should override within same phase)...')
+    const secondAction = await this.makeRequest(`${BASE_URL}/api/games/${this.gameUuid}/actions`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'doctor_save',
+        clientId: this.doctorPlayerId,
+        data: { targetId: targets[1].id }
       })
-      
-      // If we get here, the test failed
-      throw new Error('Second doctor action should have failed but succeeded')
-    } catch (error) {
-      if (error.message.includes('already saved')) {
-        console.log('✅ Second doctor action correctly rejected')
-      } else {
-        throw error
-      }
+    })
+
+    if (!secondAction.success) {
+      throw new Error('Second doctor action should override previous selection within same phase')
     }
+    console.log('✅ Second doctor action correctly overridden within same phase')
   }
 
   async testPoliceMultipleActions() {
@@ -257,28 +245,21 @@ class MultipleActionsPreventionTest {
     }
     console.log('✅ First police action succeeded')
 
-    // Second action should fail
-    console.log('📝 Testing second police action (should fail)...')
-    try {
-      const secondAction = await this.makeRequest(`${BASE_URL}/api/games/${this.gameUuid}/actions`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action: 'police_inspect',
-          clientId: this.policePlayerId,
-          data: { targetId: targets[1].id }
-        })
+    // Second action should override within the same phase (last choice wins)
+    console.log('📝 Testing second police action (should override within same phase)...')
+    const secondAction = await this.makeRequest(`${BASE_URL}/api/games/${this.gameUuid}/actions`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'police_inspect',
+        clientId: this.policePlayerId,
+        data: { targetId: targets[1].id }
       })
-      
-      // If we get here, the test failed
-      throw new Error('Second police action should have failed but succeeded')
-    } catch (error) {
-      if (error.message.includes('already inspected')) {
-        console.log('✅ Second police action correctly rejected')
-      } else {
-        throw error
-      }
+    })
+    if (!secondAction.success) {
+      throw new Error('Second police action should override within same phase')
     }
+    console.log('✅ Second police action correctly overridden within same phase')
   }
 
   async runTests() {

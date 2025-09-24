@@ -179,7 +179,9 @@ async function testRoleVisibility() {
     const player1GameData = gameDataResults[1]
     const player1Players = player1GameData.players
     const player1CanSeeOwnRole = player1Players.find(p => p.client_id === 'player1-client-456')?.role !== undefined
-    const player1CannotSeeOthers = player1Players.filter(p => p.client_id !== 'player1-client-456' && !p.is_host).every(p => p.role === undefined)
+    const player1CannotSeeOthers = player1Players
+      .filter(p => p.client_id !== 'player1-client-456' && !p.is_host)
+      .every(p => p.role == null)
     
     if (!player1CanSeeOwnRole) {
       throw new Error('❌ Player 1 cannot see their own role')
@@ -193,7 +195,9 @@ async function testRoleVisibility() {
     const player2GameData = gameDataResults[2]
     const player2Players = player2GameData.players
     const player2CanSeeOwnRole = player2Players.find(p => p.client_id === 'player2-client-789')?.role !== undefined
-    const player2CannotSeeOthers = player2Players.filter(p => p.client_id !== 'player2-client-789' && !p.is_host).every(p => p.role === undefined)
+    const player2CannotSeeOthers = player2Players
+      .filter(p => p.client_id !== 'player2-client-789' && !p.is_host)
+      .every(p => p.role == null)
     
     if (!player2CanSeeOwnRole) {
       throw new Error('❌ Player 2 cannot see their own role')

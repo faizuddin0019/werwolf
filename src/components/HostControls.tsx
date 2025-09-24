@@ -184,7 +184,7 @@ export default function HostControls({ onEndGame }: HostControlsProps) {
           if (!roundState?.phase_started) {
             return 'Wake Up Police'
           } else if (roundState?.police_inspect_player_id) {
-            return 'Begin Initial Voting'
+            return 'Reveal the Dead'
           } else {
             return 'Wake Up Police (Waiting for inspection)'
           }
@@ -233,8 +233,8 @@ export default function HostControls({ onEndGame }: HostControlsProps) {
           // Can start phase if not started yet, or advance if doctor has saved
           return !roundState?.phase_started || roundState?.doctor_save_player_id !== null
         } else if (gamePhase === 'night_police') {
-          // Can start phase if not started yet, or advance if police has inspected
-          return !roundState?.phase_started || roundState?.police_inspect_player_id !== null
+          // Can start phase if not started yet; do not auto-advance. Reveal handled separately.
+          return !roundState?.phase_started
         }
         return false
       case 'reveal_dead':
@@ -255,7 +255,7 @@ export default function HostControls({ onEndGame }: HostControlsProps) {
   const actions = [
     { action: 'assign_roles', label: 'Start Game' },
     { action: 'next_phase', label: 'Next Phase' },
-    // Removed duplicate explicit reveal_dead button; handled via next_phase label + routing below
+    { action: 'reveal_dead', label: 'Reveal Dead' },
     { action: 'begin_voting', label: 'Begin Voting' },
     { action: 'final_vote', label: 'Final Vote' },
     { action: 'eliminate_player', label: 'Eliminate' },
@@ -293,11 +293,7 @@ export default function HostControls({ onEndGame }: HostControlsProps) {
                   }
                   return
                 }
-                // Route next_phase based on phase
-                const realAction = (action === 'next_phase' && gamePhase === 'night_police' && (roundState?.police_inspect_player_id !== null))
-                  ? 'begin_voting'
-                  : action
-                handleAction(realAction)
+                handleAction(action)
               }}
               disabled={!canPerform || isLoading}
               className={`w-full py-2 px-4 text-white rounded-md transition-colors flex items-center justify-center space-x-2 disabled:bg-gray-300 disabled:cursor-not-allowed ${getButtonColor(action)}`}
