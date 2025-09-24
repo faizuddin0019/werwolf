@@ -184,7 +184,7 @@ export default function HostControls({ onEndGame }: HostControlsProps) {
           if (!roundState?.phase_started) {
             return 'Wake Up Police'
           } else if (roundState?.police_inspect_player_id) {
-            return 'Reveal the Dead'
+            return 'Begin Initial Voting'
           } else {
             return 'Wake Up Police (Waiting for inspection)'
           }
@@ -293,9 +293,9 @@ export default function HostControls({ onEndGame }: HostControlsProps) {
                   }
                   return
                 }
-                // Route next_phase to reveal_dead when appropriate to avoid duplicate button
+                // Route next_phase based on phase
                 const realAction = (action === 'next_phase' && gamePhase === 'night_police' && (roundState?.police_inspect_player_id !== null))
-                  ? 'reveal_dead'
+                  ? 'begin_voting'
                   : action
                 handleAction(realAction)
               }}

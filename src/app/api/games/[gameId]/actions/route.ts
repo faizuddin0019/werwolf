@@ -414,29 +414,29 @@ async function handleNextPhase(gameId: string, game: Game, targetPhase?: string)
     return NextResponse.json({ success: true, phase: 'night_police', action: 'phase_advanced' })
   }
   
-  // Handle transition from night_police to reveal phase (Reveal the Dead)
+  // Handle transition from night_police to begin voting
   if (game.phase === 'night_police') {
-    console.log('🔧 Host clicked "Reveal the Dead" - transitioning to reveal phase')
+    console.log('🔧 Host clicked "Begin Initial Voting" - transitioning to day_vote phase')
     
-    // Update game phase to reveal
+    // Move game to day_vote
     const { data: updatedGame, error: phaseError } = await supabase!
       .from('games')
-      .update({ phase: 'reveal' })
+      .update({ phase: 'day_vote' })
       .eq('id', gameId)
       .eq('phase', 'night_police')
       .select('id, phase')
       .single()
     
     if (phaseError) {
-      console.error('❌ Error updating game phase to reveal:', phaseError)
+      console.error('❌ Error updating game phase to day_vote:', phaseError)
       return NextResponse.json({ error: 'Failed to update game phase' }, { status: 500 })
     }
     if (!updatedGame) {
       return NextResponse.json({ error: 'State changed; retry next_phase' }, { status: 409 })
     }
     
-    console.log('✅ Game phase updated to reveal!')
-    return NextResponse.json({ success: true, phase: 'reveal', action: 'phase_advanced' })
+    console.log('✅ Game phase updated to day_vote!')
+    return NextResponse.json({ success: true, phase: 'day_vote', action: 'phase_advanced' })
   }
   
   // Handle other phase transitions (day phases, etc.)
