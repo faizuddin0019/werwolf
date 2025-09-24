@@ -97,10 +97,11 @@ async function testDifferentTargetsNoSave() {
   // Poll up to 2s for both deaths to persist
   let success = false
   const expected = new Set([nonWolves[0].id, nonWolves[1].id])
+  let deadIds = []
   for (let i = 0; i < 10; i++) {
     await sleep(200)
     gs = await state(code, host)
-    const deadIds = players.filter(p => !gs.players.find(gp => gp.id === p.id)?.alive).map(p => p.id)
+    deadIds = players.filter(p => !gs.players.find(gp => gp.id === p.id)?.alive).map(p => p.id)
     success = [...expected].every(id => deadIds.includes(id))
     if (success) break
   }
