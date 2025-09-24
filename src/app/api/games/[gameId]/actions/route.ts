@@ -545,70 +545,38 @@ async function handleWolfSelect(gameId: string, player: Player, targetId: string
     return NextResponse.json({ error: 'Phase has not been started by the host yet' }, { status: 400 })
   }
   
-  // Multiple wolves: accumulate per-wolf selections in CSV stored in wolf_target_player_id
+  // Multiple wolves: prefer writing to text map column if it exists; keep uuid column as last single target
   const { data: round } = await supabase!
     .from('round_state')
-    .select('wolf_target_player_id')
+    .select('*')
     .eq('game_id', gameId)
     .single()
-  let existing = round?.wolf_target_player_id ? String(round.wolf_target_player_id) : ''
-  let attempts = 0
-  let updated = false
-  while (attempts < 5 && !updated) {
-    attempts++
-    const parts = existing.split(',').filter(Boolean)
-    // Remove any prior selection by this wolf (encoded as wolfId:targetId)
-    const filtered = parts.filter(p => !p.startsWith(player.id + ':'))
+  const hasMap = round && Object.prototype.hasOwnProperty.call(round, 'wolf_target_map')
+  if (hasMap) {
+    const existingMap: string = (round as any).wolf_target_map || ''
+    const parts = existingMap.split(',').filter(Boolean)
+    const filtered = parts.filter((p: string) => !p.startsWith(player.id + ':'))
     const next = [...filtered, `${player.id}:${targetId}`]
     const nextEncoded = next.join(',')
-
-    let query = supabase!
+    const { error: updErr } = await supabase!
       .from('round_state')
-      .update({ wolf_target_player_id: nextEncoded })
+      .update({ wolf_target_map: nextEncoded, wolf_target_player_id: targetId })
       .eq('game_id', gameId)
-
-    // Optimistic concurrency: compare-and-swap on previous value (including null)
-    if (!existing) {
-      // previous was empty/null
-      // @ts-ignore: postgrest-js supports .is for null
-      query = (query as any).is('wolf_target_player_id', null)
-    } else {
-      query = query.eq('wolf_target_player_id', existing)
-    }
-
-    const { error: updateError, data } = await (query as any).select('wolf_target_player_id')
-    if (!updateError && data && data.length > 0) {
-      updated = true
-      existing = nextEncoded
-      console.log('🔧 Werwolf select CAS update successful:', { attempts, wolf: player.id, targetId, encoded: nextEncoded })
-      break
-    }
-
-    // Someone updated concurrently; re-fetch and retry
-    const { data: latest } = await supabase!
-      .from('round_state')
-      .select('wolf_target_player_id')
-      .eq('game_id', gameId)
-      .single()
-    existing = latest?.wolf_target_player_id ? String(latest.wolf_target_player_id) : ''
-  }
-
-  if (!updated) {
-    console.warn('⚠️ Werwolf select fell back to last-write due to contention; applying union merge')
-    // Last resort: union merge without CAS
-    const parts = existing.split(',').filter(Boolean)
-    const filtered = parts.filter(p => !p.startsWith(player.id + ':'))
-    const next = [...filtered, `${player.id}:${targetId}`]
-    const nextEncoded = next.join(',')
-    const { error: finalErr } = await supabase!
-      .from('round_state')
-      .update({ wolf_target_player_id: nextEncoded })
-      .eq('game_id', gameId)
-    if (finalErr) {
-      console.error('🔧 Werwolf select final update error:', finalErr)
+    if (updErr) {
+      console.error('🔧 Werwolf select map update error:', updErr)
       return NextResponse.json({ error: 'Failed to update werwolf selection' }, { status: 500 })
     }
-    console.log('🔧 Werwolf select final update applied:', { wolf: player.id, targetId, encoded: nextEncoded })
+    console.log('🔧 Werwolf select update (map+uuid):', { wolf: player.id, targetId, encoded: nextEncoded })
+  } else {
+    const { error: updErr } = await supabase!
+      .from('round_state')
+      .update({ wolf_target_player_id: targetId })
+      .eq('game_id', gameId)
+    if (updErr) {
+      console.error('🔧 Werwolf select uuid update error:', updErr)
+      return NextResponse.json({ error: 'Failed to update werwolf selection' }, { status: 500 })
+    }
+    console.log('🔧 Werwolf select update (uuid only):', { wolf: player.id, targetId })
   }
   
   // Don't automatically advance phase - let host control it
@@ -763,7 +731,9 @@ async function handleRevealDead(gameId: string, game: Game) {
     // Determine deaths: with multiple wolves, decode selections and apply doctor save to one saved target only
     let deadPlayerIds: string[] = []
     if (roundState.wolf_target_player_id) {
-      const selections = String(roundState.wolf_target_player_id).split(',').filter(Boolean)
+      const mapString = (roundState as any).wolf_target_map as string | undefined
+      const source = mapString && mapString.length > 0 ? mapString : String(roundState.wolf_target_player_id)
+      const selections = source.split(',').filter(Boolean)
       // Support both formats: "wolfId:targetId" and legacy "targetId"
       const targets = selections
         .map((sel) => (sel.includes(':') ? sel.split(':')[1] : sel))
