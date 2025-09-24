@@ -88,7 +88,9 @@ export default function GameScreen({ onEndGame, onRemovePlayer, onChangeRole }: 
         })
         if (response.ok) {
           const data = await response.json()
-          if (data.roundState && data.roundState.phase_started !== roundState?.phase_started) {
+          const roleChanged = !!data.currentPlayer && data.currentPlayer.role !== currentPlayer.role
+          const phaseStartedChanged = !!data.roundState && data.roundState.phase_started !== roundState?.phase_started
+          if (phaseStartedChanged || roleChanged) {
             console.log('🔧 Polling detected roundState change:', data.roundState)
             // Force update by calling setGameData
             setGameData({
@@ -97,7 +99,7 @@ export default function GameScreen({ onEndGame, onRemovePlayer, onChangeRole }: 
               roundState: data.roundState,
               votes: data.votes || [],
               leaveRequests: data.leaveRequests || [],
-              currentPlayer: currentPlayer
+              currentPlayer: data.currentPlayer || currentPlayer
             })
           }
         }

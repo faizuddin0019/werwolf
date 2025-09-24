@@ -167,7 +167,7 @@ export async function GET(request: NextRequest) {
         // Hide other players' roles
         return {
           ...player,
-          role: undefined
+          role: null
         }
       }
     }) || []
