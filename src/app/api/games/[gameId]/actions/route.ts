@@ -581,15 +581,37 @@ async function handleWolfSelect(gameId: string, player: Player, targetId: string
     const parts = buffer.split(',').filter(Boolean)
     const filtered = parts.filter((p: string) => !p.startsWith(player.id + ':'))
     const nextEncoded = [...filtered, `${player.id}:${targetId}`].join(',')
-    const { error: updErr } = await supabase!
-      .from('round_state')
-      .update({ wolf_target_player_id: targetId, resolved_death_player_id: nextEncoded })
-      .eq('game_id', gameId)
-    if (updErr) {
-      console.error('🔧 Werwolf select legacy update error:', updErr)
-      return NextResponse.json({ error: 'Failed to update werwolf selection' }, { status: 500 })
+    let legacyErr: any = null
+    try {
+      const { error: updErr } = await supabase!
+        .from('round_state')
+        .update({ wolf_target_player_id: targetId, resolved_death_player_id: nextEncoded })
+        .eq('game_id', gameId)
+      legacyErr = updErr
+    } catch (e: any) {
+      legacyErr = e
     }
-    console.log('🔧 Werwolf select update (uuid+buffer legacy):', { wolf: player.id, targetId, buffer: nextEncoded })
+    if (legacyErr) {
+      const msg = legacyErr?.message || ''
+      const code = legacyErr?.code || ''
+      // Fallback for schemas where resolved_death_player_id is UUID → avoid 22P02
+      if (code === '22P02' || msg.includes('invalid input syntax for type uuid')) {
+        const { error: fallbackErr } = await supabase!
+          .from('round_state')
+          .update({ wolf_target_player_id: targetId })
+          .eq('game_id', gameId)
+        if (fallbackErr) {
+          console.error('🔧 Werwolf select legacy fallback error:', fallbackErr)
+          return NextResponse.json({ error: 'Failed to update werwolf selection' }, { status: 500 })
+        }
+        console.log('🔧 Werwolf select update (uuid-only fallback, legacy):', { wolf: player.id, targetId })
+      } else {
+        console.error('🔧 Werwolf select legacy update error:', legacyErr)
+        return NextResponse.json({ error: 'Failed to update werwolf selection' }, { status: 500 })
+      }
+    } else {
+      console.log('🔧 Werwolf select update (uuid+buffer legacy):', { wolf: player.id, targetId, buffer: nextEncoded })
+    }
   }
   
   // Don't automatically advance phase - let host control it
