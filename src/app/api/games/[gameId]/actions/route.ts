@@ -568,26 +568,16 @@ async function handleWolfSelect(gameId: string, player: Player, targetId: string
     }
     console.log('🔧 Werwolf select update (map+uuid):', { wolf: player.id, targetId, encoded: nextEncoded })
   } else {
-    // Legacy schema: keep uuid last target, and track per-wolf pairs in resolved_death_player_id buffer
-    const { data: roundLegacy } = await supabase!
-      .from('round_state')
-      .select('resolved_death_player_id')
-      .eq('game_id', gameId)
-      .single()
-    const buffer: string = roundLegacy?.resolved_death_player_id ? String(roundLegacy.resolved_death_player_id) : ''
-    const parts = buffer.split(',').filter(Boolean)
-    const filtered = parts.filter((p: string) => !p.startsWith(player.id + ':'))
-    const next = [...filtered, `${player.id}:${targetId}`]
-    const nextEncoded = next.join(',')
+    // Legacy schema: only uuid column available; store last target safely (single-target semantics)
     const { error: updErr } = await supabase!
       .from('round_state')
-      .update({ wolf_target_player_id: targetId, resolved_death_player_id: nextEncoded })
+      .update({ wolf_target_player_id: targetId })
       .eq('game_id', gameId)
     if (updErr) {
-      console.error('🔧 Werwolf select uuid+buffer update error:', updErr)
+      console.error('🔧 Werwolf select uuid update error:', updErr)
       return NextResponse.json({ error: 'Failed to update werwolf selection' }, { status: 500 })
     }
-    console.log('🔧 Werwolf select update (uuid+buffer legacy):', { wolf: player.id, targetId, buffer: nextEncoded })
+    console.log('🔧 Werwolf select update (uuid only, legacy):', { wolf: player.id, targetId })
   }
   
   // Don't automatically advance phase - let host control it
