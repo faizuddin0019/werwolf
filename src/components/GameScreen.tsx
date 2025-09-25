@@ -495,9 +495,7 @@ export default function GameScreen({ onEndGame, onRemovePlayer, onChangeRole }: 
                               className="px-2 py-1 bg-slate-700 text-white rounded text-xs border border-slate-600"
                             >
                               <option value="villager">Villager</option>
-                              {/* Accept both spellings; server supports both */}
                               <option value="werwolf">Werwolf</option>
-                              <option value="werewolf">Werewolf (alias)</option>
                               <option value="doctor">Doctor</option>
                               <option value="police">Police</option>
                             </select>
