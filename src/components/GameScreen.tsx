@@ -13,7 +13,9 @@ import {
   voteCountsAtom,
   highestVotedPlayerAtom,
   roundStateAtom,
-  setGameDataAtom
+  setGameDataAtom,
+  pendingLeaveRequestsAtom,
+  leaveRequestsAtom
 } from '@/lib/game-store'
 import { getPhaseDisplayName, canPlayerAct, sortPlayers } from '@/lib/game-utils'
 import { 
@@ -45,6 +47,8 @@ export default function GameScreen({ onEndGame, onRemovePlayer, onChangeRole }: 
   const [highestVotedPlayer] = useAtom(highestVotedPlayerAtom)
   const [roundState] = useAtom(roundStateAtom)
   const [, setGameData] = useAtom(setGameDataAtom)
+  const [pendingLeaveRequests] = useAtom(pendingLeaveRequestsAtom)
+  const [leaveRequests] = useAtom(leaveRequestsAtom)
   
   // Loading state to prevent action screens from showing during initial load
   const [isLoaded, setIsLoaded] = useState(false)
@@ -507,6 +511,57 @@ export default function GameScreen({ onEndGame, onRemovePlayer, onChangeRole }: 
                   <p className="text-xs text-slate-400 mt-3 text-center">
                     Host can remove any player from the game and change roles
                   </p>
+                </div>
+              )}
+
+              {/* Host Leave Request Management (in-game) */}
+              {isHost && pendingLeaveRequests.length > 0 && (
+                <div className="bg-slate-800/80 backdrop-blur-sm rounded-lg p-6 border border-slate-600/30 shadow-lg">
+                  <h3 className="text-lg font-semibold text-white mb-4">Leave Requests ({pendingLeaveRequests.length})</h3>
+                  <div className="space-y-3">
+                    {pendingLeaveRequests.map((request) => {
+                      const requestingPlayer = players.find(p => p.id === request.player_id)
+                      if (!requestingPlayer) return null
+                      return (
+                        <div key={request.id} className="bg-slate-800/50 rounded-lg p-4 border border-slate-600/30">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <p className="text-white font-medium">{requestingPlayer.name}</p>
+                              <p className="text-xs text-slate-400">Wants to leave the game</p>
+                            </div>
+                            <div className="flex space-x-2">
+                              <button
+                                onClick={async () => {
+                                  if (!game || !currentPlayer) return
+                                  await fetch(`/api/games/${game.id}/actions`, {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ action: 'approve_leave', clientId: currentPlayer.client_id, data: { playerId: request.player_id } })
+                                  })
+                                }}
+                                className="px-3 py-1 bg-green-600 text-white rounded text-sm hover:bg-green-700 transition-colors"
+                              >
+                                Approve
+                              </button>
+                              <button
+                                onClick={async () => {
+                                  if (!game || !currentPlayer) return
+                                  await fetch(`/api/games/${game.id}/actions`, {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ action: 'deny_leave', clientId: currentPlayer.client_id, data: { playerId: request.player_id } })
+                                  })
+                                }}
+                                className="px-3 py-1 bg-red-600 text-white rounded text-sm hover:bg-red-700 transition-colors"
+                              >
+                                Deny
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
                 </div>
               )}
             </div>
