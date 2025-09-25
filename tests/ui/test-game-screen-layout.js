@@ -142,11 +142,11 @@ async function testGameScreenLayout() {
     // Test 4: Verify game phase transition
     console.log('📝 Test 4: Verifying game phase transition...')
     
-    // Game should be in lobby phase after role assignment (until host starts it)
-    if (hostGameData.game.phase !== 'lobby') {
-      throw new Error(`❌ Game phase is ${hostGameData.game.phase}, expected lobby`)
+    // Canonical: After role assignment server moves to night_wolf (phase_started=false)
+    if (hostGameData.game.phase !== 'night_wolf') {
+      throw new Error(`❌ Game phase is ${hostGameData.game.phase}, expected night_wolf`)
     }
-    console.log('✅ Game phase is correctly set to lobby (ready for host to start)')
+    console.log('✅ Game phase is night_wolf (host must start phase)')
     
     // Test 5: Verify action screen timing
     console.log('📝 Test 5: Verifying action screen timing...')

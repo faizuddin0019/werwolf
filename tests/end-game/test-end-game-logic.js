@@ -464,17 +464,22 @@ async function testWinnerDeclarationCloseable() {
     await assignRoles(gameId, hostClientId)
     await sleep(1000)
     
-    // Go through night phases to reach day phase for voting
-    await nextPhase(gameId, hostClientId) // night_wolf
-    await sleep(1000)
-    await nextPhase(gameId, hostClientId) // night_doctor
-    await sleep(1000)
-    await nextPhase(gameId, hostClientId) // night_police
-    await sleep(1000)
-    await nextPhase(gameId, hostClientId) // reveal
-    await sleep(1000)
+    // Progress canonically: night_wolf -> night_doctor -> night_police -> reveal
+    await nextPhase(gameId, hostClientId) // lobby -> night_wolf (start phase)
+    await sleep(400)
+    await nextPhase(gameId, hostClientId) // to night_doctor
+    await sleep(400)
+    await nextPhase(gameId, hostClientId) // to night_police
+    await sleep(400)
+    // Explicit reveal from police phase
+    let gsReveal = await getGameState(gameId, hostClientId)
+    await makeRequest(`${BASE_URL}/api/games/${gsReveal.game.id}/actions`, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'reveal_dead', clientId: hostClientId })
+    })
+    await sleep(600)
     
-    // Begin voting
+    // Begin voting from reveal phase
     let gameState = await getGameState(gameId, hostClientId)
     await makeRequest(`${BASE_URL}/api/games/${gameState.game.id}/actions`, {
       method: 'POST',
@@ -531,12 +536,12 @@ async function testRealTimeSync() {
     let gameState = await getGameState(gameId, hostClientId)
     const initialPlayerCount = gameState.players.length
     
-    // Assign roles and check immediate update
+    // Assign roles and expect auto transition to night_wolf (phase_started=false)
     await assignRoles(gameId, hostClientId)
-    await sleep(2000) // Wait for real-time sync
+    await sleep(800) // Wait for real-time sync
     
     gameState = await getGameState(gameId, hostClientId)
-    assert(gameState.game.phase === 'lobby', 'Game should remain in lobby after role assignment')
+    assert(gameState.game.phase === 'night_wolf', 'Game should enter night_wolf after role assignment')
     
     // Canonical flow: start Wolf → Doctor → Police → Reveal → Begin Voting
     // 1) Host starts night_wolf from lobby
