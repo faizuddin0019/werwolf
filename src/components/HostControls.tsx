@@ -51,13 +51,17 @@ export default function HostControls({ onEndGame }: HostControlsProps) {
   }
   // Reset display when a fresh night starts (host hasn’t started the phase yet)
   const isFreshNight = gamePhase === 'night_wolf' && roundState?.phase_started !== true
-  // Multiple wolf targets format: legacy "targetId,targetId2" or map "wolfId:targetId,wolfId2:targetId2"
+  // Multiple wolf targets: prefer explicit map, else legacy buffer, else uuid csv
   const wolfTargetNames = (() => {
-    if (isFreshNight || !roundState?.wolf_target_player_id) return [] as string[]
-    const raw = String(roundState.wolf_target_player_id)
+    if (isFreshNight || !roundState) return [] as string[]
+    const raw = (roundState as any).wolf_target_map
+      ? String((roundState as any).wolf_target_map)
+      : (roundState as any).resolved_death_player_id
+        ? String((roundState as any).resolved_death_player_id)
+        : (roundState.wolf_target_player_id ? String(roundState.wolf_target_player_id) : '')
+    if (!raw) return [] as string[]
     const parts = raw.split(',').filter(Boolean)
     const targetIds = parts.map(p => (p.includes(':') ? p.split(':')[1] : p)).filter(Boolean)
-    // de-duplicate
     const unique = Array.from(new Set(targetIds))
     return unique.map(id => getPlayerName(id)).filter(Boolean) as string[]
   })()
@@ -112,7 +116,7 @@ export default function HostControls({ onEndGame }: HostControlsProps) {
                 setGameData(data)
               }
             } catch (err) {
-              console.error('Error refreshing game state:', err)
+              console.warn('Refresh game state failed:', err)
             }
           }, 300)
         } else if (['reveal_dead','begin_voting','final_vote','eliminate_player','next_phase'].includes(action)) {

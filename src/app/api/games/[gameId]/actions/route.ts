@@ -58,7 +58,10 @@ export async function POST(
       return NextResponse.json({ error: 'Host cannot request to leave. Use "End Game" instead.' }, { status: 403 })
     }
     
+  // Reduce noisy logs in production; keep minimal
+  if (process.env.NODE_ENV !== 'production') {
     console.log('🔧 Action received:', action, 'for game:', gameId, 'by player:', currentPlayer.name)
+  }
     
     switch (action) {
       case 'assign_roles':
