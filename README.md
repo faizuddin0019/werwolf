@@ -31,7 +31,7 @@ A web-based companion app for playing Werwolf remotely while keeping all convers
 - **🎭 Role-based interactions** - Werewolves, Doctor, Police, and Villagers
 - **🎨 Visual feedback** - Color-coded actions and vote counts
 - **🔊 Sound effects** - Audio cues for role assignment and voting
-- **🚪 Leave request system** - Players request to leave, host approves
+- **🚪 Leave request system** - Players request to leave (Lobby and Game), host approves
 - **👑 Host player management** - Host can remove any player directly
 - **💾 State persistence** - Game state saved across browser refreshes
 - **🧪 Comprehensive testing** - 21/21 tests passing
@@ -87,7 +87,7 @@ Add these files to `public/sounds/`:
 1. **Start a Game**: Enter your name, check "I'm the host", and click "Start Game"
 2. **Share Code**: Share the 6-digit game code with players
 3. **Wait for Players**: Need Host + 6 players to start
-4. **Assign Roles**: Click "Assign Roles & Start" to begin
+4. **Assign Roles**: Click "Assign Roles & Start" to begin (Lobby never shows "Wake Up Werwolf")
 5. **Control Phases**: Use host controls to manage night/day phases
 6. **Reveal Results**: Show who died, who was saved, etc.
 7. **Manage Voting**: Start voting, call for final vote, eliminate players
@@ -224,7 +224,7 @@ Add these files to `public/sounds/`:
 - **Information**: Dead players' roles are revealed to all
 
 #### **Leave Request System**
-- **Player Request**: Players can request to leave the game
+- **Player Request**: Players can request to leave in both Lobby and Game screens
 - **Host Approval**: Host must approve or deny leave requests
 - **Game Reset**: If non-host players drop below 6, game resets to lobby
 - **Host Removal**: Host can remove any player directly
@@ -354,13 +354,19 @@ Add these files to `public/sounds/`:
 
 Any future pushes to the main branch will automatically trigger new deployments on Vercel!
 
-## 🗄️ Database Schema
+## 🗄️ Database Schema (canonical)
 
 The app uses 5 main tables with Supabase PostgreSQL:
 
 - **games**: Game state, phase, win condition, host information
 - **players**: Player info, roles, alive status, host status
-- **round_state**: Current night actions (wolf target, doctor save, police inspection)
+- **round_state**: Current night actions (canonical columns)
+  - `wolf_target_map` TEXT (CSV pairs wolfId:targetId for current night)
+  - `wolf_target_player_id` UUID (optional convenience, last target)
+  - `doctor_save_player_id` UUID
+  - `police_inspect_player_id` UUID
+  - `police_inspect_result` TEXT
+  - `resolved_death_player_id` TEXT (CSV of ids actually killed at reveal)
 - **votes**: Voting records for each round and phase
 - **leave_requests**: Player leave requests with host approval system
 
@@ -403,10 +409,15 @@ src/
 
 ### 🧪 Testing
 
-- **Quick Tests**: `npm run test:quick` - 21/21 tests passing
+- **Quick Tests**: `npm run test:quick`
 - **Leave Game Tests**: `npm run test:leave-game` - Comprehensive leave system tests
 - **All Tests**: `npm run test:all` - Complete test suite
 - **CI/CD**: `npm run test:ci` - Automated testing pipeline
+#### Recently Added/Updated Tests
+- Integration: `tests/integration/multi-werewolf-reveal.test.js`
+- Integration: `tests/integration/multi-werewolf-edgecases.test.js`
+- Integration: `tests/integration/reconnect-resilience.test.js`
+- UI: Reveal button gating and Action Status visibility
 
 ### 🔧 Key Features Implemented
 
