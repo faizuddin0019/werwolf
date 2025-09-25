@@ -315,19 +315,17 @@ export default function GameLobby({
                   Host Controls
                 </h3>
                 
-                {!rolesAssigned && (
-                  <button
-                    onClick={() => {
-                      console.log('🔧 GameLobby: Assign roles button clicked', { canStartGame, isHost, playerCount, nonHostPlayerCount })
-                      onAssignRoles()
-                    }}
-                    disabled={!canStartGame}
-                    className="w-full py-3 px-4 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:bg-gray-700 disabled:cursor-not-allowed transition-colors flex items-center justify-center space-x-2 font-medium mb-3"
-                  >
-                    <Play className="w-5 h-5" />
-                    <span>Assign Roles & Start</span>
-                  </button>
-                )}
+                <button
+                  onClick={() => {
+                    console.log('🔧 GameLobby: Assign roles button clicked', { canStartGame, isHost, playerCount, nonHostPlayerCount })
+                    onAssignRoles()
+                  }}
+                  disabled={!canStartGame}
+                  className="w-full py-3 px-4 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:bg-gray-700 disabled:cursor-not-allowed transition-colors flex items-center justify-center space-x-2 font-medium mb-3"
+                >
+                  <Play className="w-5 h-5" />
+                  <span>Assign Roles & Start</span>
+                </button>
 
                 {/* Wake Up Werwolf must never appear in Lobby */}
                 

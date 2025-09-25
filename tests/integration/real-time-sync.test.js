@@ -474,6 +474,60 @@ class RealTimeSyncTests {
     console.log('✅ Game ended and cleaned up successfully')
   }
 
+  async testLobbyResetAndAssignRolesAvailability() {
+    console.log('\n🏁 Testing lobby reset and Assign Roles availability...')
+    // Fetch current state
+    let gs = await this.makeRequest(`${BASE_URL}/api/games?code=${this.gameId}`, {
+      headers: { 'Cookie': `clientId=${this.hostClientId}` }
+    })
+    const nonHostCount = gs.players.filter(p => !p.is_host).length
+    // If roles were assigned earlier and count >= 6, assign now to simulate in-game state
+    if (gs.game.phase === 'lobby' && nonHostCount >= 6) {
+      await this.makeRequest(`${BASE_URL}/api/games/${this.gameUuid}/actions`, {
+        method: 'POST',
+        body: JSON.stringify({ action: 'assign_roles', clientId: this.hostClientId })
+      })
+      await this.sleep(400)
+      gs = await this.makeRequest(`${BASE_URL}/api/games?code=${this.gameId}`, { headers: { 'Cookie': `clientId=${this.hostClientId}` } })
+    }
+    // Ensure at least one removal to drop below 6 non-hosts
+    if (gs.players.filter(p => !p.is_host).length >= 6) {
+      const removeTarget = gs.players.find(p => !p.is_host)
+      await this.makeRequest(`${BASE_URL}/api/games/${this.gameUuid}/actions`, {
+        method: 'POST',
+        body: JSON.stringify({ action: 'remove_player', clientId: this.hostClientId, data: { playerId: removeTarget.id } })
+      })
+      await this.sleep(600)
+    }
+    // Verify reset to lobby and roles cleared
+    gs = await this.makeRequest(`${BASE_URL}/api/games?code=${this.gameId}`, {
+      headers: { 'Cookie': `clientId=${this.hostClientId}` }
+    })
+    if (gs.game.phase !== 'lobby') throw new Error('Game should reset to lobby when <6 non-host players')
+    const nonHostPlayers = gs.players.filter(p => !p.is_host)
+    const rolesPresent = nonHostPlayers.some(p => !!p.role)
+    if (rolesPresent) throw new Error('Roles should be cleared in lobby after reset')
+    console.log('✅ Lobby reset and roles cleared')
+    // Join until 6 non-host players
+    let needed = 6 - nonHostPlayers.length
+    while (needed > 0) {
+      const i = 1000 + needed
+      await this.makeRequest(`${BASE_URL}/api/games/join`, {
+        method: 'POST',
+        body: JSON.stringify({ gameId: this.gameId, playerName: `Rejoin${i}`, clientId: `rejoin-${i}-${Date.now()}` })
+      })
+      needed--
+    }
+    await this.sleep(600)
+    // Assign roles should succeed again
+    const assignAgain = await this.makeRequest(`${BASE_URL}/api/games/${this.gameUuid}/actions`, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'assign_roles', clientId: this.hostClientId })
+    })
+    if (!assignAgain.success) throw new Error('Assign roles should be available again after player count restored')
+    console.log('✅ Assign Roles available and works after players reach 6')
+  }
+
   async testMobileUILayout() {
     console.log('📱 Testing mobile UI layout...')
     
@@ -554,6 +608,7 @@ class RealTimeSyncTests {
       await this.runTest('Host Voting Exclusion', () => this.testHostVotingExclusion())
       await this.runTest('Player Management', () => this.testPlayerManagement())
       await this.runTest('Leave Request System', () => this.testLeaveRequestSystem())
+      await this.runTest('Lobby Reset & Assign Roles Availability', () => this.testLobbyResetAndAssignRolesAvailability())
       await this.runTest('Mobile UI Layout', () => this.testMobileUILayout())
       await this.runTest('Host Redirect Prevention', () => this.testHostRedirectPrevention())
       
