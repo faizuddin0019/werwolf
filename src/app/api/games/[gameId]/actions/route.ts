@@ -1486,8 +1486,11 @@ async function handleRemovePlayer(gameId: string, hostPlayer: Player, playerId: 
     .eq('id', playerId)
 
   if (deleteError) {
-    console.error('Error removing player:', deleteError)
-    return NextResponse.json({ error: 'Failed to remove player' }, { status: 500 })
+    // Tolerate race where row already deleted (PGRST116 / 23503 depending on cascade)
+    if ((deleteError as any).code !== 'PGRST116') {
+      console.error('Error removing player:', deleteError)
+      return NextResponse.json({ error: 'Failed to remove player' }, { status: 500 })
+    }
   }
   
   console.log('🔧 Player removed successfully from database:', playerId)

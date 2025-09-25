@@ -380,12 +380,13 @@ export default function GameLobby({
                         <div className="flex items-center space-x-2">
                           <span className="text-gray-400 text-xs">Role:</span>
                           <select
-                            value={player.role || 'villager'}
+                            value={player.role === 'werwolf' ? 'werwolf' : (player.role || 'villager')}
                             onChange={(e) => onChangeRole(player.id, e.target.value)}
                             className="px-2 py-1 bg-gray-700 text-white rounded text-xs border border-gray-600"
                           >
                             <option value="villager">Villager</option>
-                            <option value="werewolf">Werwolf</option>
+                            <option value="werwolf">Werwolf</option>
+                            <option value="werewolf">Werewolf (alias)</option>
                             <option value="doctor">Doctor</option>
                             <option value="police">Police</option>
                           </select>
