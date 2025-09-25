@@ -361,6 +361,31 @@ export default function GameScreen({ onEndGame, onRemovePlayer, onChangeRole }: 
                 <HostControls onEndGame={onEndGame} />
               )}
 
+              {/* Non-host: Request to Leave (available during game too) */}
+              {!isHost && (
+                <div className="bg-slate-800/80 backdrop-blur-sm rounded-lg p-6 border border-slate-600/30 shadow-lg">
+                  <h3 className="text-lg font-semibold text-white mb-4">Leave Request</h3>
+                  <button
+                    onClick={async () => {
+                      if (!game || !currentPlayer) return
+                      try {
+                        const res = await fetch(`/api/games/${game.id}/actions`, {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ action: 'request_leave', clientId: currentPlayer.client_id })
+                        })
+                        if (!res.ok) {
+                          try { const err = await res.json(); alert(err.error || 'Failed to request leave') } catch {}
+                        }
+                      } catch {}
+                    }}
+                    className="w-full py-2 px-4 bg-orange-600 text-white rounded-md hover:bg-orange-700 transition-colors"
+                  >
+                    Request to Leave
+                  </button>
+                </div>
+              )}
+
               {/* Game Status */}
               <div className="bg-slate-800/80 backdrop-blur-sm rounded-lg p-6 border border-slate-600/30 shadow-lg">
                 <h3 className="text-lg font-semibold text-white mb-4">

@@ -1114,16 +1114,31 @@ async function handleLeaveGame(gameId: string, game: Game, currentPlayer: Player
       return NextResponse.json({ error: 'Failed to reset game' }, { status: 500 })
     }
     
-    // Clear any round state and votes (but keep players)
+    // Clear any round state and votes (but keep players) and reset roles
     await supabase!
       .from('round_state')
-      .delete()
+      .update({
+        phase_started: false,
+        wolf_target_map: null,
+        wolf_target_player_id: null,
+        doctor_save_player_id: null,
+        police_inspect_player_id: null,
+        police_inspect_result: null,
+        resolved_death_player_id: null
+      })
       .eq('game_id', gameId)
     
     await supabase!
       .from('votes')
       .delete()
       .eq('game_id', gameId)
+
+    // Reset roles for all non-host players
+    await supabase!
+      .from('players')
+      .update({ role: null })
+      .eq('game_id', gameId)
+      .eq('is_host', false)
     
     // Clear any pending leave requests
     await supabase!

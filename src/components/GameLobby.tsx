@@ -329,16 +329,7 @@ export default function GameLobby({
                   </button>
                 )}
 
-                {rolesAssigned && (
-                  <button
-                    onClick={handleWakeUpWerwolf}
-                    disabled={isPhaseLoading}
-                    className="w-full py-3 px-4 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-700 disabled:cursor-not-allowed transition-colors flex items-center justify-center space-x-2 font-medium mb-3"
-                  >
-                    <Play className="w-5 h-5" />
-                    <span>Wake Up Werwolf</span>
-                  </button>
-                )}
+                {/* Wake Up Werwolf must never appear in Lobby */}
                 
                 <button
                   onClick={onEndGame}
