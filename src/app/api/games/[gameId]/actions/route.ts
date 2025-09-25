@@ -760,14 +760,10 @@ async function handleRevealDead(gameId: string, game: Game) {
     
     console.log('🔧 Dead players determined:', deadPlayerIds)
     
-    // Update round state with resolved death(s) and clear per-night picks
+    // Update round state with resolved death(s); do NOT clear picks here so host can see Action Status
     const { error: updateRoundStateError } = await supabase!
       .from('round_state')
-      .update({ 
-        resolved_death_player_id: deadPlayerIds.join(',') || null,
-        wolf_target_player_id: null,
-        doctor_save_player_id: null
-      })
+      .update({ resolved_death_player_id: deadPlayerIds.join(',') || null })
       .eq('game_id', gameId)
     
     if (updateRoundStateError) {
