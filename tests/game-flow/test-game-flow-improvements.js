@@ -216,6 +216,9 @@ async function testReorderedNightPhases() {
     // Already in night_wolf; host next_phase will start phase/advance after wolf target
     if (gameState.game.phase !== 'night_wolf') throw new Error('Expected night_wolf')
     
+    // Start night_wolf (phase_started=true) before any wolf action
+    await performHostAction(gameUuid, hostClientId, 'next_phase')
+    await sleep(300)
     // Test werewolf action - use players from gameState
     const werewolf = gameState.players.find(p => p.role === 'werewolf' || p.role === 'werwolf')
     assert(werewolf, 'Werewolf player should exist')
@@ -422,6 +425,8 @@ async function testHostButtonLabels() {
     const gamePlayers = gameState.players.filter(p => !p.is_host)
     const werewolf = gamePlayers.find(p => p.role === 'werewolf' || p.role === 'werwolf')
     const target = gamePlayers.find(p => p.role !== 'werewolf')
+    await performHostAction(gameUuid, hostClientId, 'next_phase')
+    await sleep(300)
     await performPlayerAction(gameUuid, werewolf.client_id, 'wolf_select', target.id)
     await performHostAction(gameUuid, hostClientId, 'next_phase')
     await sleep(1000)
@@ -506,6 +511,8 @@ async function testCompleteGameFlow() {
     const gamePlayers = gameState.players.filter(p => !p.is_host)
     const werewolf = gamePlayers.find(p => p.role === 'werewolf' || p.role === 'werwolf')
     const target = gamePlayers.find(p => p.role !== 'werewolf')
+    await performHostAction(gameUuid, hostClientId, 'next_phase')
+    await sleep(300)
     await performPlayerAction(gameUuid, werewolf.client_id, 'wolf_select', target.id)
     await performHostAction(gameUuid, hostClientId, 'next_phase')
     await sleep(1000)
@@ -659,13 +666,15 @@ async function testGamePhaseTransitions() {
     
     // Test phase transitions
     await assignRoles(gameUuid, hostClientId)
-    gameState = await ensureNightWolf(gameId, gameUuid, hostClientId)
+    let gameState = await ensureNightWolf(gameId, gameUuid, hostClientId)
   
   // Ensure a wolf target exists before advancing to doctor
   const gamePlayers2 = gameState.players.filter(p => !p.is_host)
   const ww = gamePlayers2.find(p => p.role === 'werewolf' || p.role === 'werwolf')
   const nonWwTarget = gamePlayers2.find(p => p.id !== ww?.id)
   if (ww && nonWwTarget) {
+    await performHostAction(gameUuid, hostClientId, 'next_phase')
+    await sleep(300)
     await performPlayerAction(gameUuid, ww.client_id, 'wolf_select', nonWwTarget.id)
   }
   
