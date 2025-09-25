@@ -56,9 +56,7 @@ export default function HostControls({ onEndGame }: HostControlsProps) {
     if (isFreshNight || !roundState) return [] as string[]
     const raw = (roundState as any).wolf_target_map
       ? String((roundState as any).wolf_target_map)
-      : (roundState as any).resolved_death_player_id
-        ? String((roundState as any).resolved_death_player_id)
-        : (roundState.wolf_target_player_id ? String(roundState.wolf_target_player_id) : '')
+      : (roundState.wolf_target_player_id ? String(roundState.wolf_target_player_id) : '')
     if (!raw) return [] as string[]
     const parts = raw.split(',').filter(Boolean)
     const targetIds = parts.map(p => (p.includes(':') ? p.split(':')[1] : p)).filter(Boolean)

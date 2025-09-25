@@ -367,6 +367,7 @@ async function handleNextPhase(gameId: string, game: Game, targetPhase?: string)
           phase_started: true,
           // Clear stale previous-night selections
           wolf_target_player_id: null,
+          wolf_target_map: null,
           doctor_save_player_id: null,
           police_inspect_player_id: null,
           police_inspect_result: null,
@@ -548,70 +549,24 @@ async function handleWolfSelect(gameId: string, player: Player, targetId: string
     return NextResponse.json({ error: 'Phase has not been started by the host yet' }, { status: 400 })
   }
   
-  // Multiple wolves: prefer writing to text map column if it exists; keep uuid column as last single target
+  // Canonical path: always write per-wolf selections to text map and keep last UUID target
   const { data: round } = await supabase!
     .from('round_state')
-    .select('*')
+    .select('wolf_target_map')
     .eq('game_id', gameId)
     .single()
-  const hasMap = round && Object.prototype.hasOwnProperty.call(round, 'wolf_target_map')
-  if (hasMap) {
-    const existingMap: string = (round as any).wolf_target_map || ''
-    const parts = existingMap.split(',').filter(Boolean)
-    const filtered = parts.filter((p: string) => !p.startsWith(player.id + ':'))
-    const next = [...filtered, `${player.id}:${targetId}`]
-    const nextEncoded = next.join(',')
-    const { error: updErr } = await supabase!
-      .from('round_state')
-      .update({ wolf_target_map: nextEncoded, wolf_target_player_id: targetId })
-      .eq('game_id', gameId)
-    if (updErr) {
-      console.error('🔧 Werwolf select map update error:', updErr)
-      return NextResponse.json({ error: 'Failed to update werwolf selection' }, { status: 500 })
-    }
-    console.log('🔧 Werwolf select update (map+uuid):', { wolf: player.id, targetId, encoded: nextEncoded })
-  } else {
-    // Legacy schema: keep uuid last target AND track all per-wolf pairs in a text buffer
-    const { data: legacy } = await supabase!
-      .from('round_state')
-      .select('resolved_death_player_id')
-      .eq('game_id', gameId)
-      .single()
-    const buffer = (legacy?.resolved_death_player_id || '') as string
-    const parts = buffer.split(',').filter(Boolean)
-    const filtered = parts.filter((p: string) => !p.startsWith(player.id + ':'))
-    const nextEncoded = [...filtered, `${player.id}:${targetId}`].join(',')
-    let legacyErr: any = null
-    try {
-      const { error: updErr } = await supabase!
-        .from('round_state')
-        .update({ wolf_target_player_id: targetId, resolved_death_player_id: nextEncoded })
-        .eq('game_id', gameId)
-      legacyErr = updErr
-    } catch (e: any) {
-      legacyErr = e
-    }
-    if (legacyErr) {
-      const msg = legacyErr?.message || ''
-      const code = legacyErr?.code || ''
-      // Fallback for schemas where resolved_death_player_id is UUID → avoid 22P02
-      if (code === '22P02' || msg.includes('invalid input syntax for type uuid')) {
-        const { error: fallbackErr } = await supabase!
-          .from('round_state')
-          .update({ wolf_target_player_id: targetId })
-          .eq('game_id', gameId)
-        if (fallbackErr) {
-          console.error('🔧 Werwolf select legacy fallback error:', fallbackErr)
-          return NextResponse.json({ error: 'Failed to update werwolf selection' }, { status: 500 })
-        }
-        console.log('🔧 Werwolf select update (uuid-only fallback, legacy):', { wolf: player.id, targetId })
-      } else {
-        console.error('🔧 Werwolf select legacy update error:', legacyErr)
-        return NextResponse.json({ error: 'Failed to update werwolf selection' }, { status: 500 })
-      }
-    } else {
-      console.log('🔧 Werwolf select update (uuid+buffer legacy):', { wolf: player.id, targetId, buffer: nextEncoded })
-    }
+  const existingMap: string = (round as any)?.wolf_target_map || ''
+  const parts = existingMap.split(',').filter(Boolean)
+  const filtered = parts.filter((p: string) => !p.startsWith(player.id + ':'))
+  const next = [...filtered, `${player.id}:${targetId}`]
+  const nextEncoded = next.join(',')
+  const { error: updErr } = await supabase!
+    .from('round_state')
+    .update({ wolf_target_map: nextEncoded, wolf_target_player_id: targetId })
+    .eq('game_id', gameId)
+  if (updErr) {
+    console.error('🔧 Werwolf select map update error:', updErr)
+    return NextResponse.json({ error: 'Failed to update werwolf selection' }, { status: 500 })
   }
   
   // Don't automatically advance phase - let host control it
@@ -765,12 +720,9 @@ async function handleRevealDead(gameId: string, game: Game) {
     
     // Determine deaths: with multiple wolves, decode selections and apply doctor save to one saved target only
     let deadPlayerIds: string[] = []
-    if (roundState.wolf_target_player_id || (roundState as any).resolved_death_player_id) {
+    if ((roundState as any).wolf_target_map || roundState.wolf_target_player_id) {
       const mapString = ((roundState as any).wolf_target_map as string | undefined)
-      const bufferPairs = ((roundState as any).resolved_death_player_id as string | undefined)
-      const source = mapString && mapString.length > 0
-        ? mapString
-        : (bufferPairs && bufferPairs.length > 0 ? bufferPairs : String(roundState.wolf_target_player_id))
+      const source = mapString && mapString.length > 0 ? mapString : String(roundState.wolf_target_player_id)
       const selections = source.split(',').filter(Boolean)
       // Support both formats: "wolfId:targetId" and legacy "targetId"
       const targets = selections
