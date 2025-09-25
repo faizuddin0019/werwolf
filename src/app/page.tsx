@@ -749,7 +749,7 @@ export default function HomePage() {
         body: JSON.stringify({
           action: 'change_role',
           clientId: currentPlayer.client_id,
-          data: { playerId, newRole }
+          data: { playerId, newRole: (newRole === 'werewolf' ? 'werwolf' : newRole) }
         }),
       })
       

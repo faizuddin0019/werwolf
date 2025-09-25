@@ -1050,16 +1050,17 @@ async function handleChangeRole(gameId: string, hostPlayer: Player, playerId: st
     return NextResponse.json({ error: 'Cannot change host role' }, { status: 400 })
   }
   
-  // Validate role
+  // Validate role (normalize 'werewolf' -> 'werwolf')
   const validRoles = ['villager', 'werwolf', 'werewolf', 'doctor', 'police']
   if (!validRoles.includes(newRole)) {
     return NextResponse.json({ error: 'Invalid role' }, { status: 400 })
   }
+  const normalizedRole = newRole === 'werewolf' ? 'werwolf' : newRole
   
   // Update player role
   const { error: updateError } = await supabase!
     .from('players')
-    .update({ role: newRole })
+    .update({ role: normalizedRole })
     .eq('id', playerId)
   
   if (updateError) {
