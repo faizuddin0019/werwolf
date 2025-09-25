@@ -1546,7 +1546,15 @@ async function handleRemovePlayer(gameId: string, hostPlayer: Player, playerId: 
     // Clear any round state and votes (but keep players)
     await supabase!
       .from('round_state')
-      .delete()
+      .update({
+        phase_started: false,
+        wolf_target_map: null,
+        wolf_target_player_id: null,
+        doctor_save_player_id: null,
+        police_inspect_player_id: null,
+        police_inspect_result: null,
+        resolved_death_player_id: null
+      })
       .eq('game_id', gameId)
     
     await supabase!
@@ -1554,6 +1562,13 @@ async function handleRemovePlayer(gameId: string, hostPlayer: Player, playerId: 
       .delete()
       .eq('game_id', gameId)
     
+    // Reset roles so Assign Roles appears
+    await supabase!
+      .from('players')
+      .update({ role: null })
+      .eq('game_id', gameId)
+      .eq('is_host', false)
+
     // Clear any pending leave requests
     await supabase!
       .from('leave_requests')
