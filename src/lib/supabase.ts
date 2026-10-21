@@ -69,6 +69,7 @@ export interface Player {
 }
 
 export interface RoundState {
+  wolf_target_map?: string | null
   game_id: string
   phase_started: boolean
   wolf_target_player_id: string | null

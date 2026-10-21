@@ -99,7 +99,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key_here
             <ul className="space-y-2 text-sm text-gray-600">
               <li className="flex items-center space-x-2">
                 <Users className="w-4 h-4 text-blue-500" />
-                <span>6-20 players support</span>
+                <span>Host + 6 players minimum, no player cap</span>
               </li>
               <li className="flex items-center space-x-2">
                 <Moon className="w-4 h-4 text-red-500" />

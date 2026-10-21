@@ -41,7 +41,7 @@ export const canStartGameAtom = atom((get) => {
   // Need at least 6 non-host players + 1 host = 7 total players minimum
   const nonHostPlayers = players.filter(p => !p.is_host)
   
-  return isHost && playerName.trim().length > 0 && nonHostPlayers.length >= 6 && players.length <= 21
+  return isHost && playerName.trim().length > 0 && nonHostPlayers.length >= 6
 })
 
 export const gamePhaseAtom = atom((get) => get(gameAtom)?.phase || 'lobby')
@@ -176,6 +176,7 @@ export const setGameDataAtom = atom(null, (get, set, data: {
   const roundStateChanged = !currentRoundState !== !data.roundState ||
     (currentRoundState && data.roundState && 
      (currentRoundState.phase_started !== data.roundState.phase_started ||
+      currentRoundState.wolf_target_map !== data.roundState.wolf_target_map ||
       currentRoundState.wolf_target_player_id !== data.roundState.wolf_target_player_id ||
       currentRoundState.police_inspect_player_id !== data.roundState.police_inspect_player_id ||
       currentRoundState.police_inspect_result !== data.roundState.police_inspect_result ||
@@ -184,12 +185,15 @@ export const setGameDataAtom = atom(null, (get, set, data: {
   const votesChanged = !currentVotes || currentVotes.length !== (data.votes?.length || 0) ||
     (currentVotes && data.votes && currentVotes.some((currentVote, index) => {
       const newVote = data.votes![index]
-      return !newVote || currentVote.id !== newVote.id
+      return !newVote || currentVote.id !== newVote.id ||
+        currentVote.target_player_id !== newVote.target_player_id ||
+        currentVote.phase !== newVote.phase || currentVote.round !== newVote.round
     }))
   const leaveRequestsChanged = !currentLeaveRequests || currentLeaveRequests.length !== (data.leaveRequests?.length || 0) ||
     (currentLeaveRequests && data.leaveRequests && currentLeaveRequests.some((currentRequest, index) => {
       const newRequest = data.leaveRequests![index]
-      return !newRequest || currentRequest.id !== newRequest.id
+      return !newRequest || currentRequest.id !== newRequest.id ||
+        currentRequest.status !== newRequest.status
     }))
   const currentPlayerChanged = !currentPlayer !== !data.currentPlayer ||
     (currentPlayer && data.currentPlayer && 

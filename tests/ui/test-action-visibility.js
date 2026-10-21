@@ -1,4 +1,4 @@
-const BASE_URL = process.env.TEST_BASE_URL || process.env.BASE_URL || 'http://localhost:3000'
+const BASE_URL = process.env.BASE_URL || 'http://localhost:3000'
 
 class ActionVisibilityTest {
   constructor() {
@@ -215,7 +215,7 @@ class ActionVisibilityTest {
     }
 
     console.log('✅ All actions are visible to host:')
-    console.log(`  - Werwolf selected: ${roundState.wolf_target_player_id}`) // may be CSV of wolfId:targetId pairs
+    console.log(`  - Werwolf selected: ${roundState.wolf_target_player_id}`)
     console.log(`  - Doctor saved: ${roundState.doctor_save_player_id}`)
     console.log(`  - Police inspected: ${roundState.police_inspect_player_id}`)
   }

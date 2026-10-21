@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { gameView, playerView } from '@/lib/game-view'
 import { supabase, isSupabaseConfigured } from '@/lib/supabase'
 
 export async function POST(request: NextRequest) {
@@ -29,22 +30,6 @@ export async function POST(request: NextRequest) {
     // Check if game is in lobby phase
     if (game.phase !== 'lobby') {
       return NextResponse.json({ error: 'Game has already started' }, { status: 400 })
-    }
-    
-    // Check player count limits
-    const { data: players, error: playersError } = await supabase!
-      .from('players')
-      .select('id')
-      .eq('game_id', game.id)
-    
-    if (playersError) {
-      console.error('Error checking player count:', playersError)
-      return NextResponse.json({ error: 'Failed to check player count' }, { status: 500 })
-    }
-    
-    const playerCount = players?.length || 0
-    if (playerCount >= 20) {
-      return NextResponse.json({ error: 'Game is full (max 20 players)' }, { status: 400 })
     }
     
     // Check if client already exists in this game
@@ -93,16 +78,16 @@ export async function POST(request: NextRequest) {
       console.error('Error fetching all players:', allPlayersError)
       // Still return success with just the new player if we can't fetch all
       return NextResponse.json({
-        game,
-        player: newPlayer,
-        players: [newPlayer]
+        game: gameView(game, newPlayer),
+        player: playerView(newPlayer, newPlayer),
+        players: [playerView(newPlayer, newPlayer)]
       })
     }
     
     return NextResponse.json({
-      game,
-      player: newPlayer,
-      players: allPlayers
+      game: gameView(game, newPlayer),
+      player: playerView(newPlayer, newPlayer),
+      players: allPlayers.map(player => playerView(player, newPlayer))
     })
     
   } catch (error) {

@@ -26,7 +26,7 @@ A web-based companion app for playing Werwolf remotely while keeping all convers
 - **🚫 Zero typing during play** - Players only click buttons
 - **⚡ Real-time synchronization** - All players see updates instantly
 - **📱 Mobile-friendly** - Works on phones, tablets, and desktops
-- **👥 Host + 6 players (7 total)** - Supports games from 7 to 20 players
+- **👥 Host + 6 players (7 total)** - Requires at least 7 people including the host, with no player cap
 - **🔢 Unique game codes** - 6-digit codes that never repeat within the same day
 - **🎭 Role-based interactions** - Werewolves, Doctor, Police, and Villagers
 - **🎨 Visual feedback** - Color-coded actions and vote counts
@@ -105,13 +105,13 @@ Add these files to `public/sounds/`:
 ### 👥 Player Requirements
 
 - **Minimum Players**: Host + 6 players (7 total)
-- **Maximum Players**: 20 players (1 host + 19 game players)
+- **Maximum Players**: No application-level player cap
 - **Host Role**: Always alive, manages game phases, excluded from win conditions
 - **Game Players**: Participate in gameplay, included in win conditions
 
 ### 🎭 Roles & Abilities
 
-#### **Werewolves** (1-3 players)
+#### **Werewolves** (1-4 players)
 - **Night Action**: Select one player to eliminate each night
 - **Team**: Work together to eliminate villagers
 - **Win Condition**: Outnumber or equal remaining villagers
@@ -200,7 +200,7 @@ Add these files to `public/sounds/`:
 - **Automatic**: Host clicks "Assign Roles" and system randomly assigns
 - **Manual Override**: Host can change any player's role before game starts
 - **Role Distribution**: 
-  - 1-3 Werewolves (based on player count)
+  - 1-4 Werewolves (excluding host: 6–8 players = 1, 9–12 = 2, 13–24 = 3, 25 or more = 4)
   - 1 Doctor
   - 1 Police
   - Remaining players are Villagers
@@ -251,8 +251,8 @@ Add these files to `public/sounds/`:
 
 #### **Game Limitations**
 - **Minimum Players**: Cannot start with fewer than 6 players
-- **Maximum Players**: Cannot exceed 20 players
-- **Role Limits**: Cannot have more than 3 werewolves
+- **Maximum Players**: No application-level player cap
+- **Role Limits**: Automatic assignment caps at 4 werewolves; host role overrides are unrestricted
 - **Action Timing**: Night actions must be completed before advancing phases
 
 ### 🎨 Visual Indicators
@@ -369,6 +369,20 @@ The app uses 5 main tables with Supabase PostgreSQL:
   - `resolved_death_player_id` TEXT (CSV of ids actually killed at reveal)
 - **votes**: Voting records for each round and phase
 - **leave_requests**: Player leave requests with host approval system
+
+### Browser role privacy
+
+Game reads and joins return a filtered player view: only the host receives all roles;
+other players receive their own role. Other players' client IDs, the host's client ID,
+and private night actions are withheld. Browser synchronization polls this filtered API
+about once per second instead of subscribing to raw database rows. Role assignment
+uses a random server-side shuffle so player IDs do not reveal roles.
+
+This protects normal application responses. Direct Supabase access and database
+permissions are unchanged and remain outside this protection.
+
+Run the local response regression checks with
+`node --test tests/security/browser-role-privacy.test.cjs`.
 
 ### 🔄 Real-time Features
 

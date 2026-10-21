@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase, isSupabaseConfigured } from '@/lib/supabase'
+import { playerView, gameView, roundView } from '@/lib/game-view'
 import { generateGameCode, sortPlayers } from '@/lib/game-utils'
 
 export async function POST(request: NextRequest) {
@@ -153,28 +154,11 @@ export async function GET(request: NextRequest) {
     const cookieClientId = request.cookies.get('clientId')?.value
     const clientId = headerClientId || queryClientId || cookieClientId
     const currentPlayer = players?.find(p => p.client_id === clientId)
-    const isHost = currentPlayer?.is_host || false
+    if (!currentPlayer) {
+      return NextResponse.json({ error: 'Player not found' }, { status: 401 })
+    }
+    const filteredPlayers = (players || []).map(player => playerView(player, currentPlayer))
 
-    // Filter roles based on security rules:
-    // - Host can see all roles
-    // - Players can only see their own role
-    // - Other players' roles are hidden (set to null)
-    const filteredPlayers = players?.map(player => {
-      if (isHost) {
-        // Host can see all roles
-        return player
-      } else if (player.client_id === clientId) {
-        // Player can see their own role
-        return player
-      } else {
-        // Hide other players' roles
-        return {
-          ...player,
-          role: null
-        }
-      }
-    }) || []
-    
     // Get round state
     const { data: roundState, error: roundStateError } = await supabase
       .from('round_state')
@@ -215,13 +199,13 @@ export async function GET(request: NextRequest) {
     const sortedPlayers = sortPlayers(filteredPlayers, currentPlayer?.id)
     
     return NextResponse.json({
-      game,
+      game: gameView(game, currentPlayer),
       players: sortedPlayers,
-      currentPlayer,
-      roundState,
+      currentPlayer: playerView(currentPlayer, currentPlayer),
+      roundState: roundView(roundState, currentPlayer),
       votes: votes || [],
-      leaveRequests: leaveRequests || []
-    })
+      leaveRequests: (leaveRequests || []).filter(r => currentPlayer.is_host || r.player_id === currentPlayer.id)
+    }, { headers: { 'Cache-Control': 'private, no-store', 'Vary': 'Cookie, x-client-id' } })
     
   } catch (error) {
     console.error('Error in GET /api/games:', error)

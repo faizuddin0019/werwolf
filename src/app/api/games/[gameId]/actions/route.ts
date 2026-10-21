@@ -1,3 +1,4 @@
+import { randomInt } from 'node:crypto'
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase, Game, Player, isSupabaseConfigured } from '@/lib/supabase'
 import { assignRoles, getNextPhase, checkWinCondition, getWerwolfCount } from '@/lib/game-utils'
@@ -161,19 +162,18 @@ async function handleAssignRoles(gameId: string, game: Game) {
     return NextResponse.json({ error: 'Need at least 6 non-host players to start' }, { status: 400 })
   }
   
-  // Assign roles deterministically by player id order (host excluded)
-  const nonHostSorted = [...nonHostPlayers].sort((a, b) => a.id.localeCompare(b.id))
-  const werCount = getWerwolfCount(nonHostSorted.length)
+  // Shuffle on the server with cryptographic randomness: public IDs must not reveal roles.
+  const shuffled = [...nonHostPlayers]
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = randomInt(i + 1)
+    ;[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
+  }
+  const werCount = getWerwolfCount(shuffled.length)
   const roleById = new Map<string, string>()
-  nonHostSorted.forEach((p, idx) => {
-    let role: string = 'villager'
-    if (idx < werCount) role = 'werwolf'
-    else if (idx === werCount) role = 'doctor'
-    else if (idx === werCount + 1) role = 'police'
-    roleById.set(p.id, role)
+  shuffled.forEach((p, idx) => {
+    roleById.set(p.id, idx < werCount ? 'werwolf' : idx === werCount ? 'doctor' : idx === werCount + 1 ? 'police' : 'villager')
   })
-  console.log('🔧 Roles assigned (by id):', nonHostSorted.map(p => ({ name: p.name, id: p.id, role: roleById.get(p.id) })))
-  
+
   // Update players with roles (only non-host players) using original player ids
   console.log('🔧 Updating player roles in database...')
   const updates = nonHostPlayers.map(p => ({ client_id: p.client_id, role: roleById.get(p.id)! }))

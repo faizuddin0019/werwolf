@@ -88,7 +88,7 @@ export default function GameScreen({ onEndGame, onRemovePlayer, onChangeRole }: 
         }
         
         const response = await fetch(`/api/games?code=${game.code}`, {
-          headers: { 'Cookie': `clientId=${currentPlayer.client_id}` }
+          headers: { 'x-client-id': currentPlayer.client_id }, cache: 'no-store'
         })
         if (response.ok) {
           const data = await response.json()

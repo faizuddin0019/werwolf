@@ -158,6 +158,7 @@ main() {
                 ;;
             "security")
                 echo -e "\n${BLUE}🔒 Running Security Tests${NC}"
+                run_test "Browser Role Privacy Tests" "tests/security/browser-role-privacy.test.cjs" "$TEST_URL"
                 run_test "Role Visibility Security Tests" "tests/security/test-role-visibility.js" "$TEST_URL"
                 run_test "Phase Timing Security Tests" "tests/security/test-phase-timing-security.js" "$TEST_URL"
                 run_test "Multiple Actions Prevention Tests" "tests/security/test-multiple-actions-prevention.js" "$TEST_URL"
@@ -183,6 +184,7 @@ main() {
                 run_test "Player Ordering Tests" "tests/core/test-player-ordering.js" "$TEST_URL"
                 
                 echo -e "\n${BLUE}🔒 Running Security Tests${NC}"
+                run_test "Browser Role Privacy Tests" "tests/security/browser-role-privacy.test.cjs" "$TEST_URL"
                 run_test "Role Visibility Security Tests" "tests/security/test-role-visibility.js" "$TEST_URL"
                 run_test "Phase Timing Security Tests" "tests/security/test-phase-timing-security.js" "$TEST_URL"
                 run_test "Multiple Actions Prevention Tests" "tests/security/test-multiple-actions-prevention.js" "$TEST_URL"

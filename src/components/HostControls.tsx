@@ -107,7 +107,7 @@ export default function HostControls({ onEndGame }: HostControlsProps) {
           console.log('🔧 Role assignment successful - refreshing state')
           setTimeout(async () => {
             try {
-              const res = await fetch(`/api/games?code=${gameId}`)
+              const res = await fetch(`/api/games?code=${gameId}`, { headers: { 'x-client-id': currentPlayer.client_id }, cache: 'no-store' })
               if (res.ok) {
                 const data = await res.json()
                 console.log('🔧 Refetched - players with roles:', data.players.filter((p: { role: string | null }) => p.role).length)
@@ -120,7 +120,7 @@ export default function HostControls({ onEndGame }: HostControlsProps) {
         } else if (['reveal_dead','begin_voting','final_vote','eliminate_player','next_phase'].includes(action)) {
           setTimeout(async () => {
             try {
-              const res = await fetch(`/api/games?code=${gameId}`)
+              const res = await fetch(`/api/games?code=${gameId}`, { headers: { 'x-client-id': currentPlayer.client_id }, cache: 'no-store' })
               if (res.ok) {
                 const data = await res.json()
                 setGameData(data)

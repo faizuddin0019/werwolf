@@ -14,7 +14,7 @@ import {
   hasPendingLeaveRequestAtom
 } from '@/lib/game-store'
 import { Crown, Users, Play, Sun, RotateCcw, LogOut } from 'lucide-react'
-import { sortPlayers } from '@/lib/game-utils'
+import { sortPlayers, getWerwolfCount } from '@/lib/game-utils'
 
 interface GameLobbyProps {
   onAssignRoles: () => void
@@ -258,7 +258,7 @@ export default function GameLobby({
               <div className="flex items-center space-x-2">
                 <Users className="w-5 h-5 text-blue-400" />
                 <span className="text-sm font-medium text-gray-300">
-                  {playerCount} / 20 players
+                  {playerCount} people
                 </span>
               </div>
             </div>
@@ -288,14 +288,14 @@ export default function GameLobby({
                 <div className="flex justify-between">
                   <span className="text-sm text-gray-400">Players:</span>
                   <span className="text-sm font-medium text-white">
-                    {playerCount} / 20
+                    {playerCount}
                   </span>
                 </div>
                 
                 <div className="flex justify-between">
                   <span className="text-sm text-gray-400">Werwolves:</span>
                   <span className="text-sm font-medium text-red-400">
-                    {playerCount <= 8 ? 1 : playerCount <= 12 ? 2 : 3}
+                    {getWerwolfCount(nonHostPlayerCount)}
                   </span>
                 </div>
                 

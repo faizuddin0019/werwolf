@@ -9,7 +9,8 @@ export function generateGameCode(): string {
 export function getWerwolfCount(playerCount: number): number {
   if (playerCount <= 8) return 1
   if (playerCount <= 12) return 2
-  return 3
+  if (playerCount < 25) return 3
+  return 4
 }
 
 // Assign roles to players (excluding host)
@@ -147,11 +148,15 @@ export function canPlayerAct(
 ): boolean {
   if (!player.alive) return false
   
-  // For night phases, require the host to start the phase
+  // For night phases, check if the phase has been started by the host
   const isNightPhase = ['night_wolf', 'night_police', 'night_doctor'].includes(phase)
   if (isNightPhase && (!roundState || roundState.phase_started === false)) {
+    // Allow werewolf UI to render immediately on night_wolf so they can pick a target
+    if (phase === 'night_wolf' && (player.role === 'werwolf' || player.role === 'werewolf')) {
+      return true
+    }
     console.log('🔧 canPlayerAct: Phase not started yet', { player: player.name, phase, roundState })
-    return false
+    return false // Phase not started yet
   }
   
   console.log('🔧 canPlayerAct Debug:', {
